@@ -7,6 +7,33 @@ const topCasinos = casinos.slice(0, 5);
 ---
 
 <LandingLayout title="MelchiorBonus — Bonus Exclusifs Casino en Ligne 2026">
+  <!-- Scrolling Offers Banner -->
+  <div class="overflow-hidden bg-primary/5 border-b border-bg-border py-2">
+    <div class="marquee-track flex items-center gap-8 whitespace-nowrap">
+      {[...topCasinos, ...topCasinos].map((c) => (
+        <a href={c.affiliateUrl} target="_blank" rel="nofollow noopener" class="inline-flex items-center gap-2 text-sm font-bold text-gray-400 hover:text-white transition-colors flex-shrink-0">
+          <span class="text-accent-green">🎁</span>
+          <span>{c.name}</span>
+          <span class="text-primary-light">—</span>
+          <span class="text-accent-green">{c.bonusAmount.replace(/\*/g, '')}</span>
+        </a>
+      ))}
+    </div>
+  </div>
+
+  <style>
+    .marquee-track {
+      animation: marquee 25s linear infinite;
+    }
+    .marquee-track:hover {
+      animation-play-state: paused;
+    }
+    @keyframes marquee {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+  </style>
+
   <!-- Melchior Profile -->
   <div class="text-center pt-8 pb-4">
     <div class="mt-4 flex flex-col items-center gap-3">
