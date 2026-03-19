@@ -58,19 +58,28 @@ const offertAmount = offertMatch ? offertMatch[1] : null;
       {offertAmount ? (
         <>
           <p class:list={["font-black uppercase tracking-wider", rank === 1 ? "text-yellow-400 text-3xl" : "text-accent-green text-2xl"]}>
-            {offertAmount} OFFERTS
+            {offertAmount} OFFERTS*
           </p>
           <p class="text-gray-400 text-xs font-bold mt-1 uppercase tracking-wide">
-            + Wager {casino.wager}
+            + {casino.bonusAmount.replace(/\d+€\s*(offert|gratuit)\s*\+?\s*/i, '').trim() || casino.bonusAmount}
+          </p>
+          <p class:list={["text-xs font-bold mt-1 uppercase tracking-wide", casino.wager.includes("FREE") ? "text-accent-green" : "text-gold"]}>
+            Wager {casino.wager}
           </p>
         </>
       ) : (
-        <p class:list={["font-black uppercase tracking-wider", rank === 1 ? "text-yellow-400 text-2xl" : "text-accent-green text-xl"]}>
-          {casino.bonusAmount}
-        </p>
+        <>
+          <p class:list={["font-black uppercase tracking-wider", rank === 1 ? "text-yellow-400 text-2xl" : "text-accent-green text-xl"]}>
+            {casino.bonusAmount}
+          </p>
+          <p class:list={["text-xs font-bold mt-1 uppercase tracking-wide", casino.wager.includes("FREE") ? "text-accent-green" : "text-gold"]}>
+            Wager {casino.wager}
+          </p>
+        </>
       )}
       <p class="text-gray-400 text-xs mt-2">{casino.bonusDescription.replace(/—.*/, '').trim()}</p>
     </div>
+    <p class="text-gray-600 text-[9px] mt-1 text-center">*Sous dépôt minimum de {casino.slug === 'betify' ? '30€' : '25€'}</p>
   </div>
 
   <!-- Payment Methods + Tags -->
