@@ -58,9 +58,9 @@ const offertAmount = offertMatch ? offertMatch[1] : null;
       <p class:list={["font-black uppercase tracking-wider text-2xl", rank === 1 ? "text-yellow-400" : "text-accent-green"]}>
         {offertAmount ? offertAmount + ' OFFERTS*' : casino.bonusAmount}
       </p>
-      <p class="text-gray-400 text-xs mt-2">{casino.bonusDescription.replace(/—.*/, '').trim()}</p>
+      <p class="text-gray-300 text-xs mt-2" set:html={casino.bonusDescription.replace(/—.*/, '').trim().replace(/(\d+%)/g, '<strong class="text-gold font-extrabold">$1</strong>').replace(/(\d+\s*€)/g, '<strong class="text-gold font-extrabold">$1</strong>').replace(/(Free Spins|FS)/gi, '<strong class="text-gold font-extrabold">$1</strong>')} />
       <p class:list={["text-xs font-bold mt-2 uppercase tracking-wide", casino.wager.includes("FREE") ? "text-accent-green" : "text-gold"]}>
-        Wager {casino.wager}
+        {casino.wager.includes("FREE") ? '✅ WAGER FREE — Aucun wager !' : '⚡ Wager ' + casino.wager}
       </p>
     </div>
     <p class="text-gray-600 text-[9px] mt-1 text-center">*Sous dépôt minimum de {casino.slug === 'betify' ? '30€' : '25€'}</p>
