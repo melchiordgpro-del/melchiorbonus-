@@ -1,0 +1,402 @@
+---
+import Layout from '../layouts/Layout.astro';
+import AuthGate from '../components/AuthGate.astro';
+import { casinos } from '../data/casinos';
+---
+
+<Layout title="Boutique — Gagne des points et échange-les | MelchiorBonus" description="Complete des tâches, gagne des MelchiorCoins et échange-les contre des récompenses exclusives.">
+  <AuthGate>
+  <section class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="flex items-center justify-between mb-8">
+      <div>
+        <h1 class="text-3xl font-extrabold text-white flex items-center gap-2">⭐ Boutique</h1>
+        <p class="text-gray-400 text-sm mt-1">Complete des tâches, gagne des MelchiorCoins et échange-les !</p>
+      </div>
+      <div class="bg-bg-card border border-bg-border rounded-xl px-5 py-3 text-center">
+        <p class="text-gray-500 text-[10px] uppercase tracking-wider">Tes MelchiorCoins</p>
+        <p class="text-gold font-extrabold text-2xl flex items-center gap-1" id="total-coins">⭐ 0</p>
+      </div>
+    </div>
+
+    <!-- Roue Journalière -->
+    <div class="mb-10 bg-bg-card border border-bg-border rounded-2xl p-6">
+      <h2 class="text-xl font-extrabold text-white mb-4 flex items-center gap-2">🎡 Roue journalière</h2>
+      <div class="flex flex-col sm:flex-row items-center gap-6">
+        <div class="relative">
+          <canvas id="wheel-canvas" width="280" height="280" class="rounded-full"></canvas>
+          <!-- Center pointer -->
+          <div class="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1 w-0 h-0 border-l-[12px] border-r-[12px] border-t-[20px] border-l-transparent border-r-transparent border-t-gold z-10"></div>
+        </div>
+        <div class="text-center sm:text-left flex-1">
+          <p class="text-gray-400 text-sm mb-4">Tourne la roue une fois par jour pour gagner des MelchiorCoins gratuits !</p>
+          <button id="btn-spin-wheel" class="btn-glow bg-gold hover:bg-gold/80 text-black font-bold px-8 py-3.5 rounded-xl transition-all text-sm uppercase tracking-wider">
+            🎡 Tourner la roue !
+          </button>
+          <div id="spin-result" class="mt-3 text-gold font-extrabold text-xl hidden"></div>
+          <p id="spin-cooldown" class="mt-2 text-gray-500 text-xs hidden">Reviens demain pour tourner à nouveau !</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tâches quotidiennes -->
+    <div class="mb-10">
+      <h2 class="text-xl font-extrabold text-white mb-4 flex items-center gap-2">📋 Tâches quotidiennes</h2>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4" id="tasks-daily">
+        <div class="task-card bg-bg-card border border-bg-border rounded-xl p-5 flex items-center gap-4 hover:border-primary/30 transition-all" data-task="daily-login" data-coins="10">
+          <div class="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center text-xl flex-shrink-0">🔑</div>
+          <div class="flex-1">
+            <p class="text-white font-bold text-sm">Connexion quotidienne</p>
+            <p class="text-gray-500 text-xs">Connecte-toi chaque jour</p>
+          </div>
+          <div class="text-right flex-shrink-0">
+            <p class="text-gold font-bold text-sm">+10 ⭐</p>
+            <button class="task-btn bg-accent-green hover:bg-accent-green/80 text-white font-bold text-xs px-4 py-1.5 rounded-lg mt-1 transition-all">Réclamer</button>
+          </div>
+        </div>
+
+        <div class="task-card bg-bg-card border border-bg-border rounded-xl p-5 flex items-center gap-4 hover:border-primary/30 transition-all" data-task="daily-play" data-coins="20">
+          <div class="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center text-xl flex-shrink-0">🎰</div>
+          <div class="flex-1">
+            <p class="text-white font-bold text-sm">Jouer à un jeu</p>
+            <p class="text-gray-500 text-xs">Joue au Blackjack, Roulette ou Plinko</p>
+          </div>
+          <div class="text-right flex-shrink-0">
+            <p class="text-gold font-bold text-sm">+20 ⭐</p>
+            <button class="task-btn bg-accent-green hover:bg-accent-green/80 text-white font-bold text-xs px-4 py-1.5 rounded-lg mt-1 transition-all">Réclamer</button>
+          </div>
+        </div>
+
+        <div class="task-card bg-bg-card border border-bg-border rounded-xl p-5 flex items-center gap-4 hover:border-primary/30 transition-all" data-task="daily-slot" data-coins="15">
+          <div class="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center text-xl flex-shrink-0">🎮</div>
+          <div class="flex-1">
+            <p class="text-white font-bold text-sm">Essayer une slot en démo</p>
+            <p class="text-gray-500 text-xs">Joue à n'importe quelle slot en mode démo</p>
+          </div>
+          <div class="text-right flex-shrink-0">
+            <p class="text-gold font-bold text-sm">+15 ⭐</p>
+            <button class="task-btn bg-accent-green hover:bg-accent-green/80 text-white font-bold text-xs px-4 py-1.5 rounded-lg mt-1 transition-all">Réclamer</button>
+          </div>
+        </div>
+
+        <div class="task-card bg-bg-card border border-bg-border rounded-xl p-5 flex items-center gap-4 hover:border-primary/30 transition-all" data-task="daily-visit" data-coins="5">
+          <div class="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center text-xl flex-shrink-0">👀</div>
+          <div class="flex-1">
+            <p class="text-white font-bold text-sm">Visiter la page Bonus</p>
+            <p class="text-gray-500 text-xs">Consulte les offres de bonus</p>
+          </div>
+          <div class="text-right flex-shrink-0">
+            <p class="text-gold font-bold text-sm">+5 ⭐</p>
+            <button class="task-btn bg-accent-green hover:bg-accent-green/80 text-white font-bold text-xs px-4 py-1.5 rounded-lg mt-1 transition-all">Réclamer</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tâches spéciales -->
+    <div class="mb-10">
+      <h2 class="text-xl font-extrabold text-white mb-4 flex items-center gap-2">🏆 Tâches spéciales</h2>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4" id="tasks-special">
+        <div class="task-card bg-bg-card border border-bg-border rounded-xl p-5 flex items-center gap-4 hover:border-primary/30 transition-all" data-task="special-discord" data-coins="50">
+          <div class="w-12 h-12 bg-[#5865F2]/10 rounded-xl flex items-center justify-center text-xl flex-shrink-0">💬</div>
+          <div class="flex-1">
+            <p class="text-white font-bold text-sm">Rejoindre le Discord</p>
+            <p class="text-gray-500 text-xs">Rejoins la communauté MelchiorCorp</p>
+          </div>
+          <div class="text-right flex-shrink-0">
+            <p class="text-gold font-bold text-sm">+50 ⭐</p>
+            <a href="https://discord.com/invite/mK6anBbYdM" target="_blank" rel="noopener" class="task-btn bg-[#5865F2] hover:bg-[#4752C4] text-white font-bold text-xs px-4 py-1.5 rounded-lg mt-1 transition-all inline-block">Rejoindre</a>
+          </div>
+        </div>
+
+        <div class="task-card bg-bg-card border border-bg-border rounded-xl p-5 flex items-center gap-4 hover:border-primary/30 transition-all" data-task="special-signup-casino" data-coins="100">
+          <div class="w-12 h-12 bg-accent-green/10 rounded-xl flex items-center justify-center text-xl flex-shrink-0">🎁</div>
+          <div class="flex-1">
+            <p class="text-white font-bold text-sm">S'inscrire sur un casino partenaire</p>
+            <p class="text-gray-500 text-xs">Crée un compte via un de nos liens</p>
+          </div>
+          <div class="text-right flex-shrink-0">
+            <p class="text-gold font-bold text-sm">+100 ⭐</p>
+            <button class="task-btn bg-accent-green hover:bg-accent-green/80 text-white font-bold text-xs px-4 py-1.5 rounded-lg mt-1 transition-all">Réclamer</button>
+          </div>
+        </div>
+
+        <div class="task-card bg-bg-card border border-bg-border rounded-xl p-5 flex items-center gap-4 hover:border-primary/30 transition-all" data-task="special-share" data-coins="30">
+          <div class="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center text-xl flex-shrink-0">📤</div>
+          <div class="flex-1">
+            <p class="text-white font-bold text-sm">Partager le site</p>
+            <p class="text-gray-500 text-xs">Partage MelchiorBonus avec un ami</p>
+          </div>
+          <div class="text-right flex-shrink-0">
+            <p class="text-gold font-bold text-sm">+30 ⭐</p>
+            <button class="task-btn bg-primary hover:bg-primary-light text-white font-bold text-xs px-4 py-1.5 rounded-lg mt-1 transition-all">Partager</button>
+          </div>
+        </div>
+
+        <div class="task-card bg-bg-card border border-bg-border rounded-xl p-5 flex items-center gap-4 hover:border-primary/30 transition-all" data-task="special-win5" data-coins="75">
+          <div class="w-12 h-12 bg-gold/10 rounded-xl flex items-center justify-center text-xl flex-shrink-0">🏅</div>
+          <div class="flex-1">
+            <p class="text-white font-bold text-sm">Gagner 5 mains au Blackjack</p>
+            <p class="text-gray-500 text-xs">Gagne 5 parties de Blackjack virtuel</p>
+          </div>
+          <div class="text-right flex-shrink-0">
+            <p class="text-gold font-bold text-sm">+75 ⭐</p>
+            <button class="task-btn bg-accent-green hover:bg-accent-green/80 text-white font-bold text-xs px-4 py-1.5 rounded-lg mt-1 transition-all">Réclamer</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Récompenses -->
+    <div>
+      <h2 class="text-xl font-extrabold text-white mb-4 flex items-center gap-2">🎁 Récompenses</h2>
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div class="bg-bg-card border border-bg-border rounded-xl p-5 text-center hover:border-gold/30 transition-all">
+          <span class="text-4xl block mb-3">🎰</span>
+          <p class="text-white font-bold mb-1">500 Free Spins virtuels</p>
+          <p class="text-gold font-bold text-sm mb-3">50 ⭐</p>
+          <button class="reward-btn bg-gold hover:bg-gold/80 text-black font-bold text-xs px-6 py-2 rounded-lg transition-all" data-cost="50">Échanger</button>
+        </div>
+
+        <div class="bg-bg-card border border-bg-border rounded-xl p-5 text-center hover:border-gold/30 transition-all">
+          <span class="text-4xl block mb-3">💎</span>
+          <p class="text-white font-bold mb-1">Badge VIP sur Discord</p>
+          <p class="text-gold font-bold text-sm mb-3">200 ⭐</p>
+          <button class="reward-btn bg-gold hover:bg-gold/80 text-black font-bold text-xs px-6 py-2 rounded-lg transition-all" data-cost="200">Échanger</button>
+        </div>
+
+        <div class="bg-bg-card border border-bg-border rounded-xl p-5 text-center hover:border-gold/30 transition-all">
+          <span class="text-4xl block mb-3">🏆</span>
+          <p class="text-white font-bold mb-1">Bonus exclusif 25€</p>
+          <p class="text-gold font-bold text-sm mb-3">500 ⭐</p>
+          <button class="reward-btn bg-gold hover:bg-gold/80 text-black font-bold text-xs px-6 py-2 rounded-lg transition-all" data-cost="500">Échanger</button>
+        </div>
+      </div>
+    </div>
+  </section>
+  </AuthGate>
+
+  <script is:inline>
+    // ========== WHEEL ==========
+    var wheelSegments = [
+      { label: '5', value: 5, color: '#6366f1' },
+      { label: '10', value: 10, color: '#22c55e' },
+      { label: '25', value: 25, color: '#f59e0b' },
+      { label: '5', value: 5, color: '#8b5cf6' },
+      { label: '50', value: 50, color: '#ef4444' },
+      { label: '10', value: 10, color: '#3b82f6' },
+      { label: '100', value: 100, color: '#f5b83d' },
+      { label: '5', value: 5, color: '#06b6d4' },
+      { label: '15', value: 15, color: '#10b981' },
+      { label: '200', value: 200, color: '#ec4899' },
+      { label: '10', value: 10, color: '#7c3aed' },
+      { label: '20', value: 20, color: '#14b8a6' },
+    ];
+    var wheelCanvas = document.getElementById('wheel-canvas');
+    var wheelCtx = wheelCanvas ? wheelCanvas.getContext('2d') : null;
+    var wheelAngle = 0;
+    var wheelSpinning = false;
+
+    function drawWheel(angle) {
+      if (!wheelCtx) return;
+      var cx = 140, cy = 140, r = 130;
+      var total = wheelSegments.length;
+      var arc = (Math.PI * 2) / total;
+      wheelCtx.clearRect(0, 0, 280, 280);
+
+      for (var i = 0; i < total; i++) {
+        var startAngle = angle + i * arc;
+        wheelCtx.beginPath();
+        wheelCtx.moveTo(cx, cy);
+        wheelCtx.arc(cx, cy, r, startAngle, startAngle + arc);
+        wheelCtx.closePath();
+        wheelCtx.fillStyle = wheelSegments[i].color;
+        wheelCtx.fill();
+        wheelCtx.strokeStyle = 'rgba(0,0,0,0.3)';
+        wheelCtx.lineWidth = 2;
+        wheelCtx.stroke();
+
+        // Text
+        wheelCtx.save();
+        wheelCtx.translate(cx, cy);
+        wheelCtx.rotate(startAngle + arc / 2);
+        wheelCtx.fillStyle = '#fff';
+        wheelCtx.font = 'bold 16px Inter, sans-serif';
+        wheelCtx.textAlign = 'center';
+        wheelCtx.fillText(wheelSegments[i].label + '⭐', r * 0.65, 5);
+        wheelCtx.restore();
+      }
+
+      // Center circle
+      wheelCtx.beginPath();
+      wheelCtx.arc(cx, cy, 25, 0, Math.PI * 2);
+      wheelCtx.fillStyle = '#1a1838';
+      wheelCtx.fill();
+      wheelCtx.strokeStyle = '#f5b83d';
+      wheelCtx.lineWidth = 3;
+      wheelCtx.stroke();
+      wheelCtx.fillStyle = '#f5b83d';
+      wheelCtx.font = 'bold 12px Inter, sans-serif';
+      wheelCtx.textAlign = 'center';
+      wheelCtx.fillText('SPIN', cx, cy + 4);
+    }
+
+    drawWheel(0);
+
+    // Check cooldown
+    var lastSpin = localStorage.getItem('melchior_last_spin');
+    var today = new Date().toDateString();
+    if (lastSpin === today) {
+      var spinBtn = document.getElementById('btn-spin-wheel');
+      if (spinBtn) { spinBtn.disabled = true; spinBtn.textContent = 'Déjà tourné aujourd\'hui'; spinBtn.className = 'bg-gray-600 text-gray-400 font-bold px-8 py-3.5 rounded-xl cursor-not-allowed text-sm uppercase tracking-wider'; }
+      document.getElementById('spin-cooldown').classList.remove('hidden');
+    }
+
+    if (document.getElementById('btn-spin-wheel')) {
+      document.getElementById('btn-spin-wheel').addEventListener('click', function() {
+        if (wheelSpinning || lastSpin === today) return;
+        wheelSpinning = true;
+
+        // Pick random result
+        var winIndex = Math.floor(Math.random() * wheelSegments.length);
+        var totalArc = (Math.PI * 2) / wheelSegments.length;
+        // Spin to land on winIndex (pointer is at top = -PI/2)
+        var targetAngle = -(winIndex * totalArc + totalArc / 2) - Math.PI / 2;
+        var spins = 5 + Math.random() * 3; // 5-8 full rotations
+        var finalAngle = targetAngle + spins * Math.PI * 2;
+
+        var startTime = null;
+        var duration = 4000; // 4 seconds
+
+        function animateSpin(timestamp) {
+          if (!startTime) startTime = timestamp;
+          var progress = Math.min((timestamp - startTime) / duration, 1);
+          // Ease out cubic
+          var eased = 1 - Math.pow(1 - progress, 3);
+          wheelAngle = eased * finalAngle;
+          drawWheel(wheelAngle);
+
+          if (progress < 1) {
+            requestAnimationFrame(animateSpin);
+          } else {
+            // Done!
+            wheelSpinning = false;
+            var won = wheelSegments[winIndex].value;
+            coins += won;
+            updateCoins();
+            localStorage.setItem('melchior_last_spin', today);
+            lastSpin = today;
+
+            document.getElementById('spin-result').textContent = '🎉 Tu gagnes ' + won + ' ⭐ !';
+            document.getElementById('spin-result').classList.remove('hidden');
+            document.getElementById('spin-cooldown').classList.remove('hidden');
+
+            var spinBtn = document.getElementById('btn-spin-wheel');
+            spinBtn.disabled = true;
+            spinBtn.textContent = 'Déjà tourné aujourd\'hui';
+            spinBtn.className = 'bg-gray-600 text-gray-400 font-bold px-8 py-3.5 rounded-xl cursor-not-allowed text-sm uppercase tracking-wider';
+
+            // Flash animation
+            var flash = document.createElement('div');
+            flash.textContent = '+' + won + ' ⭐';
+            flash.className = 'fixed top-20 right-10 text-gold font-extrabold text-3xl z-50 animate-bounce';
+            document.body.appendChild(flash);
+            setTimeout(function() { flash.remove(); }, 2000);
+          }
+        }
+        requestAnimationFrame(animateSpin);
+      });
+    }
+
+    // ========== COINS & TASKS ==========
+    var coins = parseInt(localStorage.getItem('melchior_coins') || '0');
+    var completedTasks = JSON.parse(localStorage.getItem('melchior_tasks') || '{}');
+
+    function updateCoins() {
+      document.getElementById('total-coins').textContent = '⭐ ' + coins;
+      localStorage.setItem('melchior_coins', coins.toString());
+    }
+
+    function markTaskDone(taskId) {
+      completedTasks[taskId] = true;
+      localStorage.setItem('melchior_tasks', JSON.stringify(completedTasks));
+    }
+
+    // Init: mark completed tasks
+    document.querySelectorAll('.task-card').forEach(function(card) {
+      var taskId = card.dataset.task;
+      if (completedTasks[taskId]) {
+        var btn = card.querySelector('.task-btn');
+        if (btn) { btn.textContent = '✓ Fait'; btn.disabled = true; btn.className = 'bg-gray-600 text-gray-400 font-bold text-xs px-4 py-1.5 rounded-lg mt-1 cursor-not-allowed'; }
+        card.classList.add('opacity-60');
+      }
+    });
+
+    // Task buttons
+    document.querySelectorAll('.task-card .task-btn').forEach(function(btn) {
+      btn.addEventListener('click', function(e) {
+        var card = btn.closest('.task-card');
+        if (!card) return;
+        var taskId = card.dataset.task;
+        var taskCoins = parseInt(card.dataset.coins || '0');
+        if (completedTasks[taskId]) return;
+
+        // Special: share task
+        if (taskId === 'special-share') {
+          if (navigator.share) {
+            navigator.share({ title: 'MelchiorBonus', text: 'Découvre les meilleurs casinos en ligne !', url: window.location.origin });
+          } else {
+            navigator.clipboard.writeText(window.location.origin);
+            alert('Lien copié !');
+          }
+        }
+
+        coins += taskCoins;
+        markTaskDone(taskId);
+        updateCoins();
+        btn.textContent = '✓ Fait';
+        btn.disabled = true;
+        btn.className = 'bg-gray-600 text-gray-400 font-bold text-xs px-4 py-1.5 rounded-lg mt-1 cursor-not-allowed';
+        card.classList.add('opacity-60');
+
+        // Animation
+        var flash = document.createElement('div');
+        flash.textContent = '+' + taskCoins + ' ⭐';
+        flash.className = 'fixed top-20 right-10 text-gold font-extrabold text-2xl z-50 animate-bounce';
+        document.body.appendChild(flash);
+        setTimeout(function() { flash.remove(); }, 1500);
+      });
+    });
+
+    // Reward buttons
+    document.querySelectorAll('.reward-btn').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        var cost = parseInt(btn.dataset.cost || '0');
+        if (coins < cost) {
+          alert('Pas assez de MelchiorCoins ! Tu as ' + coins + ' ⭐ et il en faut ' + cost + '.');
+          return;
+        }
+        coins -= cost;
+        updateCoins();
+        btn.textContent = '✓ Échangé';
+        btn.disabled = true;
+        btn.className = 'bg-gray-600 text-gray-400 font-bold text-xs px-6 py-2 rounded-lg cursor-not-allowed';
+        alert('Récompense débloquée ! Contacte-nous sur Discord pour la récupérer.');
+      });
+    });
+
+    // Auto-claim daily login
+    if (!completedTasks['daily-login']) {
+      coins += 10;
+      markTaskDone('daily-login');
+      updateCoins();
+      var loginCard = document.querySelector('[data-task="daily-login"]');
+      if (loginCard) {
+        var btn = loginCard.querySelector('.task-btn');
+        if (btn) { btn.textContent = '✓ Fait'; btn.disabled = true; btn.className = 'bg-gray-600 text-gray-400 font-bold text-xs px-4 py-1.5 rounded-lg mt-1 cursor-not-allowed'; }
+        loginCard.classList.add('opacity-60');
+      }
+    }
+
+    updateCoins();
+  </script>
+</Layout>

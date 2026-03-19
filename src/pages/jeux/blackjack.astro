@@ -1,129 +1,118 @@
 ---
 import Layout from '../../layouts/Layout.astro';
+import AuthGate from '../../components/AuthGate.astro';
 ---
 
 <Layout title="Blackjack Américain — Table Virtuelle | MelchiorBonus" description="Joue au Blackjack Américain sur une table virtuelle. Règles classiques, double down, split, insurance.">
-  <section class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-    <div class="text-center mb-6">
-      <h1 class="text-3xl font-extrabold text-white mb-1">🃏 Blackjack Américain</h1>
-      <p class="text-gray-400 text-sm">Blackjack pays 3 to 2 · Dealer stands on 17 · Double Down & Split</p>
-    </div>
+  <AuthGate>
+  <section class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+    <h1 class="text-2xl font-extrabold text-white mb-4 flex items-center gap-2">🃏 Blackjack Américain</h1>
 
-    <!-- Game Table -->
-    <div id="table" class="relative rounded-3xl overflow-hidden shadow-2xl" style="background: radial-gradient(ellipse at 50% 40%, #1a6b3c, #145a30 50%, #0d4422 100%); border: 8px solid #3d2411; box-shadow: inset 0 0 60px rgba(0,0,0,0.3);">
-      <!-- Table felt markings -->
-      <div class="absolute inset-0 opacity-10" style="background-image: repeating-linear-gradient(45deg, transparent, transparent 35px, rgba(255,255,255,0.03) 35px, rgba(255,255,255,0.03) 70px);"></div>
-
-      <div class="relative p-6 sm:p-8 min-h-[520px] flex flex-col">
-        <!-- Table Text -->
-        <div class="text-center mb-2">
-          <p class="text-white/20 text-xs uppercase tracking-[0.3em] font-bold">Blackjack pays 3 to 2</p>
-          <p class="text-white/15 text-[10px] uppercase tracking-[0.2em]">Dealer must stand on 17 and draw to 16</p>
-        </div>
-
-        <!-- Dealer Area -->
-        <div class="text-center mb-6">
-          <p class="text-white/40 text-xs uppercase tracking-wider mb-3 font-medium">Croupier</p>
-          <div id="dealer-cards" class="flex items-center justify-center gap-2 min-h-[110px] mb-2"></div>
-          <div id="dealer-score-badge" class="inline-block bg-black/40 backdrop-blur-sm text-white font-bold text-sm px-3 py-1 rounded-full hidden">
-            <span id="dealer-score">0</span>
-          </div>
-        </div>
-
-        <!-- Center: Bet Zone (drop target) + Result -->
-        <div class="flex flex-col items-center my-4">
-          <div id="bet-zone" class="w-32 h-32 rounded-full border-2 border-dashed border-white/20 flex flex-col items-center justify-center cursor-pointer transition-all hover:border-gold/50 hover:bg-white/5 mb-2" ondragover="event.preventDefault()" ondrop="handleDrop(event)">
-            <div id="bet-chips-display" class="flex flex-wrap items-center justify-center gap-0.5"></div>
-            <p id="bet-zone-text" class="text-white/30 text-xs uppercase tracking-wider mt-1">Mise</p>
-            <p id="bet-zone-amount" class="text-gold font-extrabold text-lg">0€</p>
-          </div>
-          <div id="result" class="text-center min-h-[50px] flex items-center justify-center"></div>
-        </div>
-
-        <!-- Post-game buttons (rebet / x2) -->
-        <div id="post-game-btns" class="flex items-center justify-center gap-3 mb-3 hidden">
-          <button id="btn-rebet" class="bg-accent-green hover:bg-accent-green/80 text-white font-bold px-6 py-2.5 rounded-xl transition-all text-sm uppercase tracking-wider">
-            ♻ Remiser
-          </button>
-          <button id="btn-x2" class="bg-gold hover:bg-gold/80 text-black font-bold px-6 py-2.5 rounded-xl transition-all text-sm uppercase tracking-wider">
-            x2
-          </button>
-          <button id="btn-clear-bet" class="bg-gray-600 hover:bg-gray-500 text-white font-bold px-6 py-2.5 rounded-xl transition-all text-sm uppercase tracking-wider">
-            Effacer
-          </button>
-        </div>
-
-        <!-- Player Area -->
-        <div class="text-center mt-auto">
-          <div id="player-cards" class="flex items-center justify-center gap-2 min-h-[110px] mb-2"></div>
-          <div id="player-score-badge" class="inline-block bg-black/40 backdrop-blur-sm text-white font-bold text-sm px-3 py-1 rounded-full hidden">
-            <span id="player-score">0</span>
-          </div>
-          <p class="text-white/40 text-xs uppercase tracking-wider mt-3 font-medium">Toi</p>
-        </div>
-      </div>
-    </div>
-
-    <!-- Controls Below Table -->
-    <div class="bg-bg-card border border-bg-border rounded-2xl p-6 mt-6">
-      <!-- Balance & Bet -->
-      <div class="flex items-center justify-center gap-6 mb-5">
-        <div class="text-center">
-          <p class="text-gray-500 text-xs uppercase tracking-wider">Solde</p>
+    <div class="flex flex-col lg:flex-row gap-4">
+      <!-- LEFT PANEL: Controls -->
+      <div class="lg:w-72 flex-shrink-0 bg-bg-card border border-bg-border rounded-2xl p-5 flex flex-col gap-4">
+        <!-- Balance -->
+        <div>
+          <p class="text-gray-500 text-[10px] uppercase tracking-wider mb-1">Solde</p>
           <p class="text-gold font-extrabold text-2xl" id="balance">1000€</p>
         </div>
-        <div class="w-px h-10 bg-bg-border"></div>
-        <div class="text-center">
-          <p class="text-gray-500 text-xs uppercase tracking-wider">Mise</p>
-          <p class="text-primary-light font-extrabold text-2xl" id="current-bet-display">10€</p>
+        <div class="border-t border-bg-border"></div>
+
+        <!-- Mise -->
+        <div>
+          <p class="text-gray-500 text-[10px] uppercase tracking-wider mb-1">Mise actuelle</p>
+          <p class="text-primary-light font-extrabold text-xl" id="current-bet-display">10€</p>
         </div>
-        <div class="w-px h-10 bg-bg-border"></div>
-        <div class="text-center">
-          <p class="text-gray-500 text-xs uppercase tracking-wider">Mains gagnées</p>
-          <p class="text-accent-green font-extrabold text-2xl" id="wins">0</p>
+
+        <!-- Chips -->
+        <div>
+          <p id="chip-hint" class="text-gray-500 text-[10px] uppercase tracking-wider mb-2">Clique pour miser</p>
+          <div id="chip-area" class="grid grid-cols-3 gap-2">
+            <div draggable="true" data-bet="1" class="chip w-full aspect-square rounded-full font-bold text-sm text-white hover:scale-110 transition-transform flex items-center justify-center cursor-grab active:cursor-grabbing select-none" style="background: radial-gradient(circle at 35% 35%, #9ca3af, #4b5563); box-shadow: 0 3px 8px rgba(0,0,0,0.4), inset 0 2px 4px rgba(255,255,255,0.2), inset 0 -2px 4px rgba(0,0,0,0.3); border: 3px dashed rgba(255,255,255,0.3);">1</div>
+            <div draggable="true" data-bet="5" class="chip w-full aspect-square rounded-full font-bold text-sm text-white hover:scale-110 transition-transform flex items-center justify-center cursor-grab active:cursor-grabbing select-none" style="background: radial-gradient(circle at 35% 35%, #ef4444, #991b1b); box-shadow: 0 3px 8px rgba(0,0,0,0.4), inset 0 2px 4px rgba(255,255,255,0.2), inset 0 -2px 4px rgba(0,0,0,0.3); border: 3px dashed rgba(255,255,255,0.3);">5</div>
+            <div draggable="true" data-bet="10" class="chip w-full aspect-square rounded-full font-bold text-sm text-white hover:scale-110 transition-transform flex items-center justify-center cursor-grab active:cursor-grabbing select-none" style="background: radial-gradient(circle at 35% 35%, #3b82f6, #1e3a8a); box-shadow: 0 3px 8px rgba(0,0,0,0.4), inset 0 2px 4px rgba(255,255,255,0.2), inset 0 -2px 4px rgba(0,0,0,0.3); border: 3px dashed rgba(255,255,255,0.3);">10</div>
+            <div draggable="true" data-bet="25" class="chip w-full aspect-square rounded-full font-bold text-sm text-white hover:scale-110 transition-transform flex items-center justify-center cursor-grab active:cursor-grabbing select-none" style="background: radial-gradient(circle at 35% 35%, #22c55e, #15803d); box-shadow: 0 3px 8px rgba(0,0,0,0.4), inset 0 2px 4px rgba(255,255,255,0.2), inset 0 -2px 4px rgba(0,0,0,0.3); border: 3px dashed rgba(255,255,255,0.3);">25</div>
+            <div draggable="true" data-bet="50" class="chip w-full aspect-square rounded-full font-bold text-sm text-black hover:scale-110 transition-transform flex items-center justify-center cursor-grab active:cursor-grabbing select-none" style="background: radial-gradient(circle at 35% 35%, #facc15, #a16207); box-shadow: 0 3px 8px rgba(0,0,0,0.4), inset 0 2px 4px rgba(255,255,255,0.3), inset 0 -2px 4px rgba(0,0,0,0.2); border: 3px dashed rgba(255,255,255,0.3);">50</div>
+            <div draggable="true" data-bet="100" class="chip w-full aspect-square rounded-full font-bold text-sm text-white hover:scale-110 transition-transform flex items-center justify-center cursor-grab active:cursor-grabbing select-none" style="background: radial-gradient(circle at 35% 35%, #a855f7, #581c87); box-shadow: 0 3px 8px rgba(0,0,0,0.4), inset 0 2px 4px rgba(255,255,255,0.2), inset 0 -2px 4px rgba(0,0,0,0.3); border: 3px dashed rgba(255,255,255,0.3);">100</div>
+          </div>
+        </div>
+
+        <!-- Post-game: Rebet / x2 / Clear -->
+        <div id="post-game-btns" class="flex flex-col gap-2 hidden">
+          <button id="btn-rebet" class="bg-accent-green hover:bg-accent-green/80 text-white font-bold py-2.5 rounded-xl transition-all text-xs uppercase tracking-wider w-full">♻ Remiser</button>
+          <button id="btn-x2" class="bg-gold hover:bg-gold/80 text-black font-bold py-2.5 rounded-xl transition-all text-xs uppercase tracking-wider w-full">x2</button>
+          <button id="btn-clear-bet" class="bg-gray-600 hover:bg-gray-500 text-white font-bold py-2.5 rounded-xl transition-all text-xs uppercase tracking-wider w-full">Effacer</button>
+        </div>
+        <div class="border-t border-bg-border"></div>
+
+        <!-- Action Buttons -->
+        <div class="flex flex-col gap-2">
+          <button id="btn-deal" class="bg-accent-green hover:bg-accent-green/80 text-white font-bold py-3 rounded-xl transition-all text-sm uppercase tracking-wider w-full">Distribuer</button>
+          <button id="btn-hit" class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded-xl transition-all text-sm uppercase tracking-wider w-full hidden">Carte</button>
+          <button id="btn-stand" class="bg-amber-600 hover:bg-amber-500 text-white font-bold py-3 rounded-xl transition-all text-sm uppercase tracking-wider w-full hidden">Rester</button>
+          <button id="btn-double" class="bg-purple-600 hover:bg-purple-500 text-white font-bold py-3 rounded-xl transition-all text-sm uppercase tracking-wider w-full hidden">Double</button>
+          <button id="btn-split" class="bg-pink-600 hover:bg-pink-500 text-white font-bold py-3 rounded-xl transition-all text-sm uppercase tracking-wider w-full hidden">Split</button>
+          <button id="btn-insurance" class="bg-teal-600 hover:bg-teal-500 text-white font-bold py-3 rounded-xl transition-all text-sm uppercase tracking-wider w-full hidden">✅ Assurance</button>
+          <button id="btn-no-insurance" class="bg-gray-600 hover:bg-gray-500 text-white font-bold py-3 rounded-xl transition-all text-sm uppercase tracking-wider w-full hidden">❌ Non merci</button>
+        </div>
+
+        <!-- Stats -->
+        <div class="border-t border-bg-border pt-3">
+          <div class="flex items-center justify-between text-sm">
+            <span class="text-gray-500">Mains gagnées</span>
+            <span class="text-accent-green font-bold" id="wins">0</span>
+          </div>
+        </div>
+
+        <!-- History -->
+        <div>
+          <p class="text-gray-500 text-[10px] uppercase tracking-wider mb-2">Historique</p>
+          <div id="history" class="flex items-center gap-1.5 flex-wrap"></div>
         </div>
       </div>
 
-      <!-- Chips (draggable + clickable) -->
-      <p id="chip-hint" class="text-gray-500 text-xs text-center mb-2">Glisse un jeton sur la table ou clique pour miser</p>
-      <div id="chip-area" class="flex items-center justify-center gap-3 mb-5">
-        <div draggable="true" data-bet="1" class="chip w-12 h-12 rounded-full font-bold text-xs bg-gray-600 border-2 border-gray-400 text-white hover:scale-110 transition-transform shadow-lg flex items-center justify-center cursor-grab active:cursor-grabbing select-none">1</div>
-        <div draggable="true" data-bet="5" class="chip w-12 h-12 rounded-full font-bold text-xs bg-red-700 border-2 border-red-400 text-white hover:scale-110 transition-transform shadow-lg flex items-center justify-center cursor-grab active:cursor-grabbing select-none">5</div>
-        <div draggable="true" data-bet="10" class="chip w-14 h-14 rounded-full font-bold text-sm bg-blue-700 border-2 border-blue-400 text-white hover:scale-110 transition-transform shadow-lg flex items-center justify-center cursor-grab active:cursor-grabbing select-none">10</div>
-        <div draggable="true" data-bet="25" class="chip w-12 h-12 rounded-full font-bold text-xs bg-green-700 border-2 border-green-400 text-white hover:scale-110 transition-transform shadow-lg flex items-center justify-center cursor-grab active:cursor-grabbing select-none">25</div>
-        <div draggable="true" data-bet="50" class="chip w-12 h-12 rounded-full font-bold text-xs bg-yellow-600 border-2 border-yellow-400 text-white hover:scale-110 transition-transform shadow-lg flex items-center justify-center cursor-grab active:cursor-grabbing select-none">50</div>
-        <div draggable="true" data-bet="100" class="chip w-12 h-12 rounded-full font-bold text-xs bg-purple-700 border-2 border-purple-400 text-white hover:scale-110 transition-transform shadow-lg flex items-center justify-center cursor-grab active:cursor-grabbing select-none">100</div>
-      </div>
+      <!-- RIGHT: Game Table (compact) -->
+      <div class="flex-1">
+        <div id="table" class="relative rounded-2xl overflow-hidden shadow-2xl h-full" style="background: radial-gradient(ellipse at 50% 40%, #1a6b3c, #145a30 50%, #0d4422 100%); border: 6px solid #3d2411; box-shadow: inset 0 0 40px rgba(0,0,0,0.3);">
+          <div class="absolute inset-0 opacity-10" style="background-image: repeating-linear-gradient(45deg, transparent, transparent 35px, rgba(255,255,255,0.03) 35px, rgba(255,255,255,0.03) 70px);"></div>
 
-      <!-- Action Buttons -->
-      <div class="flex items-center justify-center gap-3 flex-wrap">
-        <button id="btn-deal" class="bg-accent-green hover:bg-accent-green/80 text-white font-bold px-8 py-3 rounded-xl transition-all hover:shadow-lg text-sm uppercase tracking-wider">
-          Distribuer
-        </button>
-        <button id="btn-hit" class="bg-blue-600 hover:bg-blue-500 text-white font-bold px-8 py-3 rounded-xl transition-all text-sm uppercase tracking-wider hidden">
-          Carte
-        </button>
-        <button id="btn-stand" class="bg-amber-600 hover:bg-amber-500 text-white font-bold px-8 py-3 rounded-xl transition-all text-sm uppercase tracking-wider hidden">
-          Rester
-        </button>
-        <button id="btn-double" class="bg-purple-600 hover:bg-purple-500 text-white font-bold px-8 py-3 rounded-xl transition-all text-sm uppercase tracking-wider hidden">
-          Double
-        </button>
-        <button id="btn-split" class="bg-pink-600 hover:bg-pink-500 text-white font-bold px-8 py-3 rounded-xl transition-all text-sm uppercase tracking-wider hidden">
-          Split
-        </button>
-        <button id="btn-insurance" class="bg-teal-600 hover:bg-teal-500 text-white font-bold px-6 py-3 rounded-xl transition-all text-sm uppercase tracking-wider hidden">
-          ✅ Assurance
-        </button>
-        <button id="btn-no-insurance" class="bg-gray-600 hover:bg-gray-500 text-white font-bold px-6 py-3 rounded-xl transition-all text-sm uppercase tracking-wider hidden">
-          ❌ Non merci
-        </button>
-      </div>
+          <div class="relative p-5 min-h-[380px] flex flex-col">
+            <!-- Table Text -->
+            <div class="text-center mb-1">
+              <p class="text-white/20 text-[10px] uppercase tracking-[0.3em] font-bold">Blackjack pays 3 to 2</p>
+            </div>
 
-      <!-- History -->
-      <div class="mt-5 pt-5 border-t border-bg-border">
-        <p class="text-gray-500 text-xs uppercase tracking-wider mb-2">Historique</p>
-        <div id="history" class="flex items-center gap-2 flex-wrap"></div>
+            <!-- Dealer -->
+            <div class="text-center mb-4">
+              <p class="text-white/40 text-[10px] uppercase tracking-wider mb-2 font-medium">Croupier</p>
+              <div id="dealer-cards" class="flex items-center justify-center gap-2 min-h-[85px] mb-1"></div>
+              <div id="dealer-score-badge" class="inline-block bg-black/40 backdrop-blur-sm text-white font-bold text-xs px-2.5 py-0.5 rounded-full hidden">
+                <span id="dealer-score">0</span>
+              </div>
+            </div>
+
+            <!-- Center: Result -->
+            <div class="flex items-center justify-center my-2">
+              <div id="result" class="text-center min-h-[40px] flex items-center justify-center"></div>
+            </div>
+
+            <!-- Player -->
+            <div class="text-center mt-auto">
+              <div id="player-cards" class="flex items-center justify-center gap-2 min-h-[85px] mb-1"></div>
+              <div id="player-score-badge" class="inline-block bg-black/40 backdrop-blur-sm text-white font-bold text-xs px-2.5 py-0.5 rounded-full hidden">
+                <span id="player-score">0</span>
+              </div>
+              <p class="text-white/40 text-[10px] uppercase tracking-wider mt-2 font-medium">Toi</p>
+              <!-- Bet zone under player cards -->
+              <div class="flex items-center justify-center mt-3">
+                <div id="bet-zone" class="w-16 h-16 rounded-full border-2 border-white/30 bg-black/20 flex flex-col items-center justify-center transition-all" ondragover="event.preventDefault()" ondrop="handleDrop(event)">
+                  <div id="bet-chips-display"></div>
+                  <p id="bet-zone-amount" class="text-gold font-extrabold text-xs">0€</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </section>
@@ -136,7 +125,7 @@ import Layout from '../../layouts/Layout.astro';
 
     var deck = [], playerHand = [], dealerHand = [];
     var balance = 1000, currentBet = 0, lastBet = 10, wins = 0;
-    var gameActive = false, historyResults = [];
+    var gameActive = false, historyResults = [], hasPlayedOnce = false;
 
     function createDeck() {
       var d = [];
@@ -162,12 +151,36 @@ import Layout from '../../layouts/Layout.astro';
 
     function renderCard(card, delay) {
       delay = delay || 0;
-      if (card.hidden) return '<div class="relative w-[70px] h-[100px] rounded-xl shadow-xl" style="animation:cardDeal 0.6s ease-out '+delay+'s both"><div class="w-full h-full rounded-xl bg-gradient-to-br from-blue-800 to-blue-950 border-2 border-blue-600 flex items-center justify-center"><div class="w-10 h-14 border border-blue-500/30 rounded-lg bg-blue-900/50 flex items-center justify-center text-blue-400 text-lg font-bold">♠</div></div></div>';
+      if (card.hidden) return '<div class="relative w-[70px] h-[100px] rounded-xl shadow-xl" style="animation:cardDeal 0.5s ease-out '+delay+'s both"><div class="w-full h-full rounded-xl border-2 border-red-800 overflow-hidden" style="background: #b22222;"><div class="w-full h-full" style="background: repeating-linear-gradient(45deg, transparent, transparent 4px, rgba(255,255,255,0.08) 4px, rgba(255,255,255,0.08) 8px), repeating-linear-gradient(-45deg, transparent, transparent 4px, rgba(255,255,255,0.08) 4px, rgba(255,255,255,0.08) 8px);"><div class="w-full h-full flex items-center justify-center"><div class="w-12 h-16 rounded-lg border-2 border-yellow-600/50 flex items-center justify-center" style="background: radial-gradient(circle, #8b0000, #600000);"><span class="text-yellow-500 text-2xl font-bold">♠</span></div></div></div></div></div>';
       var isRed = card.suit==='♥'||card.suit==='♦';
       var col = isRed?'text-red-500':'text-gray-900';
-      return '<div class="relative w-[70px] h-[100px] rounded-xl shadow-xl" style="animation:cardDeal 0.6s ease-out '+delay+'s both"><div class="w-full h-full rounded-xl bg-white border border-gray-200 flex flex-col items-center justify-between p-1.5"><div class="self-start"><p class="text-xs font-bold '+col+' leading-none">'+card.value+'</p><p class="text-xs '+col+' leading-none">'+card.suit+'</p></div><p class="text-2xl '+col+'">'+card.suit+'</p><div class="self-end rotate-180"><p class="text-xs font-bold '+col+' leading-none">'+card.value+'</p><p class="text-xs '+col+' leading-none">'+card.suit+'</p></div></div></div>';
+      return '<div class="relative w-[70px] h-[100px] rounded-xl shadow-xl" style="animation:cardDeal 0.5s ease-out '+delay+'s both"><div class="w-full h-full rounded-xl bg-white border border-gray-200 flex flex-col items-center justify-between p-1.5"><div class="self-start"><p class="text-xs font-bold '+col+' leading-none">'+card.value+'</p><p class="text-xs '+col+' leading-none">'+card.suit+'</p></div><p class="text-2xl '+col+'">'+card.suit+'</p><div class="self-end rotate-180"><p class="text-xs font-bold '+col+' leading-none">'+card.value+'</p><p class="text-xs '+col+' leading-none">'+card.suit+'</p></div></div></div>';
     }
-    function renderHand(el, hand) { el.innerHTML = hand.map(function(c,i){return renderCard(c,i*0.4);}).join(''); }
+    function renderHand(el, hand) { el.innerHTML = hand.map(function(c,i){return renderCard(c,i*0.25);}).join(''); }
+    function addCardToHand(el, card) {
+      var div = document.createElement('div');
+      div.innerHTML = renderCard(card, 0);
+      el.appendChild(div.firstElementChild);
+    }
+    function revealDealerCard(el, hand) {
+      // Animate flip on first card (was hidden)
+      var firstCard = el.firstElementChild;
+      if (firstCard) {
+        firstCard.style.transition = 'transform 0.6s';
+        firstCard.style.transform = 'rotateY(90deg)';
+        setTimeout(function() {
+          el.innerHTML = hand.map(function(c,i){return renderCard(c,0);}).join('');
+          var newFirst = el.firstElementChild;
+          if (newFirst) {
+            newFirst.style.transform = 'rotateY(90deg)';
+            newFirst.style.transition = 'transform 0.6s';
+            setTimeout(function() { newFirst.style.transform = 'rotateY(0deg)'; }, 50);
+          }
+        }, 600);
+      } else {
+        el.innerHTML = hand.map(function(c,i){return renderCard(c,0);}).join('');
+      }
+    }
 
     function updateScores() {
       document.getElementById('player-score').textContent = handValue(playerHand);
@@ -210,7 +223,9 @@ import Layout from '../../layouts/Layout.astro';
       if (phase==='bet') {
         document.getElementById('btn-deal').classList.remove('hidden');
         chips.classList.remove('hidden'); hint.classList.remove('hidden');
-        document.getElementById('post-game-btns').classList.remove('hidden');
+        if (hasPlayedOnce) {
+          document.getElementById('post-game-btns').classList.remove('hidden');
+        }
       } else if (phase==='play') {
         chips.classList.add('hidden'); hint.classList.add('hidden');
         document.getElementById('btn-hit').classList.remove('hidden');
@@ -227,14 +242,13 @@ import Layout from '../../layouts/Layout.astro';
     // --- Bet Zone: update display ---
     function updateBetZone() {
       var display = document.getElementById('bet-chips-display');
-      if (currentBet <= 0) { display.innerHTML = ''; return; }
-      // Show mini chip stack
-      var chips = [];
-      var remaining = currentBet;
-      [100,50,25,10,5,1].forEach(function(v) { while(remaining>=v){chips.push(v);remaining-=v;} });
-      display.innerHTML = chips.slice(0,5).map(function(v){
-        return '<div class="w-6 h-6 rounded-full text-[8px] font-bold text-white flex items-center justify-center shadow '+CHIP_COLORS[v]+' border border-white/30">'+v+'</div>';
-      }).join('') + (chips.length>5?'<span class="text-white/50 text-xs">+</span>':'');
+      if (currentBet > 0) {
+        // Show a single chip icon with the bet color
+        var color = currentBet >= 100 ? '#a855f7' : currentBet >= 50 ? '#facc15' : currentBet >= 25 ? '#22c55e' : currentBet >= 10 ? '#3b82f6' : currentBet >= 5 ? '#ef4444' : '#9ca3af';
+        display.innerHTML = '<div class="w-8 h-8 rounded-full flex items-center justify-center text-[8px] font-bold text-white" style="background:radial-gradient(circle at 35% 35%,'+color+',rgba(0,0,0,0.5));box-shadow:0 2px 4px rgba(0,0,0,0.5);border:2px dashed rgba(255,255,255,0.3);">'+currentBet+'</div>';
+      } else {
+        display.innerHTML = '';
+      }
     }
 
     // --- Drag & Drop ---
@@ -304,18 +318,30 @@ import Layout from '../../layouts/Layout.astro';
     });
 
     // --- Game Logic ---
-    function endHand(text, type, balAdd) {
+    function endHand(text, type, balAdd, fast) {
+      var delay = fast ? 300 : 1000;
       setTimeout(function() {
         showResult(text, type);
         if (balAdd) balance += balAdd;
-        if (type==='win'||type==='blackjack') wins++;
+        if (type==='win'||type==='blackjack') {
+          wins++;
+          // Award MelchiorCoins
+          var mc = parseInt(localStorage.getItem('melchior_coins')||'0');
+          var earned = type==='blackjack' ? 5 : 2;
+          mc += earned;
+          localStorage.setItem('melchior_coins', mc.toString());
+          showResult(text + ' <span class="text-sm ml-2">+' + earned + ' ⭐</span>', type);
+          return; // skip the showResult below
+        }
         addHistory(type==='blackjack'?'BJ':type==='win'?'W':type==='push'?'P':'L');
         gameActive = false;
+        hasPlayedOnce = true;
         lastBet = currentBet;
         currentBet = 0;
         showPhase('bet');
+        document.getElementById('btn-rebet').textContent = '♻ Remiser (' + lastBet + '€)';
         updateBalance(); updateBetZone();
-      }, 1000);
+      }, delay);
     }
 
     function deal() {
@@ -364,15 +390,17 @@ import Layout from '../../layouts/Layout.astro';
 
     function hit() {
       if (!gameActive) return;
-      playerHand.push(drawCard());
-      renderHand(document.getElementById('player-cards'), playerHand); updateScores();
+      var newCard = drawCard();
+      playerHand.push(newCard);
+      addCardToHand(document.getElementById('player-cards'), newCard);
+      updateScores();
       document.getElementById('btn-double').classList.add('hidden');
       document.getElementById('btn-split').classList.add('hidden');
       if (handValue(playerHand) > 21) {
         hideAll();
         dealerHand[0].hidden = false;
-        renderHand(document.getElementById('dealer-cards'), dealerHand); updateScores();
-        endHand('BUST ! 💥','lose',0);
+        revealDealerCard(document.getElementById('dealer-cards'), dealerHand); updateScores();
+        endHand('BUST ! 💥','lose',0,true);
       } else if (handValue(playerHand) === 21) { stand(); }
     }
 
@@ -380,16 +408,18 @@ import Layout from '../../layouts/Layout.astro';
       if (!gameActive) return;
       hideAll();
       dealerHand[0].hidden = false;
-      renderHand(document.getElementById('dealer-cards'), dealerHand); updateScores();
-      setTimeout(function(){dealerDraw();}, 1000);
+      revealDealerCard(document.getElementById('dealer-cards'), dealerHand); updateScores();
+      setTimeout(function(){dealerDraw();}, 1800);
 
       function dealerDraw() {
         if (handValue(dealerHand) < 17) {
           setTimeout(function(){
-            dealerHand.push(drawCard());
-            renderHand(document.getElementById('dealer-cards'), dealerHand); updateScores();
+            var newCard = drawCard();
+            dealerHand.push(newCard);
+            addCardToHand(document.getElementById('dealer-cards'), newCard);
+            updateScores();
             dealerDraw();
-          }, 900);
+          }, 1500);
         } else { resolve(); }
       }
       function resolve() {
@@ -403,13 +433,15 @@ import Layout from '../../layouts/Layout.astro';
 
     function doubleDown() {
       if (!gameActive || playerHand.length!==2 || balance<currentBet) return;
-      balance -= currentBet; currentBet *= 2; updateBalance();
-      playerHand.push(drawCard());
-      renderHand(document.getElementById('player-cards'), playerHand); updateScores();
+      balance -= currentBet; currentBet *= 2; updateBalance(); updateBetZone();
+      var newCard = drawCard();
+      playerHand.push(newCard);
+      addCardToHand(document.getElementById('player-cards'), newCard);
+      updateScores();
       if (handValue(playerHand) > 21) {
         hideAll(); dealerHand[0].hidden=false;
         renderHand(document.getElementById('dealer-cards'), dealerHand); updateScores();
-        endHand('BUST ! 💥','lose',0);
+        endHand('BUST ! 💥','lose',0,true);
       } else { stand(); }
     }
 
@@ -470,7 +502,8 @@ import Layout from '../../layouts/Layout.astro';
 
     // Card animation
     var style = document.createElement('style');
-    style.textContent = '@keyframes cardDeal { 0%{opacity:0;transform:translateY(-50px) scale(0.7) rotate(-5deg)} 60%{opacity:1;transform:translateY(5px) scale(1.02) rotate(1deg)} 100%{opacity:1;transform:translateY(0) scale(1) rotate(0)} }';
+    style.textContent = '@keyframes cardDeal { 0%{opacity:0;transform:translateY(-60px) translateX(20px) scale(0.6) rotate(-8deg)} 40%{opacity:1;transform:translateY(8px) translateX(-3px) scale(1.03) rotate(2deg)} 70%{transform:translateY(-3px) scale(0.99) rotate(-0.5deg)} 100%{opacity:1;transform:translateY(0) scale(1) rotate(0)} }';
     document.head.appendChild(style);
   </script>
+  </AuthGate>
 </Layout>
