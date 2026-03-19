@@ -124,6 +124,7 @@ export const casinos: Casino[] = [
     tags: ["Code Promo", "Sans VPN"],
     promoCode: "MELCHIOR / MELCHIORFS",
     discordBonus: "30€ gratuit sur Discord",
+    maxBet: "5€",
   },
   {
     slug: "vibebet",
