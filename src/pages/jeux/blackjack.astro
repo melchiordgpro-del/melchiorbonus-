@@ -1,6 +1,7 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 import AuthGate from '../../components/AuthGate.astro';
+import { casinos } from '../../data/casinos';
 ---
 
 <Layout title="Blackjack Américain — Table Virtuelle | MelchiorBonus" description="Joue au Blackjack Américain sur une table virtuelle. Règles classiques, double down, split, insurance.">
@@ -54,6 +55,55 @@ import AuthGate from '../../components/AuthGate.astro';
           <button id="btn-split" class="bg-pink-600 hover:bg-pink-500 text-white font-bold py-3 rounded-xl transition-all text-sm uppercase tracking-wider w-full hidden">Split</button>
           <button id="btn-insurance" class="bg-teal-600 hover:bg-teal-500 text-white font-bold py-3 rounded-xl transition-all text-sm uppercase tracking-wider w-full hidden">✅ Assurance</button>
           <button id="btn-no-insurance" class="bg-gray-600 hover:bg-gray-500 text-white font-bold py-3 rounded-xl transition-all text-sm uppercase tracking-wider w-full hidden">❌ Non merci</button>
+        </div>
+
+        <!-- Jouer en argent réel (hover dropdown) -->
+        <div class="relative group">
+          <button class="w-full btn-glow bg-accent-green/20 border border-accent-green/30 text-accent-green font-bold py-2.5 rounded-lg text-xs uppercase tracking-wider hover:bg-accent-green/30 transition-all">
+            💰 Jouer en argent réel
+          </button>
+          <div class="absolute bottom-full left-0 mb-2 w-full bg-[#1a1d23] border border-[#2a2d35] rounded-lg shadow-2xl shadow-black/50 z-50 py-1 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
+            {casinos.map((casino, i) => (
+              <a href={casino.affiliateUrl} target="_blank" rel="nofollow noopener" class="flex items-center gap-2 px-3 py-2 hover:bg-[#2a2d35] transition-colors">
+                <span class="text-primary font-bold text-[10px]">#{i+1}</span>
+                <span class="text-sm">{casino.logo}</span>
+                <div class="flex-1 min-w-0">
+                  <p class="text-white font-bold text-[10px] truncate">{casino.name}</p>
+                  <p class="text-gray-500 text-[8px] truncate">{casino.bonusAmount}</p>
+                </div>
+              </a>
+            ))}
+          </div>
+        </div>
+
+        <!-- Mini Stats (collapsible, draggable) -->
+        <div id="stats-mini" class="border border-[#2a2d35] rounded-lg overflow-hidden cursor-move select-none" style="position:relative;">
+          <div id="stats-header" class="bg-[#2a2d35] px-3 py-1.5 flex items-center justify-between">
+            <span class="text-gray-400 text-[10px] font-bold uppercase tracking-wider">📊 Stats</span>
+            <button id="toggle-stats-mini" class="text-gray-500 hover:text-white text-xs">▼</button>
+          </div>
+          <div id="stats-body" class="bg-[#0e1015] p-2.5">
+            <div class="grid grid-cols-2 gap-2 mb-2">
+              <div class="text-center">
+                <p class="text-gray-600 text-[8px] uppercase">Misé</p>
+                <p class="text-white font-bold text-xs" id="stat-wagered">0 Ⓜ</p>
+              </div>
+              <div class="text-center">
+                <p class="text-gray-600 text-[8px] uppercase">Gagné</p>
+                <p class="text-accent-green font-bold text-xs" id="stat-won">0 Ⓜ</p>
+              </div>
+              <div class="text-center">
+                <p class="text-gray-600 text-[8px] uppercase">Profit</p>
+                <p class="font-bold text-xs" id="stat-profit">0 Ⓜ</p>
+              </div>
+              <div class="text-center">
+                <p class="text-gray-600 text-[8px] uppercase">Mains</p>
+                <p class="text-primary-light font-bold text-xs" id="stat-drops">0</p>
+              </div>
+            </div>
+            <canvas id="profit-chart" width="220" height="60" class="w-full rounded"></canvas>
+            <button id="reset-stats" class="text-gray-600 hover:text-white text-[9px] mt-1.5 w-full text-right">Réinitialiser</button>
+          </div>
         </div>
 
         <!-- Stats -->
@@ -504,6 +554,123 @@ import AuthGate from '../../components/AuthGate.astro';
     var style = document.createElement('style');
     style.textContent = '@keyframes cardDeal { 0%{opacity:0;transform:translateY(-60px) translateX(20px) scale(0.6) rotate(-8deg)} 40%{opacity:1;transform:translateY(8px) translateX(-3px) scale(1.03) rotate(2deg)} 70%{transform:translateY(-3px) scale(0.99) rotate(-0.5deg)} 100%{opacity:1;transform:translateY(0) scale(1) rotate(0)} }';
     document.head.appendChild(style);
+
+    // ========== STATS / ANALYTICS ==========
+    var stats = { wagered: 0, won: 0, drops: 0, profitHistory: [0] };
+
+    // Toggle mini stats
+    document.getElementById('toggle-stats-mini').addEventListener('click', function() {
+      var body = document.getElementById('stats-body');
+      body.classList.toggle('hidden');
+      this.textContent = body.classList.contains('hidden') ? '▶' : '▼';
+    });
+
+    document.getElementById('reset-stats').addEventListener('click', function() {
+      stats = { wagered: 0, won: 0, drops: 0, profitHistory: [0] };
+      updateStats();
+    });
+
+    // Make stats panel draggable
+    (function() {
+      var panel = document.getElementById('stats-mini');
+      var header = document.getElementById('stats-header');
+      var isDragging = false, startX, startY, origX, origY;
+      var detached = false;
+
+      header.addEventListener('mousedown', function(e) {
+        if (e.target.id === 'toggle-stats-mini') return;
+        isDragging = true;
+        startX = e.clientX; startY = e.clientY;
+        var rect = panel.getBoundingClientRect();
+        if (!detached) {
+          panel.style.position = 'fixed';
+          panel.style.left = rect.left + 'px';
+          panel.style.top = rect.top + 'px';
+          panel.style.width = rect.width + 'px';
+          panel.style.zIndex = '999';
+          detached = true;
+        }
+        origX = parseInt(panel.style.left); origY = parseInt(panel.style.top);
+        e.preventDefault();
+      });
+      document.addEventListener('mousemove', function(e) {
+        if (!isDragging) return;
+        panel.style.left = (origX + e.clientX - startX) + 'px';
+        panel.style.top = (origY + e.clientY - startY) + 'px';
+      });
+      document.addEventListener('mouseup', function() { isDragging = false; });
+    })();
+
+    function updateStats() {
+      var profit = stats.won - stats.wagered;
+      document.getElementById('stat-wagered').textContent = stats.wagered.toFixed(0) + ' Ⓜ';
+      document.getElementById('stat-won').textContent = stats.won.toFixed(0) + ' Ⓜ';
+      document.getElementById('stat-drops').textContent = stats.drops;
+      var profitEl = document.getElementById('stat-profit');
+      profitEl.textContent = (profit >= 0 ? '+' : '') + profit.toFixed(0) + ' Ⓜ';
+      profitEl.className = 'font-bold text-lg ' + (profit >= 0 ? 'text-accent-green' : 'text-red-500');
+      drawProfitChart();
+    }
+
+    function drawProfitChart() {
+      var chartCanvas = document.getElementById('profit-chart');
+      if (!chartCanvas) return;
+      var cCtx = chartCanvas.getContext('2d');
+      var cW = chartCanvas.width, cH = chartCanvas.height;
+      cCtx.clearRect(0, 0, cW, cH);
+
+      var data = stats.profitHistory;
+      if (data.length < 2) return;
+
+      var maxVal = Math.max.apply(null, data);
+      var minVal = Math.min.apply(null, data);
+      var range = Math.max(maxVal - minVal, 1);
+      var padding = 10;
+
+      // Zero line
+      var zeroY = padding + ((maxVal - 0) / range) * (cH - padding * 2);
+      cCtx.strokeStyle = '#2a2d35';
+      cCtx.lineWidth = 1;
+      cCtx.setLineDash([4, 4]);
+      cCtx.beginPath();
+      cCtx.moveTo(0, zeroY);
+      cCtx.lineTo(cW, zeroY);
+      cCtx.stroke();
+      cCtx.setLineDash([]);
+
+      // Profit line
+      cCtx.beginPath();
+      for (var i = 0; i < data.length; i++) {
+        var x = (i / (data.length - 1)) * cW;
+        var y = padding + ((maxVal - data[i]) / range) * (cH - padding * 2);
+        if (i === 0) cCtx.moveTo(x, y);
+        else cCtx.lineTo(x, y);
+      }
+      var lastProfit = data[data.length - 1];
+      cCtx.strokeStyle = lastProfit >= 0 ? '#22c55e' : '#ef4444';
+      cCtx.lineWidth = 2;
+      cCtx.stroke();
+
+      // Fill under line
+      cCtx.lineTo((data.length - 1) / (data.length - 1) * cW, zeroY);
+      cCtx.lineTo(0, zeroY);
+      cCtx.closePath();
+      cCtx.fillStyle = lastProfit >= 0 ? 'rgba(34,197,94,0.1)' : 'rgba(239,68,68,0.1)';
+      cCtx.fill();
+    }
+
+    // Patch endHand to track stats
+    var _origEndHand = endHand;
+    endHand = function(text, type, balAdd, fast) {
+      stats.wagered += currentBet;
+      stats.drops++;
+      var winnings = balAdd || 0;
+      stats.won += winnings;
+      stats.profitHistory.push(stats.won - stats.wagered);
+      if (stats.profitHistory.length > 200) stats.profitHistory.shift();
+      updateStats();
+      _origEndHand(text, type, balAdd, fast);
+    };
   </script>
   </AuthGate>
 </Layout>

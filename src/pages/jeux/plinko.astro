@@ -118,7 +118,7 @@ import { casinos } from '../../data/casinos';
         <div class="border-t border-[#2a2d35] pt-3 mt-auto">
           <div class="flex items-center justify-between text-sm">
             <span class="text-gray-500 text-xs">Solde</span>
-            <span class="text-white font-bold" id="balance">1000.00</span>
+            <span class="text-white font-bold" id="balance">1000 Ⓜ</span>
           </div>
           <div class="flex items-center justify-between text-sm mt-1">
             <span class="text-gray-500 text-xs">MelchiorCoins</span>
@@ -146,7 +146,10 @@ import { casinos } from '../../data/casinos';
     var canvas = document.getElementById('plinko-canvas');
     var ctx = canvas.getContext('2d');
     var W = 620, H = 540;
-    var balance = 1000, currentBet = 10;
+    // Balance = MelchiorCoins (single currency)
+    function getBalance() { return parseInt(localStorage.getItem('melchior_coins') || '1000'); }
+    function setBalance(v) { localStorage.setItem('melchior_coins', Math.round(v).toString()); }
+    var balance = getBalance(), currentBet = 10;
     var riskLevel = 'medium', numRows = 12;
     var activeBalls = [], animRunning = false;
 
@@ -327,7 +330,9 @@ import { casinos } from '../../data/casinos';
     });
 
     function updateMC() {
-      document.getElementById('mc-display').textContent = (localStorage.getItem('melchior_coins') || '0') + '⭐';
+      balance = getBalance();
+      document.getElementById('balance').textContent = balance + ' Ⓜ';
+      document.getElementById('mc-display').textContent = balance + ' Ⓜ';
     }
     updateMC();
 
@@ -396,16 +401,12 @@ import { casinos } from '../../data/casinos';
       var bucket = Math.min(mults.length - 1, Math.max(0, Math.floor(ball.x / bucketW)));
       var multi = mults[bucket];
       var winnings = Math.round(ball.bet * multi * 100) / 100;
-      balance += winnings;
-      balance = Math.round(balance * 100) / 100;
-      document.getElementById('balance').textContent = balance.toFixed(2);
+      balance += Math.round(winnings);
+      balance = Math.round(balance);
+      setBalance(balance);
+      document.getElementById('balance').textContent = balance + ' Ⓜ';
 
-      var earned = multi >= 10 ? 10 : multi >= 3 ? 5 : multi >= 1 ? 2 : 0;
-      if (earned > 0) {
-        var mc = parseInt(localStorage.getItem('melchior_coins') || '0') + earned;
-        localStorage.setItem('melchior_coins', mc.toString());
-        updateMC();
-      }
+      updateMC();
 
       // Add to sidebar results
       var sidebar = document.getElementById('results-sidebar');
@@ -418,14 +419,13 @@ import { casinos } from '../../data/casinos';
       if (sidebar.children.length > 20) sidebar.removeChild(sidebar.lastChild);
 
       // Result text
-      var coinTxt = earned > 0 ? ' +' + earned + '⭐' : '';
       var resEl = document.getElementById('result');
       if (multi >= 10) {
-        resEl.innerHTML = '<span class="text-orange-400 font-extrabold text-lg">🎉 ' + multi + 'x — ' + winnings + ' Ⓜ' + coinTxt + '</span>';
+        resEl.innerHTML = '<span class="text-orange-400 font-extrabold text-lg">🎉 ' + multi + 'x — ' + Math.round(winnings) + ' Ⓜ</span>';
       } else if (multi >= 1) {
-        resEl.innerHTML = '<span class="text-yellow-400 font-bold">' + multi + 'x — ' + winnings + ' Ⓜ' + coinTxt + '</span>';
+        resEl.innerHTML = '<span class="text-yellow-400 font-bold">' + multi + 'x — ' + Math.round(winnings) + ' Ⓜ</span>';
       } else {
-        resEl.innerHTML = '<span class="text-gray-400 font-bold">' + multi + 'x — ' + winnings + ' Ⓜ</span>';
+        resEl.innerHTML = '<span class="text-gray-400 font-bold">' + multi + 'x — ' + Math.round(winnings) + ' Ⓜ</span>';
       }
     }
 
@@ -451,8 +451,9 @@ import { casinos } from '../../data/casinos';
       currentBet = parseInt(document.getElementById('bet-input').value) || 10;
       if (balance < currentBet) return;
       balance -= currentBet;
-      balance = Math.round(balance * 100) / 100;
-      document.getElementById('balance').textContent = balance.toFixed(2);
+      balance = Math.round(balance);
+      setBalance(balance);
+      document.getElementById('balance').textContent = balance + ' Ⓜ';
 
       var path = createBallPath();
       activeBalls.push({
@@ -516,8 +517,9 @@ import { casinos } from '../../data/casinos';
       currentBet = parseInt(document.getElementById('bet-input').value) || 10;
       if (balance < currentBet) return;
       balance -= currentBet;
-      balance = Math.round(balance * 100) / 100;
-      document.getElementById('balance').textContent = balance.toFixed(2);
+      balance = Math.round(balance);
+      setBalance(balance);
+      document.getElementById('balance').textContent = balance + ' Ⓜ';
       var path = createBallPath();
       activeBalls.push({
         path: path, frame: 0, trail: [],
