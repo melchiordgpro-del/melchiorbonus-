@@ -3,7 +3,7 @@ import Layout from '../../layouts/Layout.astro';
 import AuthGate from '../../components/AuthGate.astro';
 ---
 
-<Layout title="Plinko | MelchiorBonus" description="Joue au Plinko virtuel sur MelchiorBonus.">
+<Layout title="Plinko | MelchiorBonus" description="Joue au Plinko virtuel sur MelchiorBonus. Style Stake avec 3 niveaux de risque.">
   <AuthGate>
   <section class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
     <h1 class="text-2xl font-extrabold text-white mb-4 flex items-center gap-2">📍 Plinko</h1>
@@ -18,7 +18,11 @@ import AuthGate from '../../components/AuthGate.astro';
         <div class="border-t border-bg-border"></div>
         <div>
           <p class="text-gray-500 text-[10px] uppercase tracking-wider mb-1">Mise</p>
-          <p class="text-primary-light font-extrabold text-xl" id="current-bet-display">10€</p>
+          <div class="flex items-center gap-2">
+            <button id="bet-half" class="bg-bg-surface border border-bg-border text-gray-400 font-bold text-xs px-3 py-1.5 rounded-lg hover:border-primary/30">½</button>
+            <p class="text-primary-light font-extrabold text-xl flex-1 text-center" id="current-bet-display">10€</p>
+            <button id="bet-double" class="bg-bg-surface border border-bg-border text-gray-400 font-bold text-xs px-3 py-1.5 rounded-lg hover:border-primary/30">x2</button>
+          </div>
         </div>
 
         <div>
@@ -34,26 +38,35 @@ import AuthGate from '../../components/AuthGate.astro';
         </div>
         <div class="border-t border-bg-border"></div>
 
-        <!-- Risk Level -->
+        <!-- Risk -->
         <div>
           <p class="text-gray-500 text-[10px] uppercase tracking-wider mb-2">Risque</p>
           <div class="grid grid-cols-3 gap-2">
-            <button data-risk="low" class="risk-btn bg-green-600/20 border border-green-500/30 text-green-400 font-bold py-2 rounded-lg text-xs">Faible</button>
-            <button data-risk="medium" class="risk-btn bg-yellow-600/20 border border-yellow-500/30 text-yellow-400 font-bold py-2 rounded-lg text-xs ring-2 ring-primary">Moyen</button>
-            <button data-risk="high" class="risk-btn bg-red-600/20 border border-red-500/30 text-red-400 font-bold py-2 rounded-lg text-xs">Élevé</button>
+            <button data-risk="low" class="risk-btn bg-green-600/20 border border-green-500/30 text-green-400 font-bold py-2 rounded-lg text-xs transition-all hover:brightness-125">Faible</button>
+            <button data-risk="medium" class="risk-btn bg-yellow-600/20 border border-yellow-500/30 text-yellow-400 font-bold py-2 rounded-lg text-xs ring-2 ring-primary transition-all hover:brightness-125">Moyen</button>
+            <button data-risk="high" class="risk-btn bg-red-600/20 border border-red-500/30 text-red-400 font-bold py-2 rounded-lg text-xs transition-all hover:brightness-125">Élevé</button>
           </div>
         </div>
 
-        <button id="btn-drop" class="bg-accent-green hover:bg-accent-green/80 text-white font-bold py-3 rounded-xl transition-all text-sm uppercase tracking-wider w-full">Lâcher la bille !</button>
+        <!-- Rows -->
+        <div>
+          <p class="text-gray-500 text-[10px] uppercase tracking-wider mb-2">Lignes</p>
+          <div class="grid grid-cols-3 gap-2">
+            <button data-rows="8" class="rows-btn bg-bg-surface border border-bg-border text-gray-300 font-bold py-2 rounded-lg text-xs transition-all hover:border-primary/30">8</button>
+            <button data-rows="12" class="rows-btn bg-bg-surface border border-bg-border text-gray-300 font-bold py-2 rounded-lg text-xs ring-2 ring-primary transition-all hover:border-primary/30">12</button>
+            <button data-rows="16" class="rows-btn bg-bg-surface border border-bg-border text-gray-300 font-bold py-2 rounded-lg text-xs transition-all hover:border-primary/30">16</button>
+          </div>
+        </div>
+
+        <button id="btn-drop" class="btn-glow bg-accent-green hover:bg-accent-green/80 text-white font-bold py-3.5 rounded-xl transition-all text-sm uppercase tracking-wider w-full">Lâcher la bille !</button>
 
         <div class="border-t border-bg-border pt-3">
-          <div class="flex items-center justify-between text-sm">
+          <div class="flex items-center justify-between text-sm mb-1">
             <span class="text-gray-500">MelchiorCoins</span>
             <span class="text-gold font-bold" id="mc-display">0⭐</span>
           </div>
         </div>
 
-        <!-- History -->
         <div>
           <p class="text-gray-500 text-[10px] uppercase tracking-wider mb-2">Historique</p>
           <div id="plinko-history" class="flex items-center gap-1.5 flex-wrap"></div>
@@ -61,11 +74,11 @@ import AuthGate from '../../components/AuthGate.astro';
       </div>
 
       <!-- RIGHT: Plinko Board -->
-      <div class="flex-1">
+      <div class="flex-1 flex flex-col gap-4">
         <div class="bg-bg-card border border-bg-border rounded-2xl p-4 flex justify-center">
-          <canvas id="plinko-canvas" width="580" height="500" class="rounded-xl"></canvas>
+          <canvas id="plinko-canvas" width="600" height="520"></canvas>
         </div>
-        <div id="result" class="text-center mt-4 min-h-[40px] flex items-center justify-center"></div>
+        <div id="result" class="text-center min-h-[40px] flex items-center justify-center"></div>
       </div>
     </div>
   </section>
@@ -74,87 +87,101 @@ import AuthGate from '../../components/AuthGate.astro';
   <script is:inline>
     var canvas = document.getElementById('plinko-canvas');
     var ctx = canvas.getContext('2d');
-    var W = canvas.width, H = canvas.height;
-    var ROWS = 12;
-    var balance = 1000, currentBet = 10, dropping = false, riskLevel = 'medium';
-
-    var multiplierSets = {
-      low:    [1.5, 1.2, 1, 0.8, 0.5, 0.3, 0.3, 0.5, 0.8, 1, 1.2, 1.5, 1.5],
-      medium: [5, 2, 1.5, 1, 0.5, 0.3, 0.3, 0.5, 1, 1.5, 2, 5, 5],
-      high:   [25, 8, 3, 1.5, 0.5, 0.2, 0.2, 0.5, 1.5, 3, 8, 25, 25]
-    };
-    var colorSets = {
-      low:    ['#22c55e','#22c55e','#3b82f6','#3b82f6','#6366f1','#9ca3af','#9ca3af','#6366f1','#3b82f6','#3b82f6','#22c55e','#22c55e','#22c55e'],
-      medium: ['#ef4444','#f59e0b','#22c55e','#3b82f6','#6366f1','#9ca3af','#9ca3af','#6366f1','#3b82f6','#22c55e','#f59e0b','#ef4444','#ef4444'],
-      high:   ['#ef4444','#ef4444','#f59e0b','#22c55e','#6366f1','#9ca3af','#9ca3af','#6366f1','#22c55e','#f59e0b','#ef4444','#ef4444','#ef4444']
-    };
+    var W = 600, H = 520;
+    var balance = 1000, currentBet = 10, dropping = false;
+    var riskLevel = 'medium', numRows = 12;
     var plinkoHistory = [];
 
-    function getMultipliers() { return multiplierSets[riskLevel]; }
-    function getColors() { return colorSets[riskLevel]; }
+    // Stake-style multipliers
+    var MULTIPLIERS = {
+      low: {
+        8:  [5.6, 2.1, 1.1, 1, 0.5, 1, 1.1, 2.1, 5.6],
+        12: [8.9, 3, 1.4, 1.1, 1, 0.5, 0.3, 0.5, 1, 1.1, 1.4, 3, 8.9],
+        16: [16, 9, 2, 1.4, 1.4, 1.2, 1.1, 1, 0.5, 1, 1.1, 1.2, 1.4, 1.4, 2, 9, 16]
+      },
+      medium: {
+        8:  [13, 3, 1.3, 0.7, 0.4, 0.7, 1.3, 3, 13],
+        12: [33, 11, 4, 2, 1.1, 0.6, 0.3, 0.6, 1.1, 2, 4, 11, 33],
+        16: [110, 41, 10, 5, 3, 1.5, 1, 0.5, 0.3, 0.5, 1, 1.5, 3, 5, 10, 41, 110]
+      },
+      high: {
+        8:  [29, 4, 1.5, 0.3, 0.2, 0.3, 1.5, 4, 29],
+        12: [170, 24, 8.1, 2, 0.7, 0.2, 0.2, 0.2, 0.7, 2, 8.1, 24, 170],
+        16: [1000, 130, 26, 9, 4, 2, 0.2, 0.2, 0.2, 0.2, 0.2, 2, 4, 9, 26, 130, 1000]
+      }
+    };
+
+    function getMultipliers() { return MULTIPLIERS[riskLevel][numRows]; }
+
+    function getColor(multi) {
+      if (multi >= 100) return '#ef4444';
+      if (multi >= 10) return '#f97316';
+      if (multi >= 3) return '#f59e0b';
+      if (multi >= 1) return '#22c55e';
+      if (multi >= 0.5) return '#3b82f6';
+      return '#6366f1';
+    }
+
+    var PEG_SPACING = 38;
+
+    function getPegPos(row, col) {
+      var pegsInRow = row + 3;
+      var rowWidth = (pegsInRow - 1) * PEG_SPACING;
+      var startX = (W - rowWidth) / 2;
+      var startY = 45;
+      var rowH = (H - startY - 55) / numRows;
+      return { x: startX + col * PEG_SPACING, y: startY + row * rowH };
+    }
 
     function drawBoard(ballX, ballY, trail) {
       ctx.clearRect(0, 0, W, H);
-
-      // Background gradient
-      var bg = ctx.createLinearGradient(0,0,0,H);
-      bg.addColorStop(0, '#1a1838');
+      var bg = ctx.createLinearGradient(0, 0, 0, H);
+      bg.addColorStop(0, '#110f28');
       bg.addColorStop(1, '#0c0b1e');
       ctx.fillStyle = bg;
       ctx.fillRect(0, 0, W, H);
 
-      // Pegs - pyramid shape centered
-      var pegSpacing = 38;
-      var startY = 50;
-      for (var row = 0; row < ROWS; row++) {
+      // Pegs
+      for (var row = 0; row < numRows; row++) {
         var pegsInRow = row + 3;
-        var rowWidth = (pegsInRow - 1) * pegSpacing;
-        var startX = (W - rowWidth) / 2;
         for (var col = 0; col < pegsInRow; col++) {
-          var x = startX + col * pegSpacing;
-          var y = startY + row * (H - startY - 55) / ROWS;
+          var p = getPegPos(row, col);
           ctx.beginPath();
-          ctx.arc(x, y, 4, 0, Math.PI * 2);
-          // Glow effect
+          ctx.arc(p.x, p.y, 3.5, 0, Math.PI * 2);
           ctx.shadowColor = '#a78bfa';
-          ctx.shadowBlur = 6;
-          var pegGrad = ctx.createRadialGradient(x-1,y-1,1,x,y,4);
-          pegGrad.addColorStop(0, '#c4b5fd');
-          pegGrad.addColorStop(1, '#7c5bf5');
-          ctx.fillStyle = pegGrad;
+          ctx.shadowBlur = 5;
+          ctx.fillStyle = '#c4b5fd';
           ctx.fill();
           ctx.shadowBlur = 0;
         }
       }
 
       // Buckets
-      var multipliers = getMultipliers();
-      var colors = getColors();
-      var bucketW = W / multipliers.length;
-      for (var i = 0; i < multipliers.length; i++) {
-        // Bucket bg
-        ctx.fillStyle = colors[i] + '33';
-        ctx.fillRect(i * bucketW + 2, H - 45, bucketW - 4, 42);
-        // Rounded top
-        ctx.beginPath();
-        ctx.moveTo(i*bucketW+2, H-45);
-        ctx.lineTo(i*bucketW+bucketW-2, H-45);
-        ctx.strokeStyle = colors[i] + '88';
-        ctx.lineWidth = 3;
-        ctx.stroke();
+      var mults = getMultipliers();
+      var bucketW = W / mults.length;
+      for (var i = 0; i < mults.length; i++) {
+        var c = getColor(mults[i]);
+        ctx.fillStyle = c + '22';
+        var bx = i * bucketW + 1;
+        var bw = bucketW - 2;
+        ctx.fillRect(bx, H - 48, bw, 46);
+        // Top border
+        ctx.fillStyle = c + '88';
+        ctx.fillRect(bx, H - 48, bw, 3);
         // Text
-        ctx.fillStyle = colors[i];
-        ctx.font = 'bold 13px Inter, sans-serif';
+        ctx.fillStyle = c;
+        ctx.font = 'bold ' + (mults.length > 14 ? '9' : '11') + 'px Inter,sans-serif';
         ctx.textAlign = 'center';
-        ctx.fillText(multipliers[i] + 'x', i * bucketW + bucketW / 2, H - 18);
+        ctx.fillText(mults[i] + 'x', bx + bw / 2, H - 22);
       }
 
       // Trail
-      if (trail) {
+      if (trail && trail.length > 0) {
         for (var t = 0; t < trail.length; t++) {
+          var alpha = 0.05 + (t / trail.length) * 0.25;
           ctx.beginPath();
-          ctx.arc(trail[t].x, trail[t].y, 3, 0, Math.PI*2);
-          ctx.fillStyle = 'rgba(245,184,61,' + (0.1+t/trail.length*0.3) + ')';
+          ctx.arc(trail[t].x, trail[t].y, 3, 0, Math.PI * 2);
+          ctx.fillStyle = 'rgba(245,184,61,' + alpha + ')';
           ctx.fill();
         }
       }
@@ -162,14 +189,13 @@ import AuthGate from '../../components/AuthGate.astro';
       // Ball
       if (ballX !== undefined && ballY !== undefined) {
         ctx.beginPath();
-        ctx.arc(ballX, ballY, 9, 0, Math.PI * 2);
-        var ballGrad = ctx.createRadialGradient(ballX-2,ballY-2,2,ballX,ballY,9);
-        ballGrad.addColorStop(0, '#fde68a');
-        ballGrad.addColorStop(1, '#f5b83d');
-        ctx.fillStyle = ballGrad;
-        ctx.fill();
+        ctx.arc(ballX, ballY, 8, 0, Math.PI * 2);
         ctx.shadowColor = '#f5b83d';
         ctx.shadowBlur = 15;
+        var bGrad = ctx.createRadialGradient(ballX - 2, ballY - 2, 2, ballX, ballY, 8);
+        bGrad.addColorStop(0, '#fef08a');
+        bGrad.addColorStop(1, '#f5b83d');
+        ctx.fillStyle = bGrad;
         ctx.fill();
         ctx.shadowBlur = 0;
       }
@@ -182,25 +208,49 @@ import AuthGate from '../../components/AuthGate.astro';
       c.addEventListener('click', function() {
         if (dropping) return;
         currentBet = parseInt(c.dataset.bet);
-        document.querySelectorAll('.chip').forEach(function(b){b.classList.remove('ring-2','ring-primary');});
-        c.classList.add('ring-2','ring-primary');
-        document.getElementById('current-bet-display').textContent = currentBet+'€';
+        document.querySelectorAll('.chip').forEach(function(b) { b.classList.remove('ring-2', 'ring-primary'); });
+        c.classList.add('ring-2', 'ring-primary');
+        document.getElementById('current-bet-display').textContent = currentBet + '€';
       });
+    });
+
+    // Bet half/double
+    document.getElementById('bet-half').addEventListener('click', function() {
+      if (dropping) return;
+      currentBet = Math.max(1, Math.floor(currentBet / 2));
+      document.getElementById('current-bet-display').textContent = currentBet + '€';
+    });
+    document.getElementById('bet-double').addEventListener('click', function() {
+      if (dropping) return;
+      currentBet = Math.min(balance, currentBet * 2);
+      document.getElementById('current-bet-display').textContent = currentBet + '€';
     });
 
     // Risk
     document.querySelectorAll('.risk-btn').forEach(function(b) {
       b.addEventListener('click', function() {
+        if (dropping) return;
         riskLevel = b.dataset.risk;
-        document.querySelectorAll('.risk-btn').forEach(function(x){x.classList.remove('ring-2','ring-primary');});
-        b.classList.add('ring-2','ring-primary');
+        document.querySelectorAll('.risk-btn').forEach(function(x) { x.classList.remove('ring-2', 'ring-primary'); });
+        b.classList.add('ring-2', 'ring-primary');
         drawBoard();
       });
     });
 
-    // MC display
+    // Rows
+    document.querySelectorAll('.rows-btn').forEach(function(b) {
+      b.addEventListener('click', function() {
+        if (dropping) return;
+        numRows = parseInt(b.dataset.rows);
+        document.querySelectorAll('.rows-btn').forEach(function(x) { x.classList.remove('ring-2', 'ring-primary'); });
+        b.classList.add('ring-2', 'ring-primary');
+        drawBoard();
+      });
+    });
+
+    // MC
     function updateMC() {
-      document.getElementById('mc-display').textContent = (localStorage.getItem('melchior_coins')||'0')+'⭐';
+      document.getElementById('mc-display').textContent = (localStorage.getItem('melchior_coins') || '0') + '⭐';
     }
     updateMC();
 
@@ -209,71 +259,75 @@ import AuthGate from '../../components/AuthGate.astro';
       if (dropping || balance < currentBet) return;
       dropping = true;
       balance -= currentBet;
-      document.getElementById('balance').textContent = balance+'€';
+      document.getElementById('balance').textContent = balance + '€';
       document.getElementById('result').innerHTML = '';
 
-      var pegSpacing = 38;
-      var startY = 50;
-      var x = W/2 + (Math.random()-0.5)*15;
-      var y = 25;
-      var path = [{x:x,y:y}];
+      // Simulate path
+      var mults = getMultipliers();
+      var path = [];
+      var x = W / 2 + (Math.random() - 0.5) * 10;
+      var y = 20;
+      path.push({ x: x, y: y });
 
-      // Simulate ball bouncing off pegs in pyramid
-      for (var row=0; row<ROWS; row++) {
-        var dir = Math.random()<0.5?-1:1;
-        x += dir * pegSpacing/2 + (Math.random()-0.5)*6;
-        // Keep within pyramid bounds
-        var pegsInRow = row+4;
-        var rowWidth = (pegsInRow-1)*pegSpacing;
-        var minX = (W-rowWidth)/2 - 10;
-        var maxX = (W+rowWidth)/2 + 10;
+      for (var row = 0; row < numRows; row++) {
+        var dir = Math.random() < 0.5 ? -1 : 1;
+        var p = getPegPos(row, 0);
+        var rowH = (row < numRows - 1) ? getPegPos(row + 1, 0).y - p.y : (H - 55) - p.y;
+        x += dir * PEG_SPACING / 2 + (Math.random() - 0.5) * 4;
+        // Clamp
+        var pegsInRow = row + 4;
+        var rw = (pegsInRow - 1) * PEG_SPACING;
+        var minX = (W - rw) / 2 - 5;
+        var maxX = (W + rw) / 2 + 5;
         x = Math.max(minX, Math.min(maxX, x));
-        y = startY + (row+1)*(H-startY-55)/ROWS;
-        path.push({x:x,y:y});
+        y = p.y + rowH;
+        path.push({ x: x, y: y });
       }
-      path.push({x:x, y:H-50});
+      path.push({ x: x, y: H - 52 });
 
+      // Animate
       var frame = 0;
-      var trailPoints = [];
+      var trail = [];
       function animate() {
         if (frame < path.length) {
-          trailPoints.push(path[frame]);
-          drawBoard(path[frame].x, path[frame].y, trailPoints);
+          trail.push(path[frame]);
+          drawBoard(path[frame].x, path[frame].y, trail);
           frame++;
-          setTimeout(animate, 80);
+          setTimeout(animate, 60);
         } else {
-          // Result
-          var multipliers = getMultipliers();
-          var colors = getColors();
-          var bucketW = W/multipliers.length;
-          var bucket = Math.min(multipliers.length-1, Math.max(0, Math.floor(x/bucketW)));
-          var multi = multipliers[bucket];
-          var winnings = Math.floor(currentBet*multi);
+          // Determine bucket
+          var bucketW = W / mults.length;
+          var bucket = Math.min(mults.length - 1, Math.max(0, Math.floor(x / bucketW)));
+          var multi = mults[bucket];
+          var winnings = Math.round(currentBet * multi * 100) / 100;
           balance += winnings;
-          document.getElementById('balance').textContent = balance+'€';
+          document.getElementById('balance').textContent = Math.round(balance) + '€';
 
-          var earned = multi>=3?5:multi>=1?2:0;
-          if (earned>0) {
-            var mc=parseInt(localStorage.getItem('melchior_coins')||'0')+earned;
-            localStorage.setItem('melchior_coins',mc.toString());
+          var earned = multi >= 10 ? 10 : multi >= 3 ? 5 : multi >= 1 ? 2 : 0;
+          if (earned > 0) {
+            var mc = parseInt(localStorage.getItem('melchior_coins') || '0') + earned;
+            localStorage.setItem('melchior_coins', mc.toString());
             updateMC();
           }
-          var coinText = earned>0?' <span class="text-gold text-sm">+'+earned+'⭐</span>':'';
+          var coinTxt = earned > 0 ? ' <span class="text-gold text-sm">+' + earned + '⭐</span>' : '';
+          var col = getColor(multi);
 
           var resEl = document.getElementById('result');
-          if (multi>=3) {
-            resEl.innerHTML='<div class="bg-gradient-to-r from-green-500 to-green-600 text-white font-extrabold text-lg px-6 py-2 rounded-2xl shadow-xl animate-bounce">🎉 '+multi+'x — '+winnings+'€ !'+coinText+'</div>';
-          } else if (multi>=1) {
-            resEl.innerHTML='<div class="bg-gradient-to-r from-blue-500 to-blue-600 text-white font-extrabold text-lg px-6 py-2 rounded-2xl shadow-xl">'+multi+'x — '+winnings+'€'+coinText+'</div>';
+          if (multi >= 10) {
+            resEl.innerHTML = '<div class="bg-gradient-to-r from-red-500 to-orange-500 text-white font-extrabold text-xl px-8 py-3 rounded-2xl shadow-xl animate-bounce">🎉 ' + multi + 'x — ' + winnings + '€ !' + coinTxt + '</div>';
+          } else if (multi >= 1) {
+            resEl.innerHTML = '<div class="text-white font-extrabold text-lg px-6 py-2 rounded-2xl shadow-lg" style="background:linear-gradient(to right,' + col + '99,' + col + '66)">' + multi + 'x — ' + winnings + '€' + coinTxt + '</div>';
           } else {
-            resEl.innerHTML='<div class="bg-gradient-to-r from-gray-500 to-gray-600 text-white font-extrabold text-lg px-6 py-2 rounded-2xl shadow-xl">'+multi+'x — '+winnings+'€</div>';
+            resEl.innerHTML = '<div class="bg-gradient-to-r from-gray-600 to-gray-700 text-white font-bold text-lg px-6 py-2 rounded-2xl shadow-lg">' + multi + 'x — ' + winnings + '€</div>';
           }
 
-          // History
-          plinkoHistory.unshift({multi:multi,color:colors[bucket]});
-          if(plinkoHistory.length>12) plinkoHistory.pop();
-          document.getElementById('plinko-history').innerHTML=plinkoHistory.map(function(h){
-            return '<span class="text-[10px] font-bold px-2 py-1 rounded-full text-white" style="background:'+h.color+'">'+h.multi+'x</span>';
+          // Highlight winning bucket
+          drawBoard(path[path.length - 1].x, path[path.length - 1].y, trail);
+
+          plinkoHistory.unshift({ multi: multi, color: col });
+          if (plinkoHistory.length > 15) plinkoHistory.pop();
+          document.getElementById('plinko-history').innerHTML = plinkoHistory.map(function(h) {
+            return '<span class="text-[10px] font-bold px-2 py-1 rounded-full text-white" style="background:' + h.color + '">' + h.multi + 'x</span>';
           }).join('');
 
           dropping = false;
