@@ -126,8 +126,8 @@ import { casinos } from '../../data/casinos';
 
   <script is:inline>
     // Balance
-    function getBalance() { return parseInt(localStorage.getItem('melchior_coins') || '1000'); }
-    function setBalance(v) { localStorage.setItem('melchior_coins', Math.round(v).toString()); }
+    function getBalance() { return parseFloat(localStorage.getItem('melchior_coins') || '1000000'); }
+    function setBalance(v) { localStorage.setItem('melchior_coins', v.toFixed(2)); window.dispatchEvent(new Event('coins-updated')); }
     var balance = getBalance();
     var currentBet = 10;
 
