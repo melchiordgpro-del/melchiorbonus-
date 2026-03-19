@@ -325,20 +325,35 @@ const actionNames: Record<string, {label: string, color: string, desc: string}> 
 
     function generateQuiz() {
       quizActive = true;
-      quizC1 = quizCards[Math.floor(Math.random() * quizCards.length)];
-      quizC2 = quizCards[Math.floor(Math.random() * quizCards.length)];
-      quizD = quizCards[Math.floor(Math.random() * quizCards.length)];
+
+      // Generate until we get a non-obvious hand (no blackjack, no 20/21)
+      var attempts = 0;
+      do {
+        quizC1 = quizCards[Math.floor(Math.random() * quizCards.length)];
+        quizC2 = quizCards[Math.floor(Math.random() * quizCards.length)];
+        quizD = quizCards[Math.floor(Math.random() * quizCards.length)];
+        var v1 = cardValue(quizC1), v2 = cardValue(quizC2);
+        var total = v1 + v2;
+        if (total > 21) total -= 10;
+        attempts++;
+      } while ((total >= 20 || (quizC1 === 'A' && v2 === 10) || (quizC2 === 'A' && v1 === 10)) && attempts < 50);
 
       renderQuizCard('quiz-card1', quizC1);
       renderQuizCard('quiz-card2', quizC2);
       renderQuizCard('quiz-dealer', quizD);
 
-      var v1 = cardValue(quizC1), v2 = cardValue(quizC2);
-      var total = v1 + v2;
-      if (total > 21) total -= 10;
       document.getElementById('quiz-total').textContent = total + ' points';
 
       quizCorrectAnswer = getAdvice(quizC1, quizC2, quizD);
+
+      // Show/hide Split button based on whether it's a pair
+      var isPair = quizC1 === quizC2;
+      var splitBtn = document.querySelector('.quiz-answer[data-answer="P"]');
+      if (isPair) {
+        splitBtn.classList.remove('hidden');
+      } else {
+        splitBtn.classList.add('hidden');
+      }
 
       // Reset UI
       document.getElementById('quiz-feedback').classList.add('hidden');
