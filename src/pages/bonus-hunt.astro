@@ -280,25 +280,29 @@ import { casinos } from '../data/casinos';
     }
     return '<div style="width:'+size+'px;height:'+size+'px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:'+(size*0.45)+'px;font-weight:900;color:#fff;' + getProviderGradient(name) + '">' + name.charAt(0) + '</div>';
   }
+  var PROVIDER_LOGOS = {
+    'Pragmatic Play': '/providers/pragmatic.svg',
+    'Hacksaw Gaming': '/providers/hacksaw.svg',
+    'Nolimit City': '/providers/nolimit.svg',
+    'Push Gaming': '/providers/push.svg',
+    "Play'n GO": '/providers/playngo.svg',
+    'Relax Gaming': '/providers/relax.svg',
+    'NetEnt': '/providers/netent.svg',
+    'Big Time Gaming': '/providers/btg.svg',
+    'ELK Studios': '/providers/elk.svg',
+    'Novomatic': '/providers/novomatic.svg',
+    'Thunderkick': '/providers/thunderkick.svg',
+    'Red Tiger': '/providers/redtiger.svg',
+    'Yggdrasil': '/providers/yggdrasil.svg',
+    'Microgaming': '/providers/microgaming.svg',
+  };
+
   function getProviderBadge(provider) {
-    var badges = {
-      'Pragmatic Play': {t:'PP',c:'#f59e0b',bg:'#f59e0b22'},
-      'Hacksaw Gaming': {t:'HG',c:'#ef4444',bg:'#ef444422'},
-      'Nolimit City': {t:'NL',c:'#8b5cf6',bg:'#8b5cf622'},
-      'Push Gaming': {t:'PG',c:'#10b981',bg:'#10b98122'},
-      "Play'n GO": {t:'PG',c:'#3b82f6',bg:'#3b82f622'},
-      'Relax Gaming': {t:'RG',c:'#ec4899',bg:'#ec489922'},
-      'NetEnt': {t:'NE',c:'#06b6d4',bg:'#06b6d422'},
-      'Big Time Gaming': {t:'BT',c:'#f97316',bg:'#f9731622'},
-      'ELK Studios': {t:'EK',c:'#84cc16',bg:'#84cc1622'},
-      'Novomatic': {t:'NV',c:'#14b8a6',bg:'#14b8a622'},
-      'Thunderkick': {t:'TK',c:'#a855f7',bg:'#a855f722'},
-      'Red Tiger': {t:'RT',c:'#dc2626',bg:'#dc262622'},
-      'Yggdrasil': {t:'YG',c:'#22d3ee',bg:'#22d3ee22'},
-      'Microgaming': {t:'MG',c:'#6366f1',bg:'#6366f122'},
-    };
-    var b = badges[provider] || {t:provider.substring(0,2).toUpperCase(),c:'#9ca3af',bg:'#9ca3af22'};
-    return '<span style="display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:4px;font-size:8px;font-weight:900;color:'+b.c+';background:'+b.bg+';border:1px solid '+b.c+'33;flex-shrink:0">'+b.t+'</span>';
+    var logo = PROVIDER_LOGOS[provider];
+    if (logo) {
+      return '<img src="'+logo+'" alt="'+provider+'" width="22" height="22" style="border-radius:4px;flex-shrink:0" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'inline-flex\'" /><span style="display:none;width:22px;height:22px;border-radius:4px;font-size:8px;font-weight:900;color:#9ca3af;background:#9ca3af22;align-items:center;justify-content:center;flex-shrink:0">'+provider.substring(0,2).toUpperCase()+'</span>';
+    }
+    return '<span style="display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:4px;font-size:8px;font-weight:900;color:#9ca3af;background:#9ca3af22;flex-shrink:0">'+provider.substring(0,2).toUpperCase()+'</span>';
   }
 
   function getProviderGradient(name) {
