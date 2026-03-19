@@ -43,10 +43,6 @@ const topLineClass = rank === 1 ? 'card-top-gold' : rank === 2 ? 'card-top-silve
         <h3 class="text-white font-bold text-lg group-hover:text-primary transition-colors truncate">
           <a href={`/casinos/${casino.slug}`}>{casino.name}</a>
         </h3>
-        <div class="flex items-center gap-1">
-          <span class="text-primary-light text-sm">{'★'.repeat(Math.floor(casino.rating))}</span>
-          <span class="text-gray-400 text-sm">{casino.rating}/5</span>
-        </div>
       </div>
     </div>
   </div>
