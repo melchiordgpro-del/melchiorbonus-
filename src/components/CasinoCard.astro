@@ -15,7 +15,7 @@ const offertMatch = casino.bonusDescription.match(/(\d+€)\s*(offert|gratuit)/i
 const offertAmount = offertMatch ? offertMatch[1] : null;
 ---
 
-<div class:list={["group relative bg-bg-card border rounded-2xl overflow-hidden transition-all duration-300 hover:shadow-xl flex flex-col", borderColor, topLineClass, isFirst ? "hover:shadow-yellow-500/15 lg:scale-105 z-10" : "hover:shadow-primary/10 card-hover"]}>
+<div class:list={["group relative bg-bg-card border rounded-2xl overflow-hidden transition-all duration-300 hover:shadow-xl flex flex-col", borderColor, topLineClass, isFirst ? "hover:shadow-yellow-500/15" : "hover:shadow-primary/10 card-hover"]}>
   <!-- Top badges -->
   <div class="flex items-center justify-between px-4 pt-3">
     <div class="flex items-center gap-2">
@@ -55,7 +55,7 @@ const offertAmount = offertMatch ? offertMatch[1] : null;
   <!-- Big Offer Box -->
   <div class="mx-4 mb-3">
     <div class:list={["rounded-xl p-4 text-center border-2", rank === 1 ? "bg-yellow-500/5 border-yellow-500/40" : "bg-bg-surface border-bg-border"]}>
-      <p class:list={["font-black uppercase tracking-wider", rank === 1 ? "text-yellow-400 text-3xl" : "text-accent-green text-2xl"]}>
+      <p class:list={["font-black uppercase tracking-wider text-2xl", rank === 1 ? "text-yellow-400" : "text-accent-green"]}>
         {offertAmount ? offertAmount + ' OFFERTS*' : casino.bonusAmount}
       </p>
       <p class="text-gray-400 text-xs mt-2">{casino.bonusDescription.replace(/—.*/, '').trim()}</p>
