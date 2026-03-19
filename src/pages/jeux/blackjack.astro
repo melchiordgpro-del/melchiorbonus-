@@ -428,6 +428,7 @@ import { casinos } from '../../data/casinos';
       renderHand(document.getElementById('dealer-cards'), dealerHand);
       updateScores(); updateBalance();
       gameActive = true;
+      resetInactivityTimer();
 
       // Dealer Ace -> insurance
       if (dealerHand[1].value === 'A') { showPhase('insurance'); return; }
@@ -703,6 +704,25 @@ import { casinos } from '../../data/casinos';
     document.getElementById('btn-split').addEventListener('click', splitHand);
     document.getElementById('btn-insurance').addEventListener('click', takeInsurance);
     document.getElementById('btn-no-insurance').addEventListener('click', declineInsurance);
+
+    // --- Auto-stand after 10 min inactivity ---
+    var inactivityTimer = null;
+    function resetInactivityTimer() {
+      if (inactivityTimer) clearTimeout(inactivityTimer);
+      if (gameActive) {
+        inactivityTimer = setTimeout(function() {
+          if (gameActive) {
+            showResult('⏰ Temps écoulé — Stand automatique', 'push');
+            stand();
+          }
+        }, 600000); // 10 minutes
+      }
+    }
+    // Reset timer on any game action
+    ['btn-hit','btn-stand','btn-double','btn-split','btn-deal','btn-insurance','btn-no-insurance'].forEach(function(id) {
+      var el = document.getElementById(id);
+      if (el) el.addEventListener('click', resetInactivityTimer);
+    });
 
     // --- Init ---
     deck = createDeck();
