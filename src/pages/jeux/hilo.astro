@@ -1,11 +1,13 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 import AuthGate from '../../components/AuthGate.astro';
+import UnderConstruction from '../../components/UnderConstruction.astro';
 import { casinos } from '../../data/casinos';
 ---
 
 <Layout title="HiLo | MelchiorBonus" description="Joue au HiLo (Higher or Lower) sur MelchiorBonus. Style Stake.">
   <AuthGate>
+  <UnderConstruction>
   <section class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
     <h1 class="text-2xl font-extrabold text-white mb-4 flex items-center gap-2">📈 HiLo</h1>
 
@@ -122,6 +124,7 @@ import { casinos } from '../../data/casinos';
       </div>
     </div>
   </section>
+  </UnderConstruction>
   </AuthGate>
 
   <script is:inline>

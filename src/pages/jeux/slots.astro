@@ -1,6 +1,7 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 import AuthGate from '../../components/AuthGate.astro';
+import UnderConstruction from '../../components/UnderConstruction.astro';
 import { slots, getSlotsByProvider } from '../../data/slots';
 import { casinos } from '../../data/casinos';
 
@@ -11,6 +12,7 @@ const allSlotsSorted = [...slots].sort((a, b) => b.players - a.players);
 
 <Layout title="Slots — Jouer en démo ou en argent réel | MelchiorBonus" description="Joue aux meilleures machines à sous en démo gratuite ou en argent réel sur nos casinos partenaires.">
   <AuthGate>
+  <UnderConstruction>
   <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
     <!-- Header -->
     <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
@@ -169,5 +171,6 @@ const allSlotsSorted = [...slots].sort((a, b) => b.players - a.players);
       cards.forEach(function(card) { grid.appendChild(card); });
     });
   </script>
+  </UnderConstruction>
   </AuthGate>
 </Layout>

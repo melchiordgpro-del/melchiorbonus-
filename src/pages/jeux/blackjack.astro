@@ -1,11 +1,13 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 import AuthGate from '../../components/AuthGate.astro';
+import UnderConstruction from '../../components/UnderConstruction.astro';
 import { casinos } from '../../data/casinos';
 ---
 
 <Layout title="Blackjack Américain — Table Virtuelle | MelchiorBonus" description="Joue au Blackjack Américain sur une table virtuelle. Règles classiques, double down, split, insurance.">
   <AuthGate>
+  <UnderConstruction>
   <section class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
     <div class="flex items-center justify-between mb-4">
       <h1 class="text-2xl font-extrabold text-white flex items-center gap-2">🃏 Blackjack Américain</h1>
@@ -980,5 +982,6 @@ import { casinos } from '../../data/casinos';
       _origEndHand(text, type, balAdd, fast);
     };
   </script>
+  </UnderConstruction>
   </AuthGate>
 </Layout>

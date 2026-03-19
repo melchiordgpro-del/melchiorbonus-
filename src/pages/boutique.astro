@@ -1,11 +1,13 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import AuthGate from '../components/AuthGate.astro';
+import UnderConstruction from '../components/UnderConstruction.astro';
 import { casinos } from '../data/casinos';
 ---
 
 <Layout title="Boutique — Gagne des points et échange-les | MelchiorBonus" description="Complete des tâches, gagne des MelchiorCoins et échange-les contre des récompenses exclusives.">
   <AuthGate>
+  <UnderConstruction>
   <section class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
     <div class="flex items-center justify-between mb-8">
       <div>
@@ -173,6 +175,7 @@ import { casinos } from '../data/casinos';
       </div>
     </div>
   </section>
+  </UnderConstruction>
   </AuthGate>
 
   <script is:inline>
