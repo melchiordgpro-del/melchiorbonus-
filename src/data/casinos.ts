@@ -84,7 +84,7 @@ export const casinos: Casino[] = [
     bannerImage: "https://cdn.beacons.ai/user_content/utoICWn4YnWZ9kTPzJLpbuWnXhM2/referenced_images/generated-images__link-in-bio__links-block__home__785d9f26-e1b4-42af-bce5-0653af95365e__7323cc88-13d1-438f-b89c-d44acd1e0128__df5d9469-96ce-4410-8a4d-7d6f1cfd839b.webp",
     rating: 4.6,
     bonusTitle: "Bonus de Bienvenue",
-    bonusAmount: "150€ + 25€ Offert",
+    bonusAmount: "25€ Offerts*",
     bonusDescription: "Bonus 100% sur votre premier dépôt jusqu'à 150€",
     affiliateUrl: "https://partners.shinywildpartners.com/v2/text/127/6/7c81fb35-147d-11f0-bf43-cad21936ea85/1",
     pros: ["WAGER FREE — Pas de conditions de mise !", "Dépôt et retrait en carte bancaire", "25€ offert", "Retraits rapides"],
