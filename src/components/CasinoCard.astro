@@ -26,11 +26,18 @@ const offertAmount = offertMatch ? offertMatch[1] : null;
         OFFRE EXCLUSIVE
       </span>
     </div>
-    {casino.promoCode && (
-      <span class="text-[10px] font-bold px-2.5 py-1 rounded-full bg-accent-green/20 text-accent-green animate-pulse">
-        CODE ACTIF
-      </span>
-    )}
+    <div class="flex items-center gap-1.5">
+      {casino.promoCode && (
+        <span class="text-[10px] font-bold px-2.5 py-1 rounded-full bg-accent-green/20 text-accent-green animate-pulse">
+          CODE ACTIF
+        </span>
+      )}
+      {casino.maxBet && (
+        <span class="text-[10px] font-bold px-2.5 py-1 rounded-full bg-gold/10 text-gold border border-gold/20">
+          Max {casino.maxBet}
+        </span>
+      )}
+    </div>
   </div>
 
   <!-- Casino Name + Logo -->

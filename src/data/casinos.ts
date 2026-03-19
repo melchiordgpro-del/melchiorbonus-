@@ -22,6 +22,7 @@ export interface Casino {
   tags: string[];
   promoCode?: string;
   discordBonus?: string;
+  maxBet?: string;
 }
 
 export const casinos: Casino[] = [
@@ -48,6 +49,7 @@ export const casinos: Casino[] = [
     featured: true,
     tags: ["Top Pick", "Meilleur Bonus"],
     discordBonus: "25€ gratuit sur Discord",
+    maxBet: "5€",
   },
   {
     slug: "grandz-bet",
@@ -145,6 +147,7 @@ export const casinos: Casino[] = [
     featured: false,
     tags: ["150%", "Wager x35"],
     discordBonus: "25€ gratuit sur Discord",
+    maxBet: "5€",
   },
 ];
 
