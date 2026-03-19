@@ -1,0 +1,246 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import AuthGate from '../../components/AuthGate.astro';
+
+// Basic strategy lookup tables
+const hardStrategy: Record<string, Record<string, string>> = {
+  '21':'SSSSSSSSSS','20':'SSSSSSSSSS','19':'SSSSSSSSSS','18':'SSSSSSSSSS','17':'SSSSSSSSSS',
+  '16':'SSSSSHHHHH','15':'SSSSSHHHHH','14':'SSSSSHHHHH','13':'SSSSSHHHHH',
+  '12':'HHSSSHHHHH','11':'DDDDDDDDDD','10':'DDDDDDDDHH','9':'HDDDDHHHHH',
+  '8':'HHHHHHHHHH','7':'HHHHHHHHHH','6':'HHHHHHHHHH','5':'HHHHHHHHHH',
+};
+const softStrategy: Record<string, Record<string, string>> = {
+  '20':'SSSSSSSSSS','19':'SSSSDSSSSS','18':'DDDDDSSHHH','17':'HDDDDHHHHH',
+  '16':'HHDDDHHHHH','15':'HHDDDHHHHH','14':'HHHDDHHHHH','13':'HHHDDHHHHH',
+};
+const pairStrategy: Record<string, Record<string, string>> = {
+  'A':'PPPPPPPPPP','10':'SSSSSSSSSS','9':'PPPPPSPPSS','8':'PPPPPPPPPP',
+  '7':'PPPPPPHHHH','6':'PPPPPHHHHHH','5':'DDDDDDDDHH','4':'HHHPPHHHHHH',
+  '3':'PPPPPPHHHH','2':'PPPPPPHHHH',
+};
+const dealerIndex: Record<string, number> = {'2':0,'3':1,'4':2,'5':3,'6':4,'7':5,'8':6,'9':7,'10':8,'A':9};
+const actionNames: Record<string, {label: string, color: string, desc: string}> = {
+  'H': {label: 'TIRER', color: '#22c55e', desc: 'Demande une carte supplémentaire'},
+  'S': {label: 'RESTER', color: '#ef4444', desc: 'Garde ta main actuelle'},
+  'D': {label: 'DOUBLER', color: '#f5b83d', desc: 'Double ta mise et prends 1 seule carte'},
+  'P': {label: 'SÉPARER', color: '#3b82f6', desc: 'Sépare ta paire en 2 mains'},
+};
+---
+
+<Layout title="Extension Blackjack — Assistant en temps réel | MelchiorBonus" description="Extension du tableau de Blackjack. Entrez vos cartes et celles du dealer pour obtenir la meilleure décision.">
+  <AuthGate>
+  <section class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="flex items-center justify-between mb-6">
+      <div>
+        <h1 class="text-2xl font-extrabold text-white flex items-center gap-2">🧠 Extension Blackjack</h1>
+        <p class="text-gray-400 text-sm">Assistant de stratégie en temps réel — Exclusif membres</p>
+      </div>
+      <a href="/jeux/blackjack-tableau" class="text-gray-400 hover:text-white text-xs font-medium transition-colors">📊 Voir le tableau complet</a>
+    </div>
+
+    <!-- Input Section -->
+    <div class="bg-[#1a1d23] border border-[#2a2d35] rounded-2xl p-6 mb-6">
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+        <!-- Your Card 1 -->
+        <div>
+          <p class="text-gray-400 text-xs uppercase tracking-wider mb-2">Ta carte 1</p>
+          <div class="grid grid-cols-5 gap-2" id="card1-grid">
+            {['A','2','3','4','5','6','7','8','9','10'].map(v => (
+              <button data-card="1" data-value={v} class="card-btn bg-[#0e1015] border border-[#2a2d35] text-white font-bold text-sm py-2.5 rounded-lg hover:border-primary/50 transition-all cursor-pointer">
+                {v}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <!-- Your Card 2 -->
+        <div>
+          <p class="text-gray-400 text-xs uppercase tracking-wider mb-2">Ta carte 2</p>
+          <div class="grid grid-cols-5 gap-2" id="card2-grid">
+            {['A','2','3','4','5','6','7','8','9','10'].map(v => (
+              <button data-card="2" data-value={v} class="card-btn bg-[#0e1015] border border-[#2a2d35] text-white font-bold text-sm py-2.5 rounded-lg hover:border-primary/50 transition-all cursor-pointer">
+                {v}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <!-- Dealer Card -->
+        <div>
+          <p class="text-gray-400 text-xs uppercase tracking-wider mb-2">Carte du dealer</p>
+          <div class="grid grid-cols-5 gap-2" id="dealer-grid">
+            {['A','2','3','4','5','6','7','8','9','10'].map(v => (
+              <button data-card="dealer" data-value={v} class="card-btn bg-[#0e1015] border border-[#2a2d35] text-white font-bold text-sm py-2.5 rounded-lg hover:border-primary/50 transition-all cursor-pointer">
+                {v}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Result Display -->
+    <div id="advice-result" class="hidden">
+      <!-- Cards Display -->
+      <div class="flex items-center justify-center gap-8 mb-6">
+        <div class="text-center">
+          <p class="text-gray-500 text-xs uppercase mb-2">Tes cartes</p>
+          <div class="flex gap-2 justify-center">
+            <div id="display-card1" class="w-14 h-20 bg-white rounded-lg flex items-center justify-center text-xl font-bold text-gray-900 shadow-lg"></div>
+            <div id="display-card2" class="w-14 h-20 bg-white rounded-lg flex items-center justify-center text-xl font-bold text-gray-900 shadow-lg"></div>
+          </div>
+          <p class="text-white font-bold mt-2" id="display-total"></p>
+        </div>
+        <div class="text-gray-600 text-2xl">VS</div>
+        <div class="text-center">
+          <p class="text-gray-500 text-xs uppercase mb-2">Dealer</p>
+          <div class="flex gap-2 justify-center">
+            <div id="display-dealer" class="w-14 h-20 bg-white rounded-lg flex items-center justify-center text-xl font-bold text-gray-900 shadow-lg"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recommendation -->
+      <div id="advice-box" class="rounded-2xl p-8 text-center mb-6" style="border: 3px solid;">
+        <p class="text-6xl font-extrabold mb-2" id="advice-action"></p>
+        <p class="text-white text-lg font-bold" id="advice-desc"></p>
+        <p class="text-gray-400 text-sm mt-2" id="advice-explain"></p>
+      </div>
+
+      <!-- Quick reset -->
+      <div class="text-center">
+        <button id="reset-btn" class="bg-[#2a2d35] hover:bg-[#3a3d45] text-gray-300 font-bold text-sm px-6 py-2.5 rounded-lg transition-all">
+          🔄 Nouvelle main
+        </button>
+        <a href="/jeux/blackjack" class="ml-3 bg-accent-green hover:bg-accent-green/80 text-white font-bold text-sm px-6 py-2.5 rounded-lg transition-all inline-block">
+          🃏 Jouer au Blackjack
+        </a>
+      </div>
+    </div>
+
+    <!-- Placeholder when no cards selected -->
+    <div id="advice-placeholder" class="bg-[#1a1d23] border border-[#2a2d35] rounded-2xl p-10 text-center">
+      <span class="text-5xl mb-4 block">🃏</span>
+      <p class="text-white font-bold text-lg mb-2">Sélectionne tes cartes</p>
+      <p class="text-gray-500 text-sm">Clique sur tes 2 cartes et la carte visible du dealer pour obtenir la recommandation optimale.</p>
+    </div>
+  </section>
+  </AuthGate>
+
+  <script is:inline>
+    var card1 = null, card2 = null, dealerCard = null;
+
+    // Strategy tables (same as frontmatter but for JS)
+    var hard = {'21':'SSSSSSSSSS','20':'SSSSSSSSSS','19':'SSSSSSSSSS','18':'SSSSSSSSSS','17':'SSSSSSSSSS','16':'SSSSSHHHHH','15':'SSSSSHHHHH','14':'SSSSSHHHHH','13':'SSSSSHHHHH','12':'HHSSSHHHHH','11':'DDDDDDDDDD','10':'DDDDDDDDHH','9':'HDDDDHHHHH','8':'HHHHHHHHHH','7':'HHHHHHHHHH','6':'HHHHHHHHHH','5':'HHHHHHHHHH'};
+    var soft = {'20':'SSSSSSSSSS','19':'SSSSDSSSSS','18':'DDDDDSSHHH','17':'HDDDDHHHHH','16':'HHDDDHHHHH','15':'HHDDDHHHHH','14':'HHHDDHHHHH','13':'HHHDDHHHHH'};
+    var pairs = {'A':'PPPPPPPPPP','10':'SSSSSSSSSS','9':'PPPPPSPPSS','8':'PPPPPPPPPP','7':'PPPPPPHHHHH','6':'PPPPPHHHHH','5':'DDDDDDDDHH','4':'HHHPPHHHHH','3':'PPPPPPHHHHH','2':'PPPPPPHHHHH'};
+    var dIdx = {'2':0,'3':1,'4':2,'5':3,'6':4,'7':5,'8':6,'9':7,'10':8,'A':9};
+    var actionInfo = {
+      'H': {label:'TIRER (HIT)', color:'#22c55e', desc:'Demande une carte supplémentaire'},
+      'S': {label:'RESTER (STAND)', color:'#ef4444', desc:'Garde ta main actuelle'},
+      'D': {label:'DOUBLER (DOUBLE)', color:'#f5b83d', desc:'Double ta mise et prends 1 seule carte'},
+      'P': {label:'SÉPARER (SPLIT)', color:'#3b82f6', desc:'Sépare ta paire en 2 mains'},
+    };
+
+    function cardValue(v) { return v === 'A' ? 11 : parseInt(v) || 10; }
+
+    function getAdvice(c1, c2, dealer) {
+      var di = dIdx[dealer];
+      if (di === undefined) return null;
+
+      // Check for pair
+      if (c1 === c2 && pairs[c1]) {
+        var action = pairs[c1][di];
+        if (action === 'P') return action;
+      }
+
+      // Check for soft hand (has ace counted as 11)
+      var hasAce = (c1 === 'A' || c2 === 'A');
+      var v1 = cardValue(c1), v2 = cardValue(c2);
+      var total = v1 + v2;
+      if (total > 21 && hasAce) total -= 10;
+
+      if (hasAce && total <= 21 && (v1 === 11 || v2 === 11)) {
+        // Soft hand
+        var softKey = total.toString();
+        if (soft[softKey]) return soft[softKey][di];
+      }
+
+      // Hard hand
+      var hardKey = total.toString();
+      if (total >= 17) hardKey = '17';
+      if (total <= 8) hardKey = '8';
+      if (hard[hardKey]) return hard[hardKey][di];
+
+      return 'S';
+    }
+
+    // Card selection
+    document.querySelectorAll('.card-btn').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        var which = btn.dataset.card;
+        var val = btn.dataset.value;
+
+        // Deselect others in same group
+        var gridId = which === '1' ? 'card1-grid' : which === '2' ? 'card2-grid' : 'dealer-grid';
+        document.querySelectorAll('#' + gridId + ' .card-btn').forEach(function(b) {
+          b.classList.remove('ring-2', 'ring-primary', 'bg-primary/20');
+          b.classList.add('bg-[#0e1015]');
+        });
+        btn.classList.add('ring-2', 'ring-primary', 'bg-primary/20');
+        btn.classList.remove('bg-[#0e1015]');
+
+        if (which === '1') card1 = val;
+        else if (which === '2') card2 = val;
+        else dealerCard = val;
+
+        // Check if all selected
+        if (card1 && card2 && dealerCard) showAdvice();
+      });
+    });
+
+    function showAdvice() {
+      document.getElementById('advice-placeholder').classList.add('hidden');
+      document.getElementById('advice-result').classList.remove('hidden');
+
+      // Display cards
+      document.getElementById('display-card1').textContent = card1;
+      document.getElementById('display-card2').textContent = card2;
+      document.getElementById('display-dealer').textContent = dealerCard;
+
+      var v1 = cardValue(card1), v2 = cardValue(card2);
+      var total = v1 + v2;
+      if (total > 21) total -= 10;
+      document.getElementById('display-total').textContent = total + ' points';
+
+      var action = getAdvice(card1, card2, dealerCard);
+      var info = actionInfo[action] || actionInfo['H'];
+
+      document.getElementById('advice-action').textContent = info.label;
+      document.getElementById('advice-action').style.color = info.color;
+      document.getElementById('advice-desc').textContent = info.desc;
+      var box = document.getElementById('advice-box');
+      box.style.borderColor = info.color;
+      box.style.background = info.color + '11';
+
+      // Extra explanation
+      var isPair = card1 === card2;
+      var hasAce = card1 === 'A' || card2 === 'A';
+      var explain = '';
+      if (isPair) explain = 'Tu as une paire de ' + card1 + '. ';
+      if (hasAce) explain += 'Main douce (avec As). ';
+      explain += 'Contre un ' + dealerCard + ' du dealer, la stratégie optimale est de ' + info.label.toLowerCase() + '.';
+      document.getElementById('advice-explain').textContent = explain;
+    }
+
+    document.getElementById('reset-btn').addEventListener('click', function() {
+      card1 = null; card2 = null; dealerCard = null;
+      document.querySelectorAll('.card-btn').forEach(function(b) {
+        b.classList.remove('ring-2', 'ring-primary', 'bg-primary/20');
+        b.classList.add('bg-[#0e1015]');
+      });
+      document.getElementById('advice-result').classList.add('hidden');
+      document.getElementById('advice-placeholder').classList.remove('hidden');
+    });
+  </script>
+</Layout>
