@@ -192,13 +192,15 @@ const topCasinos = casinos.slice(0, 5);
         name: 'Vibe Bet',
         logo: '🎯',
         offert: 25,
-        minDepositOffert: 25,
+        minDepositOffert: 20,
         deposits: [
-          { pct: 150, max: 1500, fs: 0 }
+          { pct: 150, max: 500, fs: 100, fsGame: 'Le King (Hacksaw)', wager: 'x35' },
+          { pct: 100, max: 300, fs: 100, fsGame: 'Le Cowboy (Hacksaw)', wager: 'x30' },
+          { pct: 100, max: 300, fs: 100, fsGame: 'Sun Princess (Hacksaw)', wager: 'x25' }
         ],
-        maxDeposit: 1000,
-        wager: 'x35',
-        note: '1er dépôt uniquement'
+        maxDeposit: 1100,
+        wager: 'x35/x30/x25',
+        note: 'Réparti sur 3 dépôts — Wager dégressif'
       }
     ];
 
@@ -225,7 +227,11 @@ const topCasinos = casinos.slice(0, 5);
           totalBonus += bonus;
           totalFS += d.fs;
           if (c.deposits.length > 1) {
-            details.push('Dépôt ' + (i+1) + ': +' + Math.round(bonus) + '€' + (d.fs ? ' + ' + d.fs + ' FS' : ''));
+            var detail = 'Dépôt ' + (i+1) + ': +' + Math.round(bonus) + '€';
+            if (d.fs) detail += ' + ' + d.fs + ' FS';
+            if (d.fsGame) detail += ' (' + d.fsGame + ')';
+            if (d.wager) detail += ' — Wager ' + d.wager;
+            details.push(detail);
             remaining -= depAmount;
           }
         });
