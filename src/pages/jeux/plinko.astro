@@ -3,97 +3,90 @@ import Layout from '../../layouts/Layout.astro';
 import AuthGate from '../../components/AuthGate.astro';
 ---
 
-<Layout title="Plinko | MelchiorBonus" description="Joue au Plinko virtuel sur MelchiorBonus. Style Stake avec 3 niveaux de risque.">
+<Layout title="Plinko | MelchiorBonus" description="Joue au Plinko sur MelchiorBonus. Style Stake.">
   <AuthGate>
   <section class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
     <h1 class="text-2xl font-extrabold text-white mb-4 flex items-center gap-2">📍 Plinko</h1>
 
-    <div class="flex flex-col lg:flex-row gap-4">
-      <!-- LEFT: Controls -->
-      <div class="lg:w-72 flex-shrink-0 bg-bg-card border border-bg-border rounded-2xl p-5 flex flex-col gap-4">
-        <div>
-          <p class="text-gray-500 text-[10px] uppercase tracking-wider mb-1">Solde</p>
-          <p class="text-gold font-extrabold text-2xl" id="balance">1000€</p>
-        </div>
-        <div class="border-t border-bg-border"></div>
-        <div>
-          <p class="text-gray-500 text-[10px] uppercase tracking-wider mb-1">Mise</p>
-          <div class="flex items-center gap-2">
-            <button id="bet-half" class="bg-bg-surface border border-bg-border text-gray-400 font-bold text-xs px-3 py-1.5 rounded-lg hover:border-primary/30">½</button>
-            <p class="text-primary-light font-extrabold text-xl flex-1 text-center" id="current-bet-display">10€</p>
-            <button id="bet-double" class="bg-bg-surface border border-bg-border text-gray-400 font-bold text-xs px-3 py-1.5 rounded-lg hover:border-primary/30">x2</button>
-          </div>
+    <div class="flex flex-col lg:flex-row gap-0 rounded-xl overflow-hidden border border-[#2a2d35]">
+      <!-- LEFT: Controls (Stake style) -->
+      <div class="lg:w-64 flex-shrink-0 bg-[#1a1d23] p-5 flex flex-col gap-4">
+        <!-- Manual/Auto tabs -->
+        <div class="flex rounded-lg overflow-hidden border border-[#2a2d35]">
+          <button class="flex-1 py-2 text-xs font-bold text-gray-400 bg-[#1a1d23] border-r border-[#2a2d35]">Manuel</button>
+          <button class="flex-1 py-2 text-xs font-bold text-white bg-[#2a2d35]">Auto</button>
         </div>
 
+        <!-- Bet Amount -->
         <div>
-          <p class="text-gray-500 text-[10px] uppercase tracking-wider mb-2">Jetons</p>
-          <div class="grid grid-cols-3 gap-2">
-            <div data-bet="1" class="chip w-full aspect-square rounded-full font-bold text-xs text-white flex items-center justify-center cursor-pointer select-none hover:scale-110 transition-transform" style="background:radial-gradient(circle at 35% 35%,#9ca3af,#4b5563);box-shadow:0 3px 6px rgba(0,0,0,0.4);border:3px dashed rgba(255,255,255,0.3);">1</div>
-            <div data-bet="5" class="chip w-full aspect-square rounded-full font-bold text-xs text-white flex items-center justify-center cursor-pointer select-none hover:scale-110 transition-transform" style="background:radial-gradient(circle at 35% 35%,#ef4444,#991b1b);box-shadow:0 3px 6px rgba(0,0,0,0.4);border:3px dashed rgba(255,255,255,0.3);">5</div>
-            <div data-bet="10" class="chip w-full aspect-square rounded-full font-bold text-xs text-white flex items-center justify-center cursor-pointer select-none hover:scale-110 transition-transform ring-2 ring-primary" style="background:radial-gradient(circle at 35% 35%,#3b82f6,#1e3a8a);box-shadow:0 3px 6px rgba(0,0,0,0.4);border:3px dashed rgba(255,255,255,0.3);">10</div>
-            <div data-bet="25" class="chip w-full aspect-square rounded-full font-bold text-xs text-white flex items-center justify-center cursor-pointer select-none hover:scale-110 transition-transform" style="background:radial-gradient(circle at 35% 35%,#22c55e,#15803d);box-shadow:0 3px 6px rgba(0,0,0,0.4);border:3px dashed rgba(255,255,255,0.3);">25</div>
-            <div data-bet="50" class="chip w-full aspect-square rounded-full font-bold text-xs text-black flex items-center justify-center cursor-pointer select-none hover:scale-110 transition-transform" style="background:radial-gradient(circle at 35% 35%,#facc15,#a16207);box-shadow:0 3px 6px rgba(0,0,0,0.4);border:3px dashed rgba(255,255,255,0.3);">50</div>
-            <div data-bet="100" class="chip w-full aspect-square rounded-full font-bold text-xs text-white flex items-center justify-center cursor-pointer select-none hover:scale-110 transition-transform" style="background:radial-gradient(circle at 35% 35%,#a855f7,#581c87);box-shadow:0 3px 6px rgba(0,0,0,0.4);border:3px dashed rgba(255,255,255,0.3);">100</div>
+          <p class="text-gray-400 text-xs mb-1.5">Mise</p>
+          <div class="flex items-center bg-[#0e1015] border border-[#2a2d35] rounded-lg overflow-hidden">
+            <input type="number" id="bet-input" value="10" min="1" class="flex-1 bg-transparent text-white font-bold text-sm px-3 py-2.5 outline-none w-20" />
+            <button id="bet-half" class="text-gray-500 hover:text-white font-bold text-xs px-2.5 py-2.5 border-l border-[#2a2d35] transition-colors">½</button>
+            <button id="bet-double" class="text-gray-500 hover:text-white font-bold text-xs px-2.5 py-2.5 border-l border-[#2a2d35] transition-colors">2×</button>
           </div>
         </div>
-        <div class="border-t border-bg-border"></div>
 
         <!-- Risk -->
         <div>
-          <p class="text-gray-500 text-[10px] uppercase tracking-wider mb-2">Risque</p>
-          <div class="grid grid-cols-3 gap-2">
-            <button data-risk="low" class="risk-btn bg-green-600/20 border border-green-500/30 text-green-400 font-bold py-2 rounded-lg text-xs transition-all hover:brightness-125">Faible</button>
-            <button data-risk="medium" class="risk-btn bg-yellow-600/20 border border-yellow-500/30 text-yellow-400 font-bold py-2 rounded-lg text-xs ring-2 ring-primary transition-all hover:brightness-125">Moyen</button>
-            <button data-risk="high" class="risk-btn bg-red-600/20 border border-red-500/30 text-red-400 font-bold py-2 rounded-lg text-xs transition-all hover:brightness-125">Élevé</button>
-          </div>
+          <p class="text-gray-400 text-xs mb-1.5">Risque</p>
+          <select id="risk-select" class="w-full bg-[#0e1015] border border-[#2a2d35] text-white font-bold text-sm px-3 py-2.5 rounded-lg outline-none cursor-pointer">
+            <option value="low">Faible</option>
+            <option value="medium" selected>Moyen</option>
+            <option value="high">Élevé</option>
+          </select>
         </div>
 
         <!-- Rows -->
         <div>
-          <p class="text-gray-500 text-[10px] uppercase tracking-wider mb-2">Lignes</p>
-          <div class="grid grid-cols-3 gap-2">
-            <button data-rows="8" class="rows-btn bg-bg-surface border border-bg-border text-gray-300 font-bold py-2 rounded-lg text-xs transition-all hover:border-primary/30">8</button>
-            <button data-rows="12" class="rows-btn bg-bg-surface border border-bg-border text-gray-300 font-bold py-2 rounded-lg text-xs ring-2 ring-primary transition-all hover:border-primary/30">12</button>
-            <button data-rows="16" class="rows-btn bg-bg-surface border border-bg-border text-gray-300 font-bold py-2 rounded-lg text-xs transition-all hover:border-primary/30">16</button>
-          </div>
+          <p class="text-gray-400 text-xs mb-1.5">Lignes</p>
+          <select id="rows-select" class="w-full bg-[#0e1015] border border-[#2a2d35] text-white font-bold text-sm px-3 py-2.5 rounded-lg outline-none cursor-pointer">
+            <option value="8">8</option>
+            <option value="12" selected>12</option>
+            <option value="16">16</option>
+          </select>
         </div>
 
-        <button id="btn-drop" class="btn-glow bg-accent-green hover:bg-accent-green/80 text-white font-bold py-3.5 rounded-xl transition-all text-sm uppercase tracking-wider w-full">Lâcher la bille !</button>
+        <!-- Bet Button -->
+        <button id="btn-drop" class="bg-[#00e701] hover:bg-[#00c801] text-black font-bold py-3 rounded-lg transition-all text-sm w-full">
+          Bet
+        </button>
 
-        <div class="border-t border-bg-border pt-3">
-          <div class="flex items-center justify-between text-sm mb-1">
-            <span class="text-gray-500">MelchiorCoins</span>
-            <span class="text-gold font-bold" id="mc-display">0⭐</span>
+        <!-- Balance -->
+        <div class="border-t border-[#2a2d35] pt-3 mt-auto">
+          <div class="flex items-center justify-between text-sm">
+            <span class="text-gray-500 text-xs">Solde</span>
+            <span class="text-white font-bold" id="balance">1000.00</span>
           </div>
-        </div>
-
-        <div>
-          <p class="text-gray-500 text-[10px] uppercase tracking-wider mb-2">Historique</p>
-          <div id="plinko-history" class="flex items-center gap-1.5 flex-wrap"></div>
+          <div class="flex items-center justify-between text-sm mt-1">
+            <span class="text-gray-500 text-xs">MelchiorCoins</span>
+            <span class="text-gold font-bold text-xs" id="mc-display">0⭐</span>
+          </div>
         </div>
       </div>
 
-      <!-- RIGHT: Plinko Board -->
-      <div class="flex-1 flex flex-col gap-4">
-        <div class="bg-bg-card border border-bg-border rounded-2xl p-4 flex justify-center">
-          <canvas id="plinko-canvas" width="600" height="520"></canvas>
-        </div>
-        <div id="result" class="text-center min-h-[40px] flex items-center justify-center"></div>
+      <!-- CENTER: Plinko Board -->
+      <div class="flex-1 bg-[#0e1015] relative">
+        <canvas id="plinko-canvas" width="620" height="540" class="w-full"></canvas>
+      </div>
+
+      <!-- RIGHT: Recent Results -->
+      <div class="lg:w-16 flex-shrink-0 bg-[#1a1d23] p-2 flex flex-col gap-1.5 items-center overflow-y-auto max-h-[540px]" id="results-sidebar">
       </div>
     </div>
+
+    <div id="result" class="text-center mt-4 min-h-[40px] flex items-center justify-center"></div>
   </section>
   </AuthGate>
 
   <script is:inline>
     var canvas = document.getElementById('plinko-canvas');
     var ctx = canvas.getContext('2d');
-    var W = 600, H = 520;
-    var balance = 1000, currentBet = 10, dropping = false;
+    var W = 620, H = 540;
+    var balance = 1000, currentBet = 10;
     var riskLevel = 'medium', numRows = 12;
-    var plinkoHistory = [];
-    var activeBalls = []; // support multiple balls
+    var activeBalls = [], animRunning = false;
 
-    // Stake-style multipliers
     var MULTIPLIERS = {
       low: {
         8:  [5.6, 2.1, 1.1, 1, 0.5, 1, 1.1, 2.1, 5.6],
@@ -114,169 +107,136 @@ import AuthGate from '../../components/AuthGate.astro';
 
     function getMultipliers() { return MULTIPLIERS[riskLevel][numRows]; }
 
-    function getColor(multi) {
-      if (multi >= 100) return '#ef4444';
-      if (multi >= 10) return '#f97316';
-      if (multi >= 3) return '#f59e0b';
-      if (multi >= 1) return '#22c55e';
-      if (multi >= 0.5) return '#3b82f6';
-      return '#6366f1';
+    function getBucketColor(multi, idx, total) {
+      // Stake-style: red at edges → orange → yellow → green in center
+      var center = (total - 1) / 2;
+      var dist = Math.abs(idx - center) / center; // 0=center, 1=edge
+      if (dist > 0.8) return '#ff003f';
+      if (dist > 0.6) return '#ff4500';
+      if (dist > 0.4) return '#ff8c00';
+      if (dist > 0.2) return '#ffa500';
+      return '#ffcc00';
     }
 
-    var PEG_SPACING = 38;
+    var PEG_SPACING = 36;
 
     function getPegPos(row, col) {
       var pegsInRow = row + 3;
       var rowWidth = (pegsInRow - 1) * PEG_SPACING;
       var startX = (W - rowWidth) / 2;
-      var startY = 45;
-      var rowH = (H - startY - 55) / numRows;
+      var startY = 40;
+      var rowH = (H - startY - 50) / numRows;
       return { x: startX + col * PEG_SPACING, y: startY + row * rowH };
     }
 
-    function drawBoard(ballX, ballY, trail) {
+    function drawBoard() {
       ctx.clearRect(0, 0, W, H);
-      var bg = ctx.createLinearGradient(0, 0, 0, H);
-      bg.addColorStop(0, '#110f28');
-      bg.addColorStop(1, '#0c0b1e');
-      ctx.fillStyle = bg;
+      // Dark background
+      ctx.fillStyle = '#0e1015';
       ctx.fillRect(0, 0, W, H);
 
-      // Pegs
+      // Pegs - simple white dots
       for (var row = 0; row < numRows; row++) {
         var pegsInRow = row + 3;
         for (var col = 0; col < pegsInRow; col++) {
           var p = getPegPos(row, col);
           ctx.beginPath();
-          ctx.arc(p.x, p.y, 3.5, 0, Math.PI * 2);
-          ctx.shadowColor = '#a78bfa';
-          ctx.shadowBlur = 5;
-          ctx.fillStyle = '#c4b5fd';
+          ctx.arc(p.x, p.y, 3, 0, Math.PI * 2);
+          ctx.fillStyle = '#ffffff';
           ctx.fill();
-          ctx.shadowBlur = 0;
         }
       }
 
-      // Buckets
+      // Buckets - Stake style colored
       var mults = getMultipliers();
       var bucketW = W / mults.length;
       for (var i = 0; i < mults.length; i++) {
-        var c = getColor(mults[i]);
-        ctx.fillStyle = c + '22';
-        var bx = i * bucketW + 1;
-        var bw = bucketW - 2;
-        ctx.fillRect(bx, H - 48, bw, 46);
-        // Top border
-        ctx.fillStyle = c + '88';
-        ctx.fillRect(bx, H - 48, bw, 3);
-        // Text
+        var c = getBucketColor(mults[i], i, mults.length);
+        var bx = i * bucketW + 2;
+        var bw = bucketW - 4;
+        // Rounded bucket
         ctx.fillStyle = c;
-        ctx.font = 'bold ' + (mults.length > 14 ? '9' : '11') + 'px Inter,sans-serif';
+        ctx.beginPath();
+        ctx.roundRect(bx, H - 38, bw, 32, 4);
+        ctx.fill();
+        // Text
+        ctx.fillStyle = '#000';
+        ctx.font = 'bold ' + (mults.length > 14 ? '8' : mults.length > 10 ? '9' : '11') + 'px Inter,system-ui,sans-serif';
         ctx.textAlign = 'center';
-        ctx.fillText(mults[i] + 'x', bx + bw / 2, H - 22);
+        ctx.textBaseline = 'middle';
+        var label = mults[i] >= 1000 ? mults[i]/1 + '' : mults[i] + 'x';
+        if (mults[i] >= 100) label = mults[i] + '';
+        else label = mults[i] + 'x';
+        ctx.fillText(label, bx + bw / 2, H - 22);
       }
 
-      // Draw all active balls
-      if (activeBalls) {
-        for (var b = 0; b < activeBalls.length; b++) {
-          var ball = activeBalls[b];
-          // Trail
-          for (var t = 0; t < ball.trail.length; t++) {
-            var alpha = 0.03 + (t / ball.trail.length) * 0.2;
-            ctx.beginPath();
-            ctx.arc(ball.trail[t].x, ball.trail[t].y, 4, 0, Math.PI * 2);
-            ctx.fillStyle = 'rgba(245,184,61,' + alpha + ')';
-            ctx.fill();
-          }
-          // Ball with 3D shine
-          if (ball.x !== undefined) {
-            var bx = ball.x, by = ball.y, br = 10;
-            // Outer glow
-            ctx.beginPath(); ctx.arc(bx, by, br + 4, 0, Math.PI * 2);
-            ctx.fillStyle = 'rgba(245,184,61,0.15)';
-            ctx.fill();
-            // Ball body
-            ctx.beginPath(); ctx.arc(bx, by, br, 0, Math.PI * 2);
-            var bGrad = ctx.createRadialGradient(bx - 3, by - 3, 1, bx, by, br);
-            bGrad.addColorStop(0, '#fffde7');
-            bGrad.addColorStop(0.3, '#fde68a');
-            bGrad.addColorStop(0.7, '#f5b83d');
-            bGrad.addColorStop(1, '#b8860b');
-            ctx.fillStyle = bGrad;
-            ctx.fill();
-            // Highlight
-            ctx.beginPath(); ctx.arc(bx - 3, by - 3, 3, 0, Math.PI * 2);
-            ctx.fillStyle = 'rgba(255,255,255,0.6)';
-            ctx.fill();
-            // Shadow underneath
-            ctx.beginPath();
-            ctx.ellipse(bx, by + br + 2, br * 0.7, 3, 0, 0, Math.PI * 2);
-            ctx.fillStyle = 'rgba(0,0,0,0.2)';
-            ctx.fill();
-          }
+      // Draw active balls
+      for (var b = 0; b < activeBalls.length; b++) {
+        var ball = activeBalls[b];
+        // Trail - subtle
+        for (var t = Math.max(0, ball.trail.length - 6); t < ball.trail.length; t++) {
+          var alpha = 0.05 + ((t - Math.max(0, ball.trail.length - 6)) / 6) * 0.15;
+          ctx.beginPath();
+          ctx.arc(ball.trail[t].x, ball.trail[t].y, 5, 0, Math.PI * 2);
+          ctx.fillStyle = 'rgba(255,165,0,' + alpha + ')';
+          ctx.fill();
+        }
+        // Ball - orange/gold like Stake
+        if (ball.x !== undefined) {
+          var bx = ball.x, by = ball.y;
+          // Glow
+          ctx.beginPath(); ctx.arc(bx, by, 12, 0, Math.PI * 2);
+          ctx.fillStyle = 'rgba(255,165,0,0.12)';
+          ctx.fill();
+          // Ball
+          ctx.beginPath(); ctx.arc(bx, by, 8, 0, Math.PI * 2);
+          var g = ctx.createRadialGradient(bx - 2, by - 2, 1, bx, by, 8);
+          g.addColorStop(0, '#ffe0a0');
+          g.addColorStop(0.4, '#ffb347');
+          g.addColorStop(1, '#ff8c00');
+          ctx.fillStyle = g;
+          ctx.fill();
+          // Shine
+          ctx.beginPath(); ctx.arc(bx - 2, by - 2, 2.5, 0, Math.PI * 2);
+          ctx.fillStyle = 'rgba(255,255,255,0.5)';
+          ctx.fill();
         }
       }
     }
 
     drawBoard();
 
-    // Chips
-    document.querySelectorAll('.chip').forEach(function(c) {
-      c.addEventListener('click', function() {
-        if (dropping) return;
-        currentBet = parseInt(c.dataset.bet);
-        document.querySelectorAll('.chip').forEach(function(b) { b.classList.remove('ring-2', 'ring-primary'); });
-        c.classList.add('ring-2', 'ring-primary');
-        document.getElementById('current-bet-display').textContent = currentBet + '€';
-      });
+    // Controls
+    document.getElementById('bet-input').addEventListener('change', function() {
+      currentBet = Math.max(1, parseInt(this.value) || 10);
+      this.value = currentBet;
     });
-
-    // Bet half/double
     document.getElementById('bet-half').addEventListener('click', function() {
-      if (dropping) return;
       currentBet = Math.max(1, Math.floor(currentBet / 2));
-      document.getElementById('current-bet-display').textContent = currentBet + '€';
+      document.getElementById('bet-input').value = currentBet;
     });
     document.getElementById('bet-double').addEventListener('click', function() {
-      if (dropping) return;
       currentBet = Math.min(balance, currentBet * 2);
-      document.getElementById('current-bet-display').textContent = currentBet + '€';
+      document.getElementById('bet-input').value = currentBet;
+    });
+    document.getElementById('risk-select').addEventListener('change', function() {
+      riskLevel = this.value;
+      drawBoard();
+    });
+    document.getElementById('rows-select').addEventListener('change', function() {
+      numRows = parseInt(this.value);
+      drawBoard();
     });
 
-    // Risk
-    document.querySelectorAll('.risk-btn').forEach(function(b) {
-      b.addEventListener('click', function() {
-        if (dropping) return;
-        riskLevel = b.dataset.risk;
-        document.querySelectorAll('.risk-btn').forEach(function(x) { x.classList.remove('ring-2', 'ring-primary'); });
-        b.classList.add('ring-2', 'ring-primary');
-        drawBoard();
-      });
-    });
-
-    // Rows
-    document.querySelectorAll('.rows-btn').forEach(function(b) {
-      b.addEventListener('click', function() {
-        if (dropping) return;
-        numRows = parseInt(b.dataset.rows);
-        document.querySelectorAll('.rows-btn').forEach(function(x) { x.classList.remove('ring-2', 'ring-primary'); });
-        b.classList.add('ring-2', 'ring-primary');
-        drawBoard();
-      });
-    });
-
-    // MC
     function updateMC() {
       document.getElementById('mc-display').textContent = (localStorage.getItem('melchior_coins') || '0') + '⭐';
     }
     updateMC();
 
-    // Animation loop - renders all active balls
-    var animRunning = false;
+    // Animation loop
     function renderLoop() {
       if (activeBalls.length === 0) { animRunning = false; drawBoard(); return; }
-      drawBoard();
-      var allDone = true;
+      // Advance balls
       for (var b = 0; b < activeBalls.length; b++) {
         var ball = activeBalls[b];
         if (ball.frame < ball.path.length) {
@@ -284,19 +244,18 @@ import AuthGate from '../../components/AuthGate.astro';
           ball.x = ball.path[ball.frame].x;
           ball.y = ball.path[ball.frame].y;
           ball.frame++;
-          allDone = false;
         } else if (!ball.resolved) {
           ball.resolved = true;
           resolveBall(ball);
         }
       }
-      // Remove resolved balls after 1.5s
-      activeBalls = activeBalls.filter(function(b) { return !b.resolved || (Date.now() - b.resolvedAt < 1500); });
-      if (activeBalls.length > 0 || !allDone) {
-        setTimeout(renderLoop, 55);
+      drawBoard();
+      // Cleanup old resolved balls
+      activeBalls = activeBalls.filter(function(b) { return !b.resolved || (Date.now() - b.resolvedAt < 800); });
+      if (activeBalls.length > 0) {
+        setTimeout(renderLoop, 50);
       } else {
         animRunning = false;
-        dropping = false;
         drawBoard();
       }
     }
@@ -309,7 +268,8 @@ import AuthGate from '../../components/AuthGate.astro';
       var multi = mults[bucket];
       var winnings = Math.round(ball.bet * multi * 100) / 100;
       balance += winnings;
-      document.getElementById('balance').textContent = Math.round(balance) + '€';
+      balance = Math.round(balance * 100) / 100;
+      document.getElementById('balance').textContent = balance.toFixed(2);
 
       var earned = multi >= 10 ? 10 : multi >= 3 ? 5 : multi >= 1 ? 2 : 0;
       if (earned > 0) {
@@ -317,53 +277,53 @@ import AuthGate from '../../components/AuthGate.astro';
         localStorage.setItem('melchior_coins', mc.toString());
         updateMC();
       }
-      var coinTxt = earned > 0 ? ' <span class="text-gold text-sm">+' + earned + '⭐</span>' : '';
-      var col = getColor(multi);
 
+      // Add to sidebar results
+      var sidebar = document.getElementById('results-sidebar');
+      var resDiv = document.createElement('div');
+      var color = getBucketColor(multi, bucket, mults.length);
+      resDiv.className = 'w-full text-center text-[10px] font-bold py-1.5 rounded text-black';
+      resDiv.style.background = color;
+      resDiv.textContent = multi + 'x';
+      sidebar.insertBefore(resDiv, sidebar.firstChild);
+      if (sidebar.children.length > 20) sidebar.removeChild(sidebar.lastChild);
+
+      // Result text
+      var coinTxt = earned > 0 ? ' +' + earned + '⭐' : '';
       var resEl = document.getElementById('result');
       if (multi >= 10) {
-        resEl.innerHTML = '<div class="bg-gradient-to-r from-red-500 to-orange-500 text-white font-extrabold text-xl px-8 py-3 rounded-2xl shadow-xl animate-bounce">🎉 ' + multi + 'x — ' + winnings + '€ !' + coinTxt + '</div>';
+        resEl.innerHTML = '<span class="text-orange-400 font-extrabold text-lg">🎉 ' + multi + 'x — ' + winnings + '€' + coinTxt + '</span>';
       } else if (multi >= 1) {
-        resEl.innerHTML = '<div class="text-white font-extrabold text-lg px-6 py-2 rounded-2xl shadow-lg" style="background:linear-gradient(to right,' + col + '99,' + col + '66)">' + multi + 'x — ' + winnings + '€' + coinTxt + '</div>';
+        resEl.innerHTML = '<span class="text-yellow-400 font-bold">' + multi + 'x — ' + winnings + '€' + coinTxt + '</span>';
       } else {
-        resEl.innerHTML = '<div class="bg-gradient-to-r from-gray-600 to-gray-700 text-white font-bold text-lg px-6 py-2 rounded-2xl shadow-lg">' + multi + 'x — ' + winnings + '€</div>';
+        resEl.innerHTML = '<span class="text-gray-400 font-bold">' + multi + 'x — ' + winnings + '€</span>';
       }
-
-      plinkoHistory.unshift({ multi: multi, color: col });
-      if (plinkoHistory.length > 15) plinkoHistory.pop();
-      document.getElementById('plinko-history').innerHTML = plinkoHistory.map(function(h) {
-        return '<span class="text-[10px] font-bold px-2 py-1 rounded-full text-white" style="background:' + h.color + '">' + h.multi + 'x</span>';
-      }).join('');
     }
 
     function createBallPath() {
       var path = [];
-      var x = W / 2 + (Math.random() - 0.5) * 15;
-      var y = 20;
-      path.push({ x: x, y: y });
+      var x = W / 2 + (Math.random() - 0.5) * 12;
+      path.push({ x: x, y: 15 });
       for (var row = 0; row < numRows; row++) {
         var dir = Math.random() < 0.5 ? -1 : 1;
         var p = getPegPos(row, 0);
-        var rowH = (row < numRows - 1) ? getPegPos(row + 1, 0).y - p.y : (H - 55) - p.y;
-        x += dir * PEG_SPACING / 2 + (Math.random() - 0.5) * 4;
+        var nextY = (row < numRows - 1) ? getPegPos(row + 1, 0).y : H - 55;
+        x += dir * PEG_SPACING / 2 + (Math.random() - 0.5) * 3;
         var pegsInRow = row + 4;
         var rw = (pegsInRow - 1) * PEG_SPACING;
-        var minX = (W - rw) / 2 - 5;
-        var maxX = (W + rw) / 2 + 5;
-        x = Math.max(minX, Math.min(maxX, x));
-        y = p.y + rowH;
-        path.push({ x: x, y: y });
+        x = Math.max((W - rw) / 2 - 5, Math.min((W + rw) / 2 + 5, x));
+        path.push({ x: x, y: nextY });
       }
-      path.push({ x: x, y: H - 52 });
+      path.push({ x: x, y: H - 42 });
       return path;
     }
 
-    // Drop — can drop even while other balls are falling
     document.getElementById('btn-drop').addEventListener('click', function() {
+      currentBet = parseInt(document.getElementById('bet-input').value) || 10;
       if (balance < currentBet) return;
       balance -= currentBet;
-      document.getElementById('balance').textContent = balance + '€';
-      document.getElementById('result').innerHTML = '';
+      balance = Math.round(balance * 100) / 100;
+      document.getElementById('balance').textContent = balance.toFixed(2);
 
       var path = createBallPath();
       activeBalls.push({
@@ -373,10 +333,16 @@ import AuthGate from '../../components/AuthGate.astro';
         resolved: false, resolvedAt: 0
       });
 
-      if (!animRunning) {
-        animRunning = true;
-        renderLoop();
-      }
+      if (!animRunning) { animRunning = true; renderLoop(); }
     });
+
+    // roundRect polyfill
+    if (!ctx.roundRect) {
+      ctx.roundRect = function(x,y,w,h,r) {
+        ctx.beginPath(); ctx.moveTo(x+r,y); ctx.lineTo(x+w-r,y); ctx.quadraticCurveTo(x+w,y,x+w,y+r);
+        ctx.lineTo(x+w,y+h-r); ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h); ctx.lineTo(x+r,y+h);
+        ctx.quadraticCurveTo(x,y+h,x,y+h-r); ctx.lineTo(x,y+r); ctx.quadraticCurveTo(x,y,x+r,y); ctx.closePath();
+      };
+    }
   </script>
 </Layout>
