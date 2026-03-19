@@ -35,7 +35,7 @@ export const casinos: Casino[] = [
     rating: 4.8,
     bonusTitle: "Bonus de Bienvenue",
     bonusAmount: "1000€ + 150 Free Spins",
-    bonusDescription: "Jusqu'à 1000€ + 150 FS répartis sur 3 dépôts — SANS WAGER ! + 25€ offert via Discord",
+    bonusDescription: "100% jusqu'à 1000€ + 150 FS répartis sur 3 dépôts — SANS WAGER ! + 25€ offert via Discord",
     affiliateUrl: "https://partners.hbetpartners.com/geo/3/608b3f30-1191-11f1-afd2-f6136488bd8f/1",
     pros: ["Bonus généreux jusqu'à 1000€", "150 free spins inclus", "25€ offert en bonus", "Large sélection de jeux"],
     cons: ["Conditions de mise à vérifier"],
