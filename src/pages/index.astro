@@ -161,13 +161,17 @@ const topCasinos = casinos.slice(0, 5);
       {
         name: 'Betify',
         logo: '⚡',
-        offert: 35,
+        offert: 30,
         deposits: [
-          { pct: 100, max: 100, fs: 0 }
+          { pct: 100, max: 1000, fs: 0 }
         ],
-        maxDeposit: 100,
+        maxDeposit: 1000,
         wager: 'x35',
-        note: '1er dépôt uniquement'
+        note: '1er dépôt uniquement',
+        freeSpins: [
+          { minDeposit: 50, spins: 100, maxWin: 500 },
+          { minDeposit: 100, spins: 250, maxWin: 1000 }
+        ]
       },
       {
         name: 'ShinyWilds',
@@ -263,6 +267,29 @@ const topCasinos = casinos.slice(0, 5);
         } else {
           html += '<div class="mt-3 pt-3 border-t border-[#2a2d35]">';
           html += '<p class="text-gray-500 text-[10px]">📋 ' + c.note + '</p>';
+          html += '</div>';
+        }
+
+        // Free Spins bonus (Betify code MELCHIORFS)
+        if (c.freeSpins) {
+          html += '<div class="mt-2 pt-2 border-t border-[#2a2d35]">';
+          html += '<p class="text-primary text-[10px] font-bold uppercase mb-1">🎰 Free Spins (code MELCHIORFS)</p>';
+          var gotSpins = false;
+          for (var fi = c.freeSpins.length - 1; fi >= 0; fi--) {
+            var fs = c.freeSpins[fi];
+            if (deposit >= fs.minDeposit) {
+              html += '<p class="text-accent-green text-xs font-bold">✅ ' + fs.spins + ' Free Spins sur Mental NoLimit</p>';
+              html += '<p class="text-gray-500 text-[10px]">Max win : ' + fs.maxWin + '€</p>';
+              gotSpins = true;
+              break;
+            }
+          }
+          if (!gotSpins) {
+            html += '<p class="text-gray-500 text-[10px]">Dépose min. 50€ pour débloquer les Free Spins</p>';
+          }
+          c.freeSpins.forEach(function(fs) {
+            html += '<p class="text-gray-600 text-[9px]">' + (deposit >= fs.minDeposit ? '✓' : '○') + ' Dépôt ' + fs.minDeposit + '€ → ' + fs.spins + ' spins (max win ' + fs.maxWin + '€)</p>';
+          });
           html += '</div>';
         }
 
