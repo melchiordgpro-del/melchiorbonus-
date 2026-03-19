@@ -1,0 +1,157 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import AuthGate from '../../components/AuthGate.astro';
+
+// American Blackjack basic strategy chart
+// H=Hit, S=Stand, D=Double, SP=Split, DS=Double/Stand
+const hardTotals = [
+  { hand: '17-21', actions: ['S','S','S','S','S','S','S','S','S','S'] },
+  { hand: '16',    actions: ['S','S','S','S','S','H','H','H','H','H'] },
+  { hand: '15',    actions: ['S','S','S','S','S','H','H','H','H','H'] },
+  { hand: '14',    actions: ['S','S','S','S','S','H','H','H','H','H'] },
+  { hand: '13',    actions: ['S','S','S','S','S','H','H','H','H','H'] },
+  { hand: '12',    actions: ['H','H','S','S','S','H','H','H','H','H'] },
+  { hand: '11',    actions: ['D','D','D','D','D','D','D','D','D','D'] },
+  { hand: '10',    actions: ['D','D','D','D','D','D','D','D','H','H'] },
+  { hand: '9',     actions: ['H','D','D','D','D','H','H','H','H','H'] },
+  { hand: '5-8',   actions: ['H','H','H','H','H','H','H','H','H','H'] },
+];
+
+const softTotals = [
+  { hand: 'A,9',   actions: ['S','S','S','S','S','S','S','S','S','S'] },
+  { hand: 'A,8',   actions: ['S','S','S','S','D','S','S','S','S','S'] },
+  { hand: 'A,7',   actions: ['D','D','D','D','D','S','S','H','H','H'] },
+  { hand: 'A,6',   actions: ['H','D','D','D','D','H','H','H','H','H'] },
+  { hand: 'A,5',   actions: ['H','H','D','D','D','H','H','H','H','H'] },
+  { hand: 'A,4',   actions: ['H','H','D','D','D','H','H','H','H','H'] },
+  { hand: 'A,3',   actions: ['H','H','H','D','D','H','H','H','H','H'] },
+  { hand: 'A,2',   actions: ['H','H','H','D','D','H','H','H','H','H'] },
+];
+
+const pairs = [
+  { hand: 'A,A',   actions: ['SP','SP','SP','SP','SP','SP','SP','SP','SP','SP'] },
+  { hand: '10,10', actions: ['S','S','S','S','S','S','S','S','S','S'] },
+  { hand: '9,9',   actions: ['SP','SP','SP','SP','SP','S','SP','SP','S','S'] },
+  { hand: '8,8',   actions: ['SP','SP','SP','SP','SP','SP','SP','SP','SP','SP'] },
+  { hand: '7,7',   actions: ['SP','SP','SP','SP','SP','SP','H','H','H','H'] },
+  { hand: '6,6',   actions: ['SP','SP','SP','SP','SP','H','H','H','H','H'] },
+  { hand: '5,5',   actions: ['D','D','D','D','D','D','D','D','H','H'] },
+  { hand: '4,4',   actions: ['H','H','H','SP','SP','H','H','H','H','H'] },
+  { hand: '3,3',   actions: ['SP','SP','SP','SP','SP','SP','H','H','H','H'] },
+  { hand: '2,2',   actions: ['SP','SP','SP','SP','SP','SP','H','H','H','H'] },
+];
+
+const dealerCards = ['2','3','4','5','6','7','8','9','10','A'];
+
+function actionColor(a: string) {
+  if (a === 'S') return 'bg-red-600';
+  if (a === 'H') return 'bg-green-600';
+  if (a === 'D' || a === 'DS') return 'bg-yellow-500 text-black';
+  if (a === 'SP') return 'bg-blue-600';
+  return 'bg-gray-600';
+}
+---
+
+<Layout title="Tableau de Blackjack Américain | MelchiorBonus" description="Tableau de stratégie de base du Blackjack Américain. Apprenez quand tirer, rester, doubler ou splitter.">
+  <AuthGate>
+  <section class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <h1 class="text-3xl font-extrabold text-white mb-2">🃏 Tableau de Blackjack Américain</h1>
+    <p class="text-gray-400 text-sm mb-6">Stratégie de base — Apprenez la décision optimale pour chaque situation.</p>
+
+    <!-- Legend -->
+    <div class="flex flex-wrap items-center gap-3 mb-6">
+      <div class="flex items-center gap-2"><span class="w-6 h-6 rounded bg-green-600 flex items-center justify-center text-white text-[10px] font-bold">H</span><span class="text-gray-400 text-xs">Tirer (Hit)</span></div>
+      <div class="flex items-center gap-2"><span class="w-6 h-6 rounded bg-red-600 flex items-center justify-center text-white text-[10px] font-bold">S</span><span class="text-gray-400 text-xs">Rester (Stand)</span></div>
+      <div class="flex items-center gap-2"><span class="w-6 h-6 rounded bg-yellow-500 flex items-center justify-center text-black text-[10px] font-bold">D</span><span class="text-gray-400 text-xs">Doubler (Double)</span></div>
+      <div class="flex items-center gap-2"><span class="w-6 h-6 rounded bg-blue-600 flex items-center justify-center text-white text-[10px] font-bold">SP</span><span class="text-gray-400 text-xs">Séparer (Split)</span></div>
+    </div>
+
+    <!-- Hard Totals -->
+    <div class="mb-8">
+      <h2 class="text-xl font-bold text-white mb-3">Mains dures (Hard Totals)</h2>
+      <div class="overflow-x-auto">
+        <table class="w-full text-center text-sm">
+          <thead>
+            <tr>
+              <th class="bg-[#1a1d23] text-gray-500 text-xs py-2 px-3 border border-[#2a2d35] rounded-tl-lg">Main</th>
+              {dealerCards.map(c => <th class="bg-[#1a1d23] text-white font-bold text-xs py-2 px-2 border border-[#2a2d35]">{c}</th>)}
+            </tr>
+          </thead>
+          <tbody>
+            {hardTotals.map(row => (
+              <tr>
+                <td class="bg-[#1a1d23] text-white font-bold text-xs py-2 px-3 border border-[#2a2d35]">{row.hand}</td>
+                {row.actions.map(a => <td class={`${actionColor(a)} text-xs font-bold py-2 px-2 border border-[#2a2d35]`}>{a}</td>)}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Soft Totals -->
+    <div class="mb-8">
+      <h2 class="text-xl font-bold text-white mb-3">Mains douces (Soft Totals)</h2>
+      <div class="overflow-x-auto">
+        <table class="w-full text-center text-sm">
+          <thead>
+            <tr>
+              <th class="bg-[#1a1d23] text-gray-500 text-xs py-2 px-3 border border-[#2a2d35]">Main</th>
+              {dealerCards.map(c => <th class="bg-[#1a1d23] text-white font-bold text-xs py-2 px-2 border border-[#2a2d35]">{c}</th>)}
+            </tr>
+          </thead>
+          <tbody>
+            {softTotals.map(row => (
+              <tr>
+                <td class="bg-[#1a1d23] text-white font-bold text-xs py-2 px-3 border border-[#2a2d35]">{row.hand}</td>
+                {row.actions.map(a => <td class={`${actionColor(a)} text-xs font-bold py-2 px-2 border border-[#2a2d35]`}>{a}</td>)}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Pairs -->
+    <div class="mb-8">
+      <h2 class="text-xl font-bold text-white mb-3">Paires (Pairs)</h2>
+      <div class="overflow-x-auto">
+        <table class="w-full text-center text-sm">
+          <thead>
+            <tr>
+              <th class="bg-[#1a1d23] text-gray-500 text-xs py-2 px-3 border border-[#2a2d35]">Main</th>
+              {dealerCards.map(c => <th class="bg-[#1a1d23] text-white font-bold text-xs py-2 px-2 border border-[#2a2d35]">{c}</th>)}
+            </tr>
+          </thead>
+          <tbody>
+            {pairs.map(row => (
+              <tr>
+                <td class="bg-[#1a1d23] text-white font-bold text-xs py-2 px-3 border border-[#2a2d35]">{row.hand}</td>
+                {row.actions.map(a => <td class={`${actionColor(a)} text-xs font-bold py-2 px-2 border border-[#2a2d35]`}>{a}</td>)}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Tips -->
+    <div class="bg-[#1a1d23] border border-[#2a2d35] rounded-xl p-5">
+      <h3 class="text-white font-bold mb-3">💡 Conseils</h3>
+      <ul class="text-gray-400 text-sm space-y-2">
+        <li>• <strong class="text-white">Toujours splitter</strong> les As et les 8</li>
+        <li>• <strong class="text-white">Ne jamais splitter</strong> les 10 et les 5</li>
+        <li>• <strong class="text-white">Doubler sur 11</strong> est presque toujours optimal</li>
+        <li>• <strong class="text-white">Rester sur 17+</strong> — ne risquez jamais de buster</li>
+        <li>• <strong class="text-white">Le dealer bust souvent</strong> quand il montre un 4, 5 ou 6</li>
+      </ul>
+    </div>
+
+    <div class="mt-6 text-center">
+      <a href="/jeux/blackjack" class="btn-glow bg-accent-green hover:bg-accent-green/80 text-white font-bold px-8 py-3 rounded-xl transition-all inline-block">
+        🃏 Jouer au Blackjack maintenant
+      </a>
+    </div>
+  </section>
+  </AuthGate>
+</Layout>

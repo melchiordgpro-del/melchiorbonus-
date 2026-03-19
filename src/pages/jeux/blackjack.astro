@@ -508,6 +508,147 @@ import { casinos } from '../../data/casinos';
       } else { stand(); }
     }
 
+    // Split
+    var splitHands = null;
+    var splitHandIndex = 0;
+
+    function splitHand() {
+      if (!gameActive || playerHand.length !== 2 || !canSplit(playerHand) || balance < currentBet) return;
+      balance -= currentBet;
+      updateBalance();
+
+      // Create two hands from the pair
+      var card1 = playerHand[0];
+      var card2 = playerHand[1];
+      splitHands = [
+        [card1, drawCard()],
+        [card2, drawCard()]
+      ];
+      splitHandIndex = 0;
+
+      // Show first hand
+      renderHand(document.getElementById('player-cards'), splitHands[0]);
+      updateScoresForSplit();
+      showPhase('play');
+      // Hide split/double for split hands
+      document.getElementById('btn-split').classList.add('hidden');
+      document.getElementById('btn-double').classList.add('hidden');
+    }
+
+    function updateScoresForSplit() {
+      if (!splitHands) return;
+      var hand = splitHands[splitHandIndex];
+      document.getElementById('player-score').textContent = handValue(hand);
+    }
+
+    // Override hit/stand for split mode
+    var _origHit = hit;
+    var _origStand = stand;
+
+    hit = function() {
+      if (!splitHands) return _origHit();
+      if (!gameActive) return;
+      var hand = splitHands[splitHandIndex];
+      var newCard = drawCard();
+      hand.push(newCard);
+      addCardToHand(document.getElementById('player-cards'), newCard);
+      updateScoresForSplit();
+
+      if (handValue(hand) > 21) {
+        // Bust on this split hand
+        if (splitHandIndex === 0) {
+          // Move to second hand
+          splitHandIndex = 1;
+          renderHand(document.getElementById('player-cards'), splitHands[1]);
+          updateScoresForSplit();
+          showPhase('play');
+          document.getElementById('btn-split').classList.add('hidden');
+          document.getElementById('btn-double').classList.add('hidden');
+        } else {
+          // Both hands done, resolve
+          resolveSplit();
+        }
+      } else if (handValue(hand) === 21) {
+        // Auto stand on 21
+        if (splitHandIndex === 0) {
+          splitHandIndex = 1;
+          renderHand(document.getElementById('player-cards'), splitHands[1]);
+          updateScoresForSplit();
+          showPhase('play');
+          document.getElementById('btn-split').classList.add('hidden');
+          document.getElementById('btn-double').classList.add('hidden');
+        } else {
+          resolveSplit();
+        }
+      }
+    };
+
+    stand = function() {
+      if (!splitHands) return _origStand();
+      if (!gameActive) return;
+      if (splitHandIndex === 0) {
+        splitHandIndex = 1;
+        renderHand(document.getElementById('player-cards'), splitHands[1]);
+        updateScoresForSplit();
+        showPhase('play');
+        document.getElementById('btn-split').classList.add('hidden');
+        document.getElementById('btn-double').classList.add('hidden');
+      } else {
+        resolveSplit();
+      }
+    };
+
+    function resolveSplit() {
+      hideAll();
+      dealerHand[0].hidden = false;
+      revealDealerCard(document.getElementById('dealer-cards'), dealerHand);
+      updateScores();
+
+      setTimeout(function() { dealerDrawSplit(); }, 800);
+
+      function dealerDrawSplit() {
+        if (handValue(dealerHand) < 17) {
+          setTimeout(function() {
+            var nc = drawCard();
+            dealerHand.push(nc);
+            addCardToHand(document.getElementById('dealer-cards'), nc);
+            updateScores();
+            dealerDrawSplit();
+          }, 700);
+        } else {
+          finishSplit();
+        }
+      }
+
+      function finishSplit() {
+        var ds = handValue(dealerHand);
+        var totalWin = 0;
+        var results = [];
+
+        for (var i = 0; i < 2; i++) {
+          var ps = handValue(splitHands[i]);
+          if (ps > 21) {
+            results.push('L');
+          } else if (ds > 21 || ps > ds) {
+            totalWin += currentBet * 2;
+            results.push('W');
+          } else if (ps === ds) {
+            totalWin += currentBet;
+            results.push('P');
+          } else {
+            results.push('L');
+          }
+        }
+
+        var text = 'Main 1: ' + results[0] + ' | Main 2: ' + results[1];
+        var type = totalWin > currentBet * 2 ? 'win' : totalWin > 0 ? 'push' : 'lose';
+
+        splitHands = null;
+        splitHandIndex = 0;
+        endHand(text, type, totalWin, false);
+      }
+    }
+
     function takeInsurance() {
       var cost = Math.floor(currentBet/2);
       if (balance<cost) { showPhase('play'); return; }
@@ -554,6 +695,7 @@ import { casinos } from '../../data/casinos';
     document.getElementById('btn-hit').addEventListener('click', hit);
     document.getElementById('btn-stand').addEventListener('click', stand);
     document.getElementById('btn-double').addEventListener('click', doubleDown);
+    document.getElementById('btn-split').addEventListener('click', splitHand);
     document.getElementById('btn-insurance').addEventListener('click', takeInsurance);
     document.getElementById('btn-no-insurance').addEventListener('click', declineInsurance);
 
