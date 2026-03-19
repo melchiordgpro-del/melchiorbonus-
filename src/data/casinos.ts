@@ -85,7 +85,7 @@ export const casinos: Casino[] = [
     rating: 4.6,
     bonusTitle: "Bonus de Bienvenue",
     bonusAmount: "150€ + 25€ Offert",
-    bonusDescription: "Bonus 100% sur votre premier dépôt jusqu'à 150€. Carte bancaire acceptée",
+    bonusDescription: "Bonus 100% sur votre premier dépôt jusqu'à 150€",
     affiliateUrl: "https://partners.shinywildpartners.com/v2/text/127/6/7c81fb35-147d-11f0-bf43-cad21936ea85/1",
     pros: ["WAGER FREE — Pas de conditions de mise !", "Dépôt et retrait en carte bancaire", "25€ offert", "Retraits rapides"],
     cons: ["Bonus plafonné à 150€"],
