@@ -46,8 +46,9 @@ const actionNames: Record<string, {label: string, color: string, desc: string}> 
           <p class="text-gray-400 text-xs uppercase tracking-wider mb-2">Ta carte 1</p>
           <div class="grid grid-cols-5 gap-2" id="card1-grid">
             {['A','2','3','4','5','6','7','8','9','10'].map(v => (
-              <button data-card="1" data-value={v} class="card-btn bg-[#0e1015] border border-[#2a2d35] text-white font-bold text-sm py-2.5 rounded-lg hover:border-primary/50 transition-all cursor-pointer">
-                {v}
+              <button data-card="1" data-value={v} class="card-btn bg-[#0e1015] border border-[#2a2d35] text-white font-bold text-sm py-2.5 rounded-lg hover:border-primary/50 transition-all cursor-pointer flex flex-col items-center leading-tight">
+                <span class="text-red-500 text-[10px]">♥</span>
+                <span>{v}</span>
               </button>
             ))}
           </div>
@@ -58,8 +59,9 @@ const actionNames: Record<string, {label: string, color: string, desc: string}> 
           <p class="text-gray-400 text-xs uppercase tracking-wider mb-2">Ta carte 2</p>
           <div class="grid grid-cols-5 gap-2" id="card2-grid">
             {['A','2','3','4','5','6','7','8','9','10'].map(v => (
-              <button data-card="2" data-value={v} class="card-btn bg-[#0e1015] border border-[#2a2d35] text-white font-bold text-sm py-2.5 rounded-lg hover:border-primary/50 transition-all cursor-pointer">
-                {v}
+              <button data-card="2" data-value={v} class="card-btn bg-[#0e1015] border border-[#2a2d35] text-white font-bold text-sm py-2.5 rounded-lg hover:border-primary/50 transition-all cursor-pointer flex flex-col items-center leading-tight">
+                <span class="text-red-500 text-[10px]">♥</span>
+                <span>{v}</span>
               </button>
             ))}
           </div>
@@ -70,8 +72,9 @@ const actionNames: Record<string, {label: string, color: string, desc: string}> 
           <p class="text-gray-400 text-xs uppercase tracking-wider mb-2">Carte du dealer</p>
           <div class="grid grid-cols-5 gap-2" id="dealer-grid">
             {['A','2','3','4','5','6','7','8','9','10'].map(v => (
-              <button data-card="dealer" data-value={v} class="card-btn bg-[#0e1015] border border-[#2a2d35] text-white font-bold text-sm py-2.5 rounded-lg hover:border-primary/50 transition-all cursor-pointer">
-                {v}
+              <button data-card="dealer" data-value={v} class="card-btn bg-[#0e1015] border border-[#2a2d35] text-white font-bold text-sm py-2.5 rounded-lg hover:border-primary/50 transition-all cursor-pointer flex flex-col items-center leading-tight">
+                <span class="text-red-500 text-[10px]">♥</span>
+                <span>{v}</span>
               </button>
             ))}
           </div>
@@ -86,8 +89,8 @@ const actionNames: Record<string, {label: string, color: string, desc: string}> 
         <div class="text-center">
           <p class="text-gray-500 text-xs uppercase mb-2">Tes cartes</p>
           <div class="flex gap-2 justify-center">
-            <div id="display-card1" class="w-14 h-20 bg-white rounded-lg flex items-center justify-center text-xl font-bold text-gray-900 shadow-lg"></div>
-            <div id="display-card2" class="w-14 h-20 bg-white rounded-lg flex items-center justify-center text-xl font-bold text-gray-900 shadow-lg"></div>
+            <div id="display-card1" class="w-14 h-20 bg-white rounded-lg flex flex-col items-center justify-center text-lg font-bold text-gray-900 shadow-lg"><span class="text-red-500 text-xs">♥</span><span></span></div>
+            <div id="display-card2" class="w-14 h-20 bg-white rounded-lg flex flex-col items-center justify-center text-lg font-bold text-gray-900 shadow-lg"><span class="text-red-500 text-xs">♥</span><span></span></div>
           </div>
           <p class="text-white font-bold mt-2" id="display-total"></p>
         </div>
@@ -95,7 +98,7 @@ const actionNames: Record<string, {label: string, color: string, desc: string}> 
         <div class="text-center">
           <p class="text-gray-500 text-xs uppercase mb-2">Dealer</p>
           <div class="flex gap-2 justify-center">
-            <div id="display-dealer" class="w-14 h-20 bg-white rounded-lg flex items-center justify-center text-xl font-bold text-gray-900 shadow-lg"></div>
+            <div id="display-dealer" class="w-14 h-20 bg-white rounded-lg flex flex-col items-center justify-center text-lg font-bold text-gray-900 shadow-lg"><span class="text-red-500 text-xs">♥</span><span></span></div>
           </div>
         </div>
       </div>
@@ -203,10 +206,14 @@ const actionNames: Record<string, {label: string, color: string, desc: string}> 
       document.getElementById('advice-placeholder').classList.add('hidden');
       document.getElementById('advice-result').classList.remove('hidden');
 
-      // Display cards
-      document.getElementById('display-card1').textContent = card1;
-      document.getElementById('display-card2').textContent = card2;
-      document.getElementById('display-dealer').textContent = dealerCard;
+      // Display cards as real playing cards
+      function setCardDisplay(id, val) {
+        var el = document.getElementById(id);
+        el.innerHTML = '<span class="text-red-500 text-[10px] self-start ml-1">♥</span><span class="text-red-600 text-xl font-bold">' + val + '</span><span class="text-red-500 text-lg">♥</span>';
+      }
+      setCardDisplay('display-card1', card1);
+      setCardDisplay('display-card2', card2);
+      setCardDisplay('display-dealer', dealerCard);
 
       var v1 = cardValue(card1), v2 = cardValue(card2);
       var total = v1 + v2;
