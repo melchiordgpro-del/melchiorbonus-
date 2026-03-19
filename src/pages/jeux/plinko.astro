@@ -1,6 +1,7 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 import AuthGate from '../../components/AuthGate.astro';
+import { casinos } from '../../data/casinos';
 ---
 
 <Layout title="Plinko | MelchiorBonus" description="Joue au Plinko sur MelchiorBonus. Style Stake.">
@@ -61,7 +62,7 @@ import AuthGate from '../../components/AuthGate.astro';
 
         <!-- Bet Button -->
         <button id="btn-drop" class="bg-[#00e701] hover:bg-[#00c801] text-black font-bold py-3 rounded-lg transition-all text-sm w-full">
-          Bet
+          Parier
         </button>
 
         <!-- Balance -->
@@ -88,6 +89,25 @@ import AuthGate from '../../components/AuthGate.astro';
     </div>
 
     <div id="result" class="text-center mt-4 min-h-[40px] flex items-center justify-center"></div>
+
+    <!-- Jouer en réel -->
+    <div class="mt-4 bg-[#1a1d23] border border-[#2a2d35] rounded-xl p-5">
+      <div class="flex items-center justify-between mb-3">
+        <h3 class="text-white font-bold text-sm">💰 Jouer au Plinko en argent réel</h3>
+      </div>
+      <div class="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+        {casinos.map((casino, i) => (
+          <a href={casino.affiliateUrl} target="_blank" rel="nofollow noopener" class="flex items-center gap-3 bg-[#0e1015] border border-[#2a2d35] hover:border-primary/30 rounded-lg p-3 transition-all group">
+            <img src={casino.logoUrl} alt={casino.name} class="w-8 h-8 rounded-lg object-contain" onerror={`this.style.display='none';this.nextElementSibling.classList.remove('hidden')`} />
+            <span class="text-lg hidden">{casino.logo}</span>
+            <div class="flex-1 min-w-0">
+              <p class="text-white font-bold text-xs group-hover:text-primary transition-colors truncate">{casino.name}</p>
+              <p class="text-gray-500 text-[10px] truncate">{casino.bonusAmount}</p>
+            </div>
+          </a>
+        ))}
+      </div>
+    </div>
 
     <!-- Analytics Panel (collapsible) -->
     <div class="mt-4">
