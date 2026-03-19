@@ -75,6 +75,57 @@ import { casinos } from '../data/casinos';
             <div id="stat-progress-bar" class="bg-primary h-full rounded-full transition-all duration-500" style="width: 0%"></div>
           </div>
         </div>
+
+        <!-- Open Bonus Hunt Button -->
+        <div class="mt-4">
+          <button id="open-hunt-btn" class="w-full btn-glow bg-gradient-to-r from-accent via-accent-light to-gold text-white font-extrabold py-4 rounded-xl text-lg transition-all hover:shadow-xl hover:shadow-accent/20 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed" disabled>
+            🎰 Ouvrir le Bonus Hunt
+          </button>
+        </div>
+      </div>
+
+      <!-- Opening Overlay -->
+      <div id="opening-overlay" class="hidden fixed inset-0 bg-black/80 z-[100] flex items-center justify-center">
+        <div class="bg-[#1a1d23] border border-[#2a2d35] rounded-2xl p-8 max-w-md w-full mx-4 text-center shadow-2xl">
+          <p class="text-gray-400 text-sm mb-2" id="opening-counter">Bonus 1 / 5</p>
+          <h2 class="text-white font-extrabold text-2xl mb-1" id="opening-slot-name">Gates of Olympus</h2>
+          <p class="text-gray-500 text-sm mb-6">Mise: <span id="opening-bet" class="text-white font-bold">2.00€</span></p>
+
+          <div id="opening-card" class="bg-[#0e1015] border-2 border-[#2a2d35] rounded-xl p-8 mb-6 relative overflow-hidden">
+            <div id="opening-spinner" class="text-6xl font-extrabold text-primary animate-pulse">?</div>
+            <div id="opening-result-display" class="hidden">
+              <p class="text-5xl font-extrabold" id="opening-amount">0€</p>
+              <p class="text-2xl font-bold mt-2" id="opening-multi">0×</p>
+            </div>
+          </div>
+
+          <div id="opening-input-area">
+            <input id="opening-result-input" type="number" step="0.01" min="0" placeholder="Combien ça a payé ? (€)" class="w-full bg-[#0e1015] border border-[#2a2d35] text-white text-center text-lg font-bold px-4 py-3 rounded-xl outline-none focus:border-primary/50 mb-3" />
+            <button id="opening-confirm-btn" class="w-full bg-primary hover:bg-primary-light text-white font-extrabold py-3 rounded-xl transition-all text-sm cursor-pointer">
+              Confirmer le résultat
+            </button>
+          </div>
+
+          <div id="opening-next-area" class="hidden">
+            <button id="opening-next-btn" class="w-full bg-accent hover:bg-accent-light text-white font-extrabold py-3 rounded-xl transition-all text-sm cursor-pointer">
+              Bonus suivant →
+            </button>
+          </div>
+
+          <div id="opening-done-area" class="hidden">
+            <div class="mb-4">
+              <p class="text-gray-400 text-sm">Résultat final</p>
+              <p class="text-3xl font-extrabold" id="opening-final-profit">+0€</p>
+            </div>
+            <button id="opening-close-btn" class="w-full bg-[#2a2d35] hover:bg-[#3a3d45] text-white font-bold py-3 rounded-xl transition-all text-sm cursor-pointer">
+              Fermer
+            </button>
+          </div>
+
+          <button id="opening-skip-btn" class="mt-3 text-gray-600 hover:text-gray-400 text-xs cursor-pointer transition-colors">
+            Fermer l'ouverture
+          </button>
+        </div>
       </div>
 
       <!-- Add Slot Form -->
@@ -369,6 +420,7 @@ import { casinos } from '../data/casinos';
       tbody.innerHTML = '';
       empty.style.display = 'block';
       updateStats();
+      updateOpenBtn();
       return;
     }
 
@@ -444,6 +496,7 @@ import { casinos } from '../data/casinos';
     });
 
     updateStats();
+    updateOpenBtn();
   }
 
   function escapeHtml(str) {
@@ -523,6 +576,176 @@ import { casinos } from '../data/casinos';
       opt.textContent = name + ' (' + hunts[name].slots.length + ' bonus)';
       sel.appendChild(opt);
     });
+  }
+
+  // ========== OPEN BONUS HUNT ==========
+  var openIdx = 0;
+  var openingActive = false;
+
+  function updateOpenBtn() {
+    var btn = document.getElementById('open-hunt-btn');
+    var unopened = slots.filter(function(s) { return s.result === null; }).length;
+    if (unopened > 0) {
+      btn.disabled = false;
+      btn.textContent = '🎰 Ouvrir le Bonus Hunt (' + unopened + ' bonus)';
+    } else if (slots.length > 0) {
+      btn.disabled = true;
+      btn.textContent = '✅ Tous les bonus sont ouverts !';
+    } else {
+      btn.disabled = true;
+      btn.textContent = '🎰 Ouvrir le Bonus Hunt';
+    }
+  }
+
+  document.getElementById('open-hunt-btn').addEventListener('click', function() {
+    var unopened = [];
+    slots.forEach(function(s, i) { if (s.result === null) unopened.push(i); });
+    if (unopened.length === 0) return;
+
+    openingActive = true;
+    openIdx = 0;
+    showOpeningOverlay(unopened);
+  });
+
+  function showOpeningOverlay(unopenedIndices) {
+    var overlay = document.getElementById('opening-overlay');
+    overlay.classList.remove('hidden');
+
+    var currentOpenList = unopenedIndices.slice();
+    var currentPos = 0;
+
+    function showSlot() {
+      if (currentPos >= currentOpenList.length) {
+        // All done
+        showFinalResult();
+        return;
+      }
+
+      var idx = currentOpenList[currentPos];
+      var s = slots[idx];
+
+      document.getElementById('opening-counter').textContent = 'Bonus ' + (currentPos + 1) + ' / ' + currentOpenList.length;
+      document.getElementById('opening-slot-name').textContent = s.name;
+      document.getElementById('opening-bet').textContent = s.bet.toFixed(2) + '€';
+
+      // Reset card to spinner
+      document.getElementById('opening-spinner').classList.remove('hidden');
+      document.getElementById('opening-result-display').classList.add('hidden');
+      document.getElementById('opening-input-area').style.display = 'block';
+      document.getElementById('opening-next-area').classList.add('hidden');
+      document.getElementById('opening-done-area').classList.add('hidden');
+      document.getElementById('opening-result-input').value = '';
+      document.getElementById('opening-result-input').focus();
+
+      // Animate card border
+      var card = document.getElementById('opening-card');
+      card.style.borderColor = '#2a2d35';
+      card.style.animation = 'none';
+    }
+
+    function confirmResult() {
+      var val = parseFloat(document.getElementById('opening-result-input').value);
+      if (isNaN(val) || val < 0) return;
+
+      var idx = currentOpenList[currentPos];
+      slots[idx].result = val;
+      var multi = slots[idx].bet > 0 ? val / slots[idx].bet : 0;
+
+      // Show result with animation
+      document.getElementById('opening-spinner').classList.add('hidden');
+      var resultDisplay = document.getElementById('opening-result-display');
+      resultDisplay.classList.remove('hidden');
+
+      var amountEl = document.getElementById('opening-amount');
+      var multiEl = document.getElementById('opening-multi');
+      amountEl.textContent = val.toFixed(2) + '€';
+      multiEl.textContent = multi.toFixed(2) + '×';
+
+      var card = document.getElementById('opening-card');
+      if (val >= slots[idx].bet) {
+        amountEl.style.color = '#22c55e';
+        multiEl.style.color = '#22c55e';
+        card.style.borderColor = '#22c55e';
+      } else {
+        amountEl.style.color = '#ef4444';
+        multiEl.style.color = '#ef4444';
+        card.style.borderColor = '#ef4444';
+      }
+
+      // Play sound
+      try {
+        var ctx = new (window.AudioContext || window.webkitAudioContext)();
+        var osc = ctx.createOscillator(); var gain = ctx.createGain();
+        osc.connect(gain); gain.connect(ctx.destination);
+        if (val >= slots[idx].bet) {
+          osc.frequency.value = 800; osc.type = 'sine'; gain.gain.value = 0.1;
+          gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3);
+          osc.start(); osc.stop(ctx.currentTime + 0.3);
+        } else {
+          osc.frequency.value = 200; osc.type = 'sawtooth'; gain.gain.value = 0.08;
+          gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3);
+          osc.start(); osc.stop(ctx.currentTime + 0.3);
+        }
+      } catch(e) {}
+
+      document.getElementById('opening-input-area').style.display = 'none';
+
+      if (currentPos < currentOpenList.length - 1) {
+        document.getElementById('opening-next-area').classList.remove('hidden');
+      } else {
+        // Last one — show final
+        setTimeout(showFinalResult, 800);
+      }
+
+      renderTable();
+    }
+
+    function showFinalResult() {
+      document.getElementById('opening-spinner').classList.add('hidden');
+      document.getElementById('opening-result-display').classList.add('hidden');
+      document.getElementById('opening-input-area').style.display = 'none';
+      document.getElementById('opening-next-area').classList.add('hidden');
+      document.getElementById('opening-done-area').classList.remove('hidden');
+
+      var invested = 0, won = 0;
+      slots.forEach(function(s) {
+        invested += s.bet;
+        if (s.result !== null) won += s.result;
+      });
+      var profit = won - invested;
+      var el = document.getElementById('opening-final-profit');
+      el.textContent = (profit >= 0 ? '+' : '') + profit.toFixed(2) + '€';
+      el.style.color = profit >= 0 ? '#22c55e' : '#ef4444';
+
+      document.getElementById('opening-counter').textContent = 'Bonus Hunt terminé !';
+      document.getElementById('opening-slot-name').textContent = profit >= 0 ? '🎉 Profit !' : '😢 Perte';
+      document.getElementById('opening-bet').textContent = won.toFixed(2) + '€ gagnés sur ' + invested.toFixed(2) + '€ investis';
+    }
+
+    // Bind events
+    var confirmBtn = document.getElementById('opening-confirm-btn');
+    var nextBtn = document.getElementById('opening-next-btn');
+    var closeBtn = document.getElementById('opening-close-btn');
+    var skipBtn = document.getElementById('opening-skip-btn');
+    var resultInput = document.getElementById('opening-result-input');
+
+    // Remove old listeners by cloning
+    var newConfirm = confirmBtn.cloneNode(true);
+    confirmBtn.parentNode.replaceChild(newConfirm, confirmBtn);
+    var newNext = nextBtn.cloneNode(true);
+    nextBtn.parentNode.replaceChild(newNext, nextBtn);
+    var newClose = closeBtn.cloneNode(true);
+    closeBtn.parentNode.replaceChild(newClose, closeBtn);
+    var newSkip = skipBtn.cloneNode(true);
+    skipBtn.parentNode.replaceChild(newSkip, skipBtn);
+
+    newConfirm.addEventListener('click', confirmResult);
+    resultInput.addEventListener('keydown', function(e) { if (e.key === 'Enter') confirmResult(); });
+    newNext.addEventListener('click', function() { currentPos++; showSlot(); });
+    newClose.addEventListener('click', function() { overlay.classList.add('hidden'); openingActive = false; renderTable(); });
+    newSkip.addEventListener('click', function() { overlay.classList.add('hidden'); openingActive = false; renderTable(); });
+
+    showSlot();
   }
 
   // Init
