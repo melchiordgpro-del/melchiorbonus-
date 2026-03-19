@@ -254,7 +254,9 @@ const topCasinos = casinos.slice(0, 5);
         if (totalFS > 0) {
           html += '<div class="flex justify-between"><span class="text-gray-500">Free Spins</span><span class="text-gold font-bold">+' + totalFS + ' FS</span></div>';
         }
-        html += '<div class="flex justify-between"><span class="text-gray-500">Offert via Discord</span><span class="text-[#5865F2] font-bold">+' + c.offert + '€</span></div>';
+        html += '</div>';
+        html += '<div class="mt-2 pt-2 border-t border-dashed border-[#2a2d35]">';
+        html += '<div class="flex justify-between text-xs"><span class="text-[#5865F2]">🎁 Offert via Discord (hors bonus)</span><span class="text-[#5865F2] font-bold">+' + c.offert + '€</span></div>';
         html += '</div>';
 
         if (details.length > 0) {
