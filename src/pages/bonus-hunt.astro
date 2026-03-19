@@ -213,8 +213,53 @@ import { casinos } from '../data/casinos';
 <script is:inline>
 (function() {
   // ========== SLOTS DATABASE ==========
+  // Slot image helper: generates thumbnail URL from slot name
+  var SLOT_IMGS = {
+    "Gates of Olympus":"vs20olympgate","Sweet Bonanza":"vs20fruitsw","Sugar Rush":"vs20sugarrush",
+    "Starlight Princess":"vs20starlight","The Dog House Megaways":"vswaysdogs","Big Bass Bonanza":"vs10bbbonanza",
+    "Fruit Party":"vs20fruitparty","Madame Destiny Megaways":"vswaysmadame","Wild West Gold":"vs40wildwest",
+    "Great Rhino Megaways":"vswaysrhino","Gates of Olympus 1000":"vs20olympx","Sweet Bonanza 1000":"vs20sbon1000",
+    "Bigger Bass Bonanza":"vs10bbbnza","Zeus vs Hades":"vs20zeushades","Gems Bonanza":"vs20gemswild",
+    "Power of Thor Megaways":"vswaysthors","Big Bass Splash":"vs10bbsplash","Floating Dragon":"vs20fltdrg",
+    "5 Lions Megaways":"vswayslions","Cleocatra":"vs20cleoctra","Aztec Gems":"vs5aztecgems",
+    "Wolf Gold":"vs25wolfgold","Mustang Gold":"vs25mustang","Hot Fiesta":"vs25hotfiesta",
+    "Buffalo King Megaways":"vswaysbufking","Treasure Wild":"vs20trsrwild","Dog House":"vs20doghouse",
+    "Release the Kraken":"vs20kraken","Pirate Gold":"vs40pirgold","Christmas Carol Megaways":"vswaysxmas",
+  };
+  function getSlotImg(name) {
+    var id = SLOT_IMGS[name];
+    if (id) return 'https://www.pragmaticplay.com/wp-content/uploads/game-thumbs-webp/' + id + '-thumbnail.webp';
+    // Fallback: generate a colored placeholder
+    return '';
+  }
+  function getSlotImgHtml(name, size) {
+    size = size || 32;
+    var url = getSlotImg(name);
+    if (url) {
+      return '<img src="' + url + '" alt="" class="rounded" style="width:'+size+'px;height:'+size+'px;object-fit:cover;" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\'" /><div style="display:none;width:'+size+'px;height:'+size+'px;border-radius:6px;align-items:center;justify-content:center;font-size:'+(size*0.5)+'px;font-weight:900;color:#fff;' + getProviderGradient(name) + '">' + name.charAt(0) + '</div>';
+    }
+    return '<div style="width:'+size+'px;height:'+size+'px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:'+(size*0.45)+'px;font-weight:900;color:#fff;' + getProviderGradient(name) + '">' + name.charAt(0) + '</div>';
+  }
+  function getProviderGradient(name) {
+    var db = SLOTS_DB.find(function(s){return s.n===name});
+    var p = db ? db.p : '';
+    var gradients = {
+      'Pragmatic Play': 'background:linear-gradient(135deg,#f59e0b,#d97706);',
+      'Hacksaw Gaming': 'background:linear-gradient(135deg,#ef4444,#b91c1c);',
+      'Nolimit City': 'background:linear-gradient(135deg,#8b5cf6,#6d28d9);',
+      'Push Gaming': 'background:linear-gradient(135deg,#10b981,#059669);',
+      "Play'n GO": 'background:linear-gradient(135deg,#3b82f6,#1d4ed8);',
+      'Relax Gaming': 'background:linear-gradient(135deg,#ec4899,#be185d);',
+      'NetEnt': 'background:linear-gradient(135deg,#06b6d4,#0891b2);',
+      'Big Time Gaming': 'background:linear-gradient(135deg,#f97316,#c2410c);',
+      'ELK Studios': 'background:linear-gradient(135deg,#84cc16,#4d7c0f);',
+      'Novomatic': 'background:linear-gradient(135deg,#14b8a6,#0d9488);',
+    };
+    return gradients[p] || 'background:linear-gradient(135deg,#6366f1,#4f46e5);';
+  }
+
   var SLOTS_DB = [
-    // Pragmatic Play
+    // Pragmatic Play (50+)
     {n:"Gates of Olympus",p:"Pragmatic Play"},{n:"Sweet Bonanza",p:"Pragmatic Play"},{n:"Sugar Rush",p:"Pragmatic Play"},
     {n:"Starlight Princess",p:"Pragmatic Play"},{n:"The Dog House Megaways",p:"Pragmatic Play"},{n:"Big Bass Bonanza",p:"Pragmatic Play"},
     {n:"Fruit Party",p:"Pragmatic Play"},{n:"Madame Destiny Megaways",p:"Pragmatic Play"},{n:"Wild West Gold",p:"Pragmatic Play"},
@@ -226,64 +271,108 @@ import { casinos } from '../data/casinos';
     {n:"Hot Pepper",p:"Pragmatic Play"},{n:"Sugar Supreme Powernudge",p:"Pragmatic Play"},{n:"Barn Festival",p:"Pragmatic Play"},
     {n:"Fire Strike 2",p:"Pragmatic Play"},{n:"Candy Village",p:"Pragmatic Play"},{n:"Curse of the Werewolf Megaways",p:"Pragmatic Play"},
     {n:"Bronco Spirit",p:"Pragmatic Play"},{n:"Pirate Gold Deluxe",p:"Pragmatic Play"},{n:"Magic Money Maze",p:"Pragmatic Play"},
-    // Hacksaw Gaming
+    {n:"Wolf Gold",p:"Pragmatic Play"},{n:"Mustang Gold",p:"Pragmatic Play"},{n:"Buffalo King Megaways",p:"Pragmatic Play"},
+    {n:"Hot Fiesta",p:"Pragmatic Play"},{n:"Aztec Gems",p:"Pragmatic Play"},{n:"Dog House",p:"Pragmatic Play"},
+    {n:"Release the Kraken",p:"Pragmatic Play"},{n:"Treasure Wild",p:"Pragmatic Play"},{n:"Christmas Carol Megaways",p:"Pragmatic Play"},
+    {n:"Pirate Gold",p:"Pragmatic Play"},{n:"Fruit Party 2",p:"Pragmatic Play"},{n:"Wild West Gold Megaways",p:"Pragmatic Play"},
+    {n:"Starlight Princess 1000",p:"Pragmatic Play"},{n:"Big Bass Hold & Spinner",p:"Pragmatic Play"},
+    {n:"Might of Ra",p:"Pragmatic Play"},{n:"Spin & Score Megaways",p:"Pragmatic Play"},{n:"Congo Cash",p:"Pragmatic Play"},
+    {n:"Chilli Heat",p:"Pragmatic Play"},{n:"Lucky Lightning",p:"Pragmatic Play"},{n:"Hand of Midas",p:"Pragmatic Play"},
+    {n:"Diamond Strike",p:"Pragmatic Play"},{n:"Reel Banks",p:"Pragmatic Play"},{n:"Gorilla Mayhem",p:"Pragmatic Play"},
+    {n:"Pyramid Bonanza",p:"Pragmatic Play"},{n:"Rise of Giza PowerNudge",p:"Pragmatic Play"},{n:"Eye of Cleopatra",p:"Pragmatic Play"},
+    // Hacksaw Gaming (30+)
     {n:"Wanted Dead or a Wild",p:"Hacksaw Gaming"},{n:"Chaos Crew",p:"Hacksaw Gaming"},{n:"Chaos Crew 2",p:"Hacksaw Gaming"},
     {n:"IteroClassic Dream Drop",p:"Hacksaw Gaming"},{n:"Dork Unit",p:"Hacksaw Gaming"},{n:"Xpander",p:"Hacksaw Gaming"},
     {n:"Stick 'Em",p:"Hacksaw Gaming"},{n:"RIP City",p:"Hacksaw Gaming"},{n:"Hand of Anubis",p:"Hacksaw Gaming"},
     {n:"Rex the Hunt",p:"Hacksaw Gaming"},{n:"Om Nom",p:"Hacksaw Gaming"},{n:"Fruit Duel",p:"Hacksaw Gaming"},
     {n:"Gladiator Legends",p:"Hacksaw Gaming"},{n:"Stack 'Em",p:"Hacksaw Gaming"},{n:"Hawks of Prey",p:"Hacksaw Gaming"},
     {n:"Toshi Video Club",p:"Hacksaw Gaming"},{n:"Blade & Fangs",p:"Hacksaw Gaming"},{n:"Le Bandit",p:"Hacksaw Gaming"},
-    // Nolimit City
+    {n:"Lotus Land",p:"Hacksaw Gaming"},{n:"Rune Craft",p:"Hacksaw Gaming"},{n:"Task Force X",p:"Hacksaw Gaming"},
+    {n:"Cash Crew",p:"Hacksaw Gaming"},{n:"Rage",p:"Hacksaw Gaming"},{n:"Bounty Hunter",p:"Hacksaw Gaming"},
+    {n:"Warrior Ways",p:"Hacksaw Gaming"},{n:"The Rave",p:"Hacksaw Gaming"},{n:"Pike's Peak",p:"Hacksaw Gaming"},
+    {n:"Outlaws Inc",p:"Hacksaw Gaming"},{n:"Gladiator Arena",p:"Hacksaw Gaming"},{n:"Robin Hood's Heroes",p:"Hacksaw Gaming"},
+    // Nolimit City (30+)
     {n:"Mental",p:"Nolimit City"},{n:"Tombstone RIP",p:"Nolimit City"},{n:"San Quentin xWays",p:"Nolimit City"},
     {n:"Fire in the Hole",p:"Nolimit City"},{n:"Punk Rocker",p:"Nolimit City"},{n:"True Grit Redemption",p:"Nolimit City"},
     {n:"Misery Mining",p:"Nolimit City"},{n:"Warrior Graveyard",p:"Nolimit City"},{n:"Remember Gulag",p:"Nolimit City"},
     {n:"Walk of Shame",p:"Nolimit City"},{n:"xWays Hoarder",p:"Nolimit City"},{n:"Infectious 5 xWays",p:"Nolimit City"},
     {n:"Serial",p:"Nolimit City"},{n:"Mango Man",p:"Nolimit City"},{n:"Tombstone",p:"Nolimit City"},
     {n:"El Paso Gunfight",p:"Nolimit City"},{n:"Karen Maneater",p:"Nolimit City"},{n:"Roadkill",p:"Nolimit City"},
-    // Push Gaming
+    {n:"East Coast vs West Coast",p:"Nolimit City"},{n:"Folsom Prison",p:"Nolimit City"},{n:"Das xBoot",p:"Nolimit City"},
+    {n:"Barbarian Fury",p:"Nolimit City"},{n:"Ice Ice Yeti",p:"Nolimit City"},{n:"Gaelic Gold",p:"Nolimit City"},
+    {n:"Book of Shadows",p:"Nolimit City"},{n:"Hot Nudge",p:"Nolimit City"},{n:"Outsourced",p:"Nolimit City"},
+    {n:"Gluttony",p:"Nolimit City"},{n:"Bushido Ways",p:"Nolimit City"},{n:"After Death",p:"Nolimit City"},
+    // Push Gaming (20+)
     {n:"Jammin' Jars",p:"Push Gaming"},{n:"Jammin' Jars 2",p:"Push Gaming"},{n:"Razor Shark",p:"Push Gaming"},
     {n:"Fat Rabbit",p:"Push Gaming"},{n:"Fire Hopper",p:"Push Gaming"},{n:"Bison Battle",p:"Push Gaming"},
     {n:"Joker Troupe",p:"Push Gaming"},{n:"Big Bamboo",p:"Push Gaming"},{n:"Nightfall",p:"Push Gaming"},
     {n:"Razor Returns",p:"Push Gaming"},{n:"Space Stacks",p:"Push Gaming"},{n:"Generous Jack",p:"Push Gaming"},
-    // Play'n GO
+    {n:"Dinopolis",p:"Push Gaming"},{n:"Ice Lobster",p:"Push Gaming"},{n:"Retro Tapes",p:"Push Gaming"},
+    {n:"Wild Swarm",p:"Push Gaming"},{n:"Mystery Museum",p:"Push Gaming"},{n:"Fat Santa",p:"Push Gaming"},
+    {n:"Fat Banker",p:"Push Gaming"},{n:"Land of Zenith",p:"Push Gaming"},
+    // Play'n GO (30+)
     {n:"Book of Dead",p:"Play'n GO"},{n:"Reactoonz",p:"Play'n GO"},{n:"Reactoonz 2",p:"Play'n GO"},
     {n:"Rise of Olympus",p:"Play'n GO"},{n:"Moon Princess",p:"Play'n GO"},{n:"Fire Joker",p:"Play'n GO"},
     {n:"Rich Wilde and the Amulet of Dead",p:"Play'n GO"},{n:"Tome of Madness",p:"Play'n GO"},
     {n:"Legacy of Dead",p:"Play'n GO"},{n:"Hugo 2",p:"Play'n GO"},{n:"Gemix",p:"Play'n GO"},
     {n:"Contact",p:"Play'n GO"},{n:"Cat Wilde and the Doom of Dead",p:"Play'n GO"},{n:"Honey Rush",p:"Play'n GO"},
-    // Relax Gaming
+    {n:"Rise of Olympus 100",p:"Play'n GO"},{n:"Moon Princess 100",p:"Play'n GO"},{n:"Hooligan Hustle",p:"Play'n GO"},
+    {n:"Baker's Treat",p:"Play'n GO"},{n:"Cloud Quest",p:"Play'n GO"},{n:"Mystery Joker",p:"Play'n GO"},
+    {n:"Viking Runecraft",p:"Play'n GO"},{n:"Testament",p:"Play'n GO"},{n:"Annihilator",p:"Play'n GO"},
+    {n:"Dragon Maiden",p:"Play'n GO"},{n:"Imperial Opera",p:"Play'n GO"},{n:"Frozen Gems",p:"Play'n GO"},
+    {n:"The Sword and the Grail",p:"Play'n GO"},{n:"Ring of Odin",p:"Play'n GO"},{n:"Coils of Cash",p:"Play'n GO"},
+    // Relax Gaming (15+)
     {n:"Money Train",p:"Relax Gaming"},{n:"Money Train 2",p:"Relax Gaming"},{n:"Money Train 3",p:"Relax Gaming"},
     {n:"Money Train 4",p:"Relax Gaming"},{n:"Dream Drop Jackpot",p:"Relax Gaming"},{n:"Temple Tumble Megaways",p:"Relax Gaming"},
     {n:"Snake Arena",p:"Relax Gaming"},{n:"TNT Tumble",p:"Relax Gaming"},{n:"Hellcatraz",p:"Relax Gaming"},
-    // NetEnt
+    {n:"Banana Town",p:"Relax Gaming"},{n:"Iron Bank",p:"Relax Gaming"},{n:"Beast Mode",p:"Relax Gaming"},
+    {n:"Top Dawg$",p:"Relax Gaming"},{n:"Golden Catch",p:"Relax Gaming"},{n:"Cluster Slide",p:"Relax Gaming"},
+    // NetEnt (20+)
     {n:"Starburst",p:"NetEnt"},{n:"Gonzo's Quest",p:"NetEnt"},{n:"Dead or Alive 2",p:"NetEnt"},
     {n:"Divine Fortune",p:"NetEnt"},{n:"Narcos",p:"NetEnt"},{n:"Twin Spin",p:"NetEnt"},
     {n:"Jack and the Beanstalk",p:"NetEnt"},{n:"Blood Suckers",p:"NetEnt"},{n:"Asgardian Stones",p:"NetEnt"},
     {n:"Gordon Ramsay Hell's Kitchen",p:"NetEnt"},{n:"Street Fighter II",p:"NetEnt"},
-    // Big Time Gaming
+    {n:"Starburst XXXtreme",p:"NetEnt"},{n:"Dead or Alive",p:"NetEnt"},{n:"Butterfly Staxx",p:"NetEnt"},
+    {n:"Finn and the Swirly Spin",p:"NetEnt"},{n:"Jumanji",p:"NetEnt"},{n:"Vikings",p:"NetEnt"},
+    {n:"Dracula",p:"NetEnt"},{n:"Aloha! Cluster Pays",p:"NetEnt"},{n:"Jungle Spirit",p:"NetEnt"},
+    // Big Time Gaming (15+)
     {n:"Bonanza Megaways",p:"Big Time Gaming"},{n:"Extra Chilli",p:"Big Time Gaming"},{n:"White Rabbit",p:"Big Time Gaming"},
     {n:"Lil Devil",p:"Big Time Gaming"},{n:"Opal Fruits",p:"Big Time Gaming"},{n:"Kingmaker",p:"Big Time Gaming"},
     {n:"Royal Mint Megaways",p:"Big Time Gaming"},{n:"Donuts",p:"Big Time Gaming"},
-    // ELK Studios
+    {n:"Chocolates",p:"Big Time Gaming"},{n:"Star Clusters",p:"Big Time Gaming"},{n:"Rasputin Megaways",p:"Big Time Gaming"},
+    {n:"Gold Megaways",p:"Big Time Gaming"},{n:"Temple of Treasure Megaways",p:"Big Time Gaming"},
+    // ELK Studios (15+)
     {n:"Cygnus",p:"ELK Studios"},{n:"Kaiju",p:"ELK Studios"},{n:"Bloopers",p:"ELK Studios"},
     {n:"Ecuador Gold",p:"ELK Studios"},{n:"Poltava",p:"ELK Studios"},{n:"Toro",p:"ELK Studios"},
     {n:"Valkyrie",p:"ELK Studios"},{n:"Cygnus 2",p:"ELK Studios"},{n:"O'Reilly's Fortune",p:"ELK Studios"},
-    // Novomatic
+    {n:"Nitropolis",p:"ELK Studios"},{n:"Nitropolis 2",p:"ELK Studios"},{n:"Nitropolis 3",p:"ELK Studios"},
+    {n:"Tropicool",p:"ELK Studios"},{n:"Bompers",p:"ELK Studios"},{n:"Route 777",p:"ELK Studios"},
+    // Novomatic (15+)
     {n:"Book of Ra",p:"Novomatic"},{n:"Book of Ra Deluxe",p:"Novomatic"},{n:"Lucky Lady's Charm",p:"Novomatic"},
     {n:"Sizzling Hot",p:"Novomatic"},{n:"Dolphin's Pearl",p:"Novomatic"},{n:"Columbus",p:"Novomatic"},
     {n:"Lord of the Ocean",p:"Novomatic"},{n:"Pharaoh's Ring",p:"Novomatic"},{n:"Ultra Hot",p:"Novomatic"},
-    // Thunderkick
+    {n:"Lucky Lady's Charm Deluxe",p:"Novomatic"},{n:"Dolphin's Pearl Deluxe",p:"Novomatic"},
+    {n:"Sizzling Hot Deluxe",p:"Novomatic"},{n:"Book of Ra 6",p:"Novomatic"},{n:"Faust",p:"Novomatic"},
+    // Thunderkick (10+)
     {n:"Beat the Beast: Griffin's Gold",p:"Thunderkick"},{n:"Pink Elephants",p:"Thunderkick"},
     {n:"Pink Elephants 2",p:"Thunderkick"},{n:"Esqueleto Explosivo 2",p:"Thunderkick"},{n:"1429 Uncharted Seas",p:"Thunderkick"},
-    // Red Tiger
+    {n:"Sunset Delight",p:"Thunderkick"},{n:"Flame Busters",p:"Thunderkick"},{n:"Babushkas",p:"Thunderkick"},
+    {n:"Zoom",p:"Thunderkick"},{n:"Cosmic Voyager",p:"Thunderkick"},
+    // Red Tiger (10+)
     {n:"Gonzo's Quest Megaways",p:"Red Tiger"},{n:"Mystery Reels Megaways",p:"Red Tiger"},
     {n:"Dragon's Fire Megaways",p:"Red Tiger"},{n:"Piggy Riches Megaways",p:"Red Tiger"},
-    // Yggdrasil
+    {n:"Reel King Mega",p:"Red Tiger"},{n:"Tiki Fruits",p:"Red Tiger"},{n:"Dragon's Luck",p:"Red Tiger"},
+    {n:"Golden Offer",p:"Red Tiger"},{n:"Totem Lightning",p:"Red Tiger"},{n:"Bounty Raid",p:"Red Tiger"},
+    // Yggdrasil (10+)
     {n:"Valley of the Gods",p:"Yggdrasil"},{n:"Vikings Go Berzerk",p:"Yggdrasil"},
     {n:"Champions of Rome",p:"Yggdrasil"},{n:"Hades Gigablox",p:"Yggdrasil"},
-    // Microgaming
+    {n:"Raptor Doublemax",p:"Yggdrasil"},{n:"Neon Rush",p:"Yggdrasil"},{n:"Multifly",p:"Yggdrasil"},
+    {n:"Jackpot Raiders",p:"Yggdrasil"},{n:"Medusa Fortune & Glory",p:"Yggdrasil"},{n:"Arthur's Fortune",p:"Yggdrasil"},
+    // Microgaming (10+)
     {n:"Mega Moolah",p:"Microgaming"},{n:"Immortal Romance",p:"Microgaming"},{n:"Thunderstruck II",p:"Microgaming"},
     {n:"Break da Bank Again",p:"Microgaming"},{n:"Avalon II",p:"Microgaming"},
+    {n:"Jungle Jim El Dorado",p:"Microgaming"},{n:"Dragonz",p:"Microgaming"},{n:"Lara Croft Temples and Tombs",p:"Microgaming"},
+    {n:"Game of Thrones",p:"Microgaming"},{n:"Jurassic World",p:"Microgaming"},
   ];
 
   var selectedProvider = 'all';
@@ -315,7 +404,7 @@ import { casinos } from '../data/casinos';
     matches.forEach(function(s) {
       var item = document.createElement('div');
       item.className = 'px-3 py-2 hover:bg-[#2a2d35] cursor-pointer transition-colors flex items-center justify-between';
-      item.innerHTML = '<span class="text-white text-sm font-medium">' + highlightMatch(s.n, query) + '</span><span class="text-gray-600 text-[10px]">' + s.p + '</span>';
+      item.innerHTML = '<div style="display:flex;align-items:center;gap:8px;flex:1;min-width:0"><div style="flex-shrink:0">' + getSlotImgHtml(s.n, 28) + '</div><span class="text-white text-sm font-medium" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + highlightMatch(s.n, query) + '</span></div><span class="text-gray-600 text-[10px] flex-shrink-0">' + s.p + '</span>';
       item.addEventListener('mousedown', function(e) {
         e.preventDefault();
         slotInput.value = s.n;
@@ -443,7 +532,7 @@ import { casinos } from '../data/casinos';
 
       html += '<tr class="border-b border-bg-border/30 hover:bg-bg-surface/50 transition-colors">';
       html += '<td class="py-3 px-4 text-primary font-bold text-sm">' + (i + 1) + '</td>';
-      html += '<td class="py-3 px-4 text-white font-medium text-sm">' + escapeHtml(s.name) + '</td>';
+      html += '<td class="py-3 px-4"><div style="display:flex;align-items:center;gap:8px">' + getSlotImgHtml(s.name, 32) + '<span class="text-white font-medium text-sm">' + escapeHtml(s.name) + '</span></div></td>';
       html += '<td class="py-3 px-4 text-gray-300 text-sm">' + s.bet.toFixed(2) + '€</td>';
       html += '<td class="py-3 px-4">';
       if (s.result === null) {
@@ -625,7 +714,7 @@ import { casinos } from '../data/casinos';
       var s = slots[idx];
 
       document.getElementById('opening-counter').textContent = 'Bonus ' + (currentPos + 1) + ' / ' + currentOpenList.length;
-      document.getElementById('opening-slot-name').textContent = s.name;
+      document.getElementById('opening-slot-name').innerHTML = '<div style="display:flex;align-items:center;justify-content:center;gap:10px">' + getSlotImgHtml(s.name, 40) + '<span>' + s.name + '</span></div>';
       document.getElementById('opening-bet').textContent = s.bet.toFixed(2) + '€';
 
       // Reset card to spinner
