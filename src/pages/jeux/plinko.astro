@@ -91,6 +91,7 @@ import AuthGate from '../../components/AuthGate.astro';
     var balance = 1000, currentBet = 10, dropping = false;
     var riskLevel = 'medium', numRows = 12;
     var plinkoHistory = [];
+    var activeBalls = []; // support multiple balls
 
     // Stake-style multipliers
     var MULTIPLIERS = {
@@ -175,29 +176,45 @@ import AuthGate from '../../components/AuthGate.astro';
         ctx.fillText(mults[i] + 'x', bx + bw / 2, H - 22);
       }
 
-      // Trail
-      if (trail && trail.length > 0) {
-        for (var t = 0; t < trail.length; t++) {
-          var alpha = 0.05 + (t / trail.length) * 0.25;
-          ctx.beginPath();
-          ctx.arc(trail[t].x, trail[t].y, 3, 0, Math.PI * 2);
-          ctx.fillStyle = 'rgba(245,184,61,' + alpha + ')';
-          ctx.fill();
+      // Draw all active balls
+      if (activeBalls) {
+        for (var b = 0; b < activeBalls.length; b++) {
+          var ball = activeBalls[b];
+          // Trail
+          for (var t = 0; t < ball.trail.length; t++) {
+            var alpha = 0.03 + (t / ball.trail.length) * 0.2;
+            ctx.beginPath();
+            ctx.arc(ball.trail[t].x, ball.trail[t].y, 4, 0, Math.PI * 2);
+            ctx.fillStyle = 'rgba(245,184,61,' + alpha + ')';
+            ctx.fill();
+          }
+          // Ball with 3D shine
+          if (ball.x !== undefined) {
+            var bx = ball.x, by = ball.y, br = 10;
+            // Outer glow
+            ctx.beginPath(); ctx.arc(bx, by, br + 4, 0, Math.PI * 2);
+            ctx.fillStyle = 'rgba(245,184,61,0.15)';
+            ctx.fill();
+            // Ball body
+            ctx.beginPath(); ctx.arc(bx, by, br, 0, Math.PI * 2);
+            var bGrad = ctx.createRadialGradient(bx - 3, by - 3, 1, bx, by, br);
+            bGrad.addColorStop(0, '#fffde7');
+            bGrad.addColorStop(0.3, '#fde68a');
+            bGrad.addColorStop(0.7, '#f5b83d');
+            bGrad.addColorStop(1, '#b8860b');
+            ctx.fillStyle = bGrad;
+            ctx.fill();
+            // Highlight
+            ctx.beginPath(); ctx.arc(bx - 3, by - 3, 3, 0, Math.PI * 2);
+            ctx.fillStyle = 'rgba(255,255,255,0.6)';
+            ctx.fill();
+            // Shadow underneath
+            ctx.beginPath();
+            ctx.ellipse(bx, by + br + 2, br * 0.7, 3, 0, 0, Math.PI * 2);
+            ctx.fillStyle = 'rgba(0,0,0,0.2)';
+            ctx.fill();
+          }
         }
-      }
-
-      // Ball
-      if (ballX !== undefined && ballY !== undefined) {
-        ctx.beginPath();
-        ctx.arc(ballX, ballY, 8, 0, Math.PI * 2);
-        ctx.shadowColor = '#f5b83d';
-        ctx.shadowBlur = 15;
-        var bGrad = ctx.createRadialGradient(ballX - 2, ballY - 2, 2, ballX, ballY, 8);
-        bGrad.addColorStop(0, '#fef08a');
-        bGrad.addColorStop(1, '#f5b83d');
-        ctx.fillStyle = bGrad;
-        ctx.fill();
-        ctx.shadowBlur = 0;
       }
     }
 
@@ -254,27 +271,81 @@ import AuthGate from '../../components/AuthGate.astro';
     }
     updateMC();
 
-    // Drop
-    document.getElementById('btn-drop').addEventListener('click', function() {
-      if (dropping || balance < currentBet) return;
-      dropping = true;
-      balance -= currentBet;
-      document.getElementById('balance').textContent = balance + '€';
-      document.getElementById('result').innerHTML = '';
+    // Animation loop - renders all active balls
+    var animRunning = false;
+    function renderLoop() {
+      if (activeBalls.length === 0) { animRunning = false; drawBoard(); return; }
+      drawBoard();
+      var allDone = true;
+      for (var b = 0; b < activeBalls.length; b++) {
+        var ball = activeBalls[b];
+        if (ball.frame < ball.path.length) {
+          ball.trail.push(ball.path[ball.frame]);
+          ball.x = ball.path[ball.frame].x;
+          ball.y = ball.path[ball.frame].y;
+          ball.frame++;
+          allDone = false;
+        } else if (!ball.resolved) {
+          ball.resolved = true;
+          resolveBall(ball);
+        }
+      }
+      // Remove resolved balls after 1.5s
+      activeBalls = activeBalls.filter(function(b) { return !b.resolved || (Date.now() - b.resolvedAt < 1500); });
+      if (activeBalls.length > 0 || !allDone) {
+        setTimeout(renderLoop, 55);
+      } else {
+        animRunning = false;
+        dropping = false;
+        drawBoard();
+      }
+    }
 
-      // Simulate path
-      var mults = getMultipliers();
+    function resolveBall(ball) {
+      ball.resolvedAt = Date.now();
+      var mults = MULTIPLIERS[ball.risk][ball.rows];
+      var bucketW = W / mults.length;
+      var bucket = Math.min(mults.length - 1, Math.max(0, Math.floor(ball.x / bucketW)));
+      var multi = mults[bucket];
+      var winnings = Math.round(ball.bet * multi * 100) / 100;
+      balance += winnings;
+      document.getElementById('balance').textContent = Math.round(balance) + '€';
+
+      var earned = multi >= 10 ? 10 : multi >= 3 ? 5 : multi >= 1 ? 2 : 0;
+      if (earned > 0) {
+        var mc = parseInt(localStorage.getItem('melchior_coins') || '0') + earned;
+        localStorage.setItem('melchior_coins', mc.toString());
+        updateMC();
+      }
+      var coinTxt = earned > 0 ? ' <span class="text-gold text-sm">+' + earned + '⭐</span>' : '';
+      var col = getColor(multi);
+
+      var resEl = document.getElementById('result');
+      if (multi >= 10) {
+        resEl.innerHTML = '<div class="bg-gradient-to-r from-red-500 to-orange-500 text-white font-extrabold text-xl px-8 py-3 rounded-2xl shadow-xl animate-bounce">🎉 ' + multi + 'x — ' + winnings + '€ !' + coinTxt + '</div>';
+      } else if (multi >= 1) {
+        resEl.innerHTML = '<div class="text-white font-extrabold text-lg px-6 py-2 rounded-2xl shadow-lg" style="background:linear-gradient(to right,' + col + '99,' + col + '66)">' + multi + 'x — ' + winnings + '€' + coinTxt + '</div>';
+      } else {
+        resEl.innerHTML = '<div class="bg-gradient-to-r from-gray-600 to-gray-700 text-white font-bold text-lg px-6 py-2 rounded-2xl shadow-lg">' + multi + 'x — ' + winnings + '€</div>';
+      }
+
+      plinkoHistory.unshift({ multi: multi, color: col });
+      if (plinkoHistory.length > 15) plinkoHistory.pop();
+      document.getElementById('plinko-history').innerHTML = plinkoHistory.map(function(h) {
+        return '<span class="text-[10px] font-bold px-2 py-1 rounded-full text-white" style="background:' + h.color + '">' + h.multi + 'x</span>';
+      }).join('');
+    }
+
+    function createBallPath() {
       var path = [];
-      var x = W / 2 + (Math.random() - 0.5) * 10;
+      var x = W / 2 + (Math.random() - 0.5) * 15;
       var y = 20;
       path.push({ x: x, y: y });
-
       for (var row = 0; row < numRows; row++) {
         var dir = Math.random() < 0.5 ? -1 : 1;
         var p = getPegPos(row, 0);
         var rowH = (row < numRows - 1) ? getPegPos(row + 1, 0).y - p.y : (H - 55) - p.y;
         x += dir * PEG_SPACING / 2 + (Math.random() - 0.5) * 4;
-        // Clamp
         var pegsInRow = row + 4;
         var rw = (pegsInRow - 1) * PEG_SPACING;
         var minX = (W - rw) / 2 - 5;
@@ -284,56 +355,28 @@ import AuthGate from '../../components/AuthGate.astro';
         path.push({ x: x, y: y });
       }
       path.push({ x: x, y: H - 52 });
+      return path;
+    }
 
-      // Animate
-      var frame = 0;
-      var trail = [];
-      function animate() {
-        if (frame < path.length) {
-          trail.push(path[frame]);
-          drawBoard(path[frame].x, path[frame].y, trail);
-          frame++;
-          setTimeout(animate, 60);
-        } else {
-          // Determine bucket
-          var bucketW = W / mults.length;
-          var bucket = Math.min(mults.length - 1, Math.max(0, Math.floor(x / bucketW)));
-          var multi = mults[bucket];
-          var winnings = Math.round(currentBet * multi * 100) / 100;
-          balance += winnings;
-          document.getElementById('balance').textContent = Math.round(balance) + '€';
+    // Drop — can drop even while other balls are falling
+    document.getElementById('btn-drop').addEventListener('click', function() {
+      if (balance < currentBet) return;
+      balance -= currentBet;
+      document.getElementById('balance').textContent = balance + '€';
+      document.getElementById('result').innerHTML = '';
 
-          var earned = multi >= 10 ? 10 : multi >= 3 ? 5 : multi >= 1 ? 2 : 0;
-          if (earned > 0) {
-            var mc = parseInt(localStorage.getItem('melchior_coins') || '0') + earned;
-            localStorage.setItem('melchior_coins', mc.toString());
-            updateMC();
-          }
-          var coinTxt = earned > 0 ? ' <span class="text-gold text-sm">+' + earned + '⭐</span>' : '';
-          var col = getColor(multi);
+      var path = createBallPath();
+      activeBalls.push({
+        path: path, frame: 0, trail: [],
+        x: path[0].x, y: path[0].y,
+        bet: currentBet, risk: riskLevel, rows: numRows,
+        resolved: false, resolvedAt: 0
+      });
 
-          var resEl = document.getElementById('result');
-          if (multi >= 10) {
-            resEl.innerHTML = '<div class="bg-gradient-to-r from-red-500 to-orange-500 text-white font-extrabold text-xl px-8 py-3 rounded-2xl shadow-xl animate-bounce">🎉 ' + multi + 'x — ' + winnings + '€ !' + coinTxt + '</div>';
-          } else if (multi >= 1) {
-            resEl.innerHTML = '<div class="text-white font-extrabold text-lg px-6 py-2 rounded-2xl shadow-lg" style="background:linear-gradient(to right,' + col + '99,' + col + '66)">' + multi + 'x — ' + winnings + '€' + coinTxt + '</div>';
-          } else {
-            resEl.innerHTML = '<div class="bg-gradient-to-r from-gray-600 to-gray-700 text-white font-bold text-lg px-6 py-2 rounded-2xl shadow-lg">' + multi + 'x — ' + winnings + '€</div>';
-          }
-
-          // Highlight winning bucket
-          drawBoard(path[path.length - 1].x, path[path.length - 1].y, trail);
-
-          plinkoHistory.unshift({ multi: multi, color: col });
-          if (plinkoHistory.length > 15) plinkoHistory.pop();
-          document.getElementById('plinko-history').innerHTML = plinkoHistory.map(function(h) {
-            return '<span class="text-[10px] font-bold px-2 py-1 rounded-full text-white" style="background:' + h.color + '">' + h.multi + 'x</span>';
-          }).join('');
-
-          dropping = false;
-        }
+      if (!animRunning) {
+        animRunning = true;
+        renderLoop();
       }
-      animate();
     });
   </script>
 </Layout>
