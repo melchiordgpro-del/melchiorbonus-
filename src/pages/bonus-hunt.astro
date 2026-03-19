@@ -80,10 +80,25 @@ import { casinos } from '../data/casinos';
       <!-- Add Slot Form -->
       <div id="add-form" class="bg-bg-card border border-bg-border rounded-2xl p-5 mb-6">
         <h3 class="text-white font-bold mb-4">Ajouter un bonus</h3>
+        <!-- Provider filter -->
+        <div class="flex flex-wrap gap-1.5 mb-3">
+          <button data-provider="all" class="provider-btn bg-primary text-white text-[10px] font-bold px-3 py-1.5 rounded-full cursor-pointer transition-all">Tous</button>
+          <button data-provider="Pragmatic Play" class="provider-btn bg-bg-surface text-gray-400 text-[10px] font-bold px-3 py-1.5 rounded-full cursor-pointer transition-all border border-bg-border hover:border-primary/30">Pragmatic</button>
+          <button data-provider="Hacksaw Gaming" class="provider-btn bg-bg-surface text-gray-400 text-[10px] font-bold px-3 py-1.5 rounded-full cursor-pointer transition-all border border-bg-border hover:border-primary/30">Hacksaw</button>
+          <button data-provider="Nolimit City" class="provider-btn bg-bg-surface text-gray-400 text-[10px] font-bold px-3 py-1.5 rounded-full cursor-pointer transition-all border border-bg-border hover:border-primary/30">Nolimit</button>
+          <button data-provider="Push Gaming" class="provider-btn bg-bg-surface text-gray-400 text-[10px] font-bold px-3 py-1.5 rounded-full cursor-pointer transition-all border border-bg-border hover:border-primary/30">Push</button>
+          <button data-provider="Play'n GO" class="provider-btn bg-bg-surface text-gray-400 text-[10px] font-bold px-3 py-1.5 rounded-full cursor-pointer transition-all border border-bg-border hover:border-primary/30">Play'n GO</button>
+          <button data-provider="Relax Gaming" class="provider-btn bg-bg-surface text-gray-400 text-[10px] font-bold px-3 py-1.5 rounded-full cursor-pointer transition-all border border-bg-border hover:border-primary/30">Relax</button>
+          <button data-provider="NetEnt" class="provider-btn bg-bg-surface text-gray-400 text-[10px] font-bold px-3 py-1.5 rounded-full cursor-pointer transition-all border border-bg-border hover:border-primary/30">NetEnt</button>
+          <button data-provider="Big Time Gaming" class="provider-btn bg-bg-surface text-gray-400 text-[10px] font-bold px-3 py-1.5 rounded-full cursor-pointer transition-all border border-bg-border hover:border-primary/30">BTG</button>
+          <button data-provider="ELK Studios" class="provider-btn bg-bg-surface text-gray-400 text-[10px] font-bold px-3 py-1.5 rounded-full cursor-pointer transition-all border border-bg-border hover:border-primary/30">ELK</button>
+          <button data-provider="Novomatic" class="provider-btn bg-bg-surface text-gray-400 text-[10px] font-bold px-3 py-1.5 rounded-full cursor-pointer transition-all border border-bg-border hover:border-primary/30">Novomatic</button>
+        </div>
         <div class="flex flex-wrap gap-3 items-end">
-          <div class="flex-1 min-w-[180px]">
+          <div class="flex-1 min-w-[180px] relative">
             <label class="text-gray-500 text-xs block mb-1">Nom du slot</label>
-            <input id="slot-name" type="text" placeholder="Gates of Olympus" class="w-full bg-bg-surface border border-bg-border text-white text-sm px-3 py-2.5 rounded-lg outline-none focus:border-primary/50" />
+            <input id="slot-name" type="text" placeholder="Tape 3 lettres..." autocomplete="off" class="w-full bg-bg-surface border border-bg-border text-white text-sm px-3 py-2.5 rounded-lg outline-none focus:border-primary/50" />
+            <div id="autocomplete-list" class="hidden absolute left-0 right-0 top-full mt-1 bg-[#1a1d23] border border-[#2a2d35] rounded-lg shadow-2xl shadow-black/50 z-50 max-h-48 overflow-y-auto"></div>
           </div>
           <div class="w-28">
             <label class="text-gray-500 text-xs block mb-1">Mise (€)</label>
@@ -91,6 +106,9 @@ import { casinos } from '../data/casinos';
           </div>
           <button id="add-slot-btn" class="bg-primary hover:bg-primary-light text-white font-bold text-sm px-6 py-2.5 rounded-lg transition-all">
             + Ajouter
+          </button>
+          <button id="random-slot-btn" class="bg-gold/20 border border-gold/30 text-gold hover:bg-gold/30 font-bold text-sm px-4 py-2.5 rounded-lg transition-all" title="Slot aléatoire">
+            🎲
           </button>
         </div>
       </div>
@@ -143,6 +161,155 @@ import { casinos } from '../data/casinos';
 
 <script is:inline>
 (function() {
+  // ========== SLOTS DATABASE ==========
+  var SLOTS_DB = [
+    // Pragmatic Play
+    {n:"Gates of Olympus",p:"Pragmatic Play"},{n:"Sweet Bonanza",p:"Pragmatic Play"},{n:"Sugar Rush",p:"Pragmatic Play"},
+    {n:"Starlight Princess",p:"Pragmatic Play"},{n:"The Dog House Megaways",p:"Pragmatic Play"},{n:"Big Bass Bonanza",p:"Pragmatic Play"},
+    {n:"Fruit Party",p:"Pragmatic Play"},{n:"Madame Destiny Megaways",p:"Pragmatic Play"},{n:"Wild West Gold",p:"Pragmatic Play"},
+    {n:"John Hunter and the Tomb of the Scarab Queen",p:"Pragmatic Play"},{n:"Great Rhino Megaways",p:"Pragmatic Play"},
+    {n:"Gates of Olympus 1000",p:"Pragmatic Play"},{n:"Sweet Bonanza 1000",p:"Pragmatic Play"},{n:"Bigger Bass Bonanza",p:"Pragmatic Play"},
+    {n:"Zeus vs Hades",p:"Pragmatic Play"},{n:"Gems Bonanza",p:"Pragmatic Play"},{n:"Power of Thor Megaways",p:"Pragmatic Play"},
+    {n:"Big Bass Splash",p:"Pragmatic Play"},{n:"Floating Dragon",p:"Pragmatic Play"},{n:"Release the Kraken 2",p:"Pragmatic Play"},
+    {n:"5 Lions Megaways",p:"Pragmatic Play"},{n:"Cleocatra",p:"Pragmatic Play"},{n:"Cash Bonanza",p:"Pragmatic Play"},
+    {n:"Hot Pepper",p:"Pragmatic Play"},{n:"Sugar Supreme Powernudge",p:"Pragmatic Play"},{n:"Barn Festival",p:"Pragmatic Play"},
+    {n:"Fire Strike 2",p:"Pragmatic Play"},{n:"Candy Village",p:"Pragmatic Play"},{n:"Curse of the Werewolf Megaways",p:"Pragmatic Play"},
+    {n:"Bronco Spirit",p:"Pragmatic Play"},{n:"Pirate Gold Deluxe",p:"Pragmatic Play"},{n:"Magic Money Maze",p:"Pragmatic Play"},
+    // Hacksaw Gaming
+    {n:"Wanted Dead or a Wild",p:"Hacksaw Gaming"},{n:"Chaos Crew",p:"Hacksaw Gaming"},{n:"Chaos Crew 2",p:"Hacksaw Gaming"},
+    {n:"IteroClassic Dream Drop",p:"Hacksaw Gaming"},{n:"Dork Unit",p:"Hacksaw Gaming"},{n:"Xpander",p:"Hacksaw Gaming"},
+    {n:"Stick 'Em",p:"Hacksaw Gaming"},{n:"RIP City",p:"Hacksaw Gaming"},{n:"Hand of Anubis",p:"Hacksaw Gaming"},
+    {n:"Rex the Hunt",p:"Hacksaw Gaming"},{n:"Om Nom",p:"Hacksaw Gaming"},{n:"Fruit Duel",p:"Hacksaw Gaming"},
+    {n:"Gladiator Legends",p:"Hacksaw Gaming"},{n:"Stack 'Em",p:"Hacksaw Gaming"},{n:"Hawks of Prey",p:"Hacksaw Gaming"},
+    {n:"Toshi Video Club",p:"Hacksaw Gaming"},{n:"Blade & Fangs",p:"Hacksaw Gaming"},{n:"Le Bandit",p:"Hacksaw Gaming"},
+    // Nolimit City
+    {n:"Mental",p:"Nolimit City"},{n:"Tombstone RIP",p:"Nolimit City"},{n:"San Quentin xWays",p:"Nolimit City"},
+    {n:"Fire in the Hole",p:"Nolimit City"},{n:"Punk Rocker",p:"Nolimit City"},{n:"True Grit Redemption",p:"Nolimit City"},
+    {n:"Misery Mining",p:"Nolimit City"},{n:"Warrior Graveyard",p:"Nolimit City"},{n:"Remember Gulag",p:"Nolimit City"},
+    {n:"Walk of Shame",p:"Nolimit City"},{n:"xWays Hoarder",p:"Nolimit City"},{n:"Infectious 5 xWays",p:"Nolimit City"},
+    {n:"Serial",p:"Nolimit City"},{n:"Mango Man",p:"Nolimit City"},{n:"Tombstone",p:"Nolimit City"},
+    {n:"El Paso Gunfight",p:"Nolimit City"},{n:"Karen Maneater",p:"Nolimit City"},{n:"Roadkill",p:"Nolimit City"},
+    // Push Gaming
+    {n:"Jammin' Jars",p:"Push Gaming"},{n:"Jammin' Jars 2",p:"Push Gaming"},{n:"Razor Shark",p:"Push Gaming"},
+    {n:"Fat Rabbit",p:"Push Gaming"},{n:"Fire Hopper",p:"Push Gaming"},{n:"Bison Battle",p:"Push Gaming"},
+    {n:"Joker Troupe",p:"Push Gaming"},{n:"Big Bamboo",p:"Push Gaming"},{n:"Nightfall",p:"Push Gaming"},
+    {n:"Razor Returns",p:"Push Gaming"},{n:"Space Stacks",p:"Push Gaming"},{n:"Generous Jack",p:"Push Gaming"},
+    // Play'n GO
+    {n:"Book of Dead",p:"Play'n GO"},{n:"Reactoonz",p:"Play'n GO"},{n:"Reactoonz 2",p:"Play'n GO"},
+    {n:"Rise of Olympus",p:"Play'n GO"},{n:"Moon Princess",p:"Play'n GO"},{n:"Fire Joker",p:"Play'n GO"},
+    {n:"Rich Wilde and the Amulet of Dead",p:"Play'n GO"},{n:"Tome of Madness",p:"Play'n GO"},
+    {n:"Legacy of Dead",p:"Play'n GO"},{n:"Hugo 2",p:"Play'n GO"},{n:"Gemix",p:"Play'n GO"},
+    {n:"Contact",p:"Play'n GO"},{n:"Cat Wilde and the Doom of Dead",p:"Play'n GO"},{n:"Honey Rush",p:"Play'n GO"},
+    // Relax Gaming
+    {n:"Money Train",p:"Relax Gaming"},{n:"Money Train 2",p:"Relax Gaming"},{n:"Money Train 3",p:"Relax Gaming"},
+    {n:"Money Train 4",p:"Relax Gaming"},{n:"Dream Drop Jackpot",p:"Relax Gaming"},{n:"Temple Tumble Megaways",p:"Relax Gaming"},
+    {n:"Snake Arena",p:"Relax Gaming"},{n:"TNT Tumble",p:"Relax Gaming"},{n:"Hellcatraz",p:"Relax Gaming"},
+    // NetEnt
+    {n:"Starburst",p:"NetEnt"},{n:"Gonzo's Quest",p:"NetEnt"},{n:"Dead or Alive 2",p:"NetEnt"},
+    {n:"Divine Fortune",p:"NetEnt"},{n:"Narcos",p:"NetEnt"},{n:"Twin Spin",p:"NetEnt"},
+    {n:"Jack and the Beanstalk",p:"NetEnt"},{n:"Blood Suckers",p:"NetEnt"},{n:"Asgardian Stones",p:"NetEnt"},
+    {n:"Gordon Ramsay Hell's Kitchen",p:"NetEnt"},{n:"Street Fighter II",p:"NetEnt"},
+    // Big Time Gaming
+    {n:"Bonanza Megaways",p:"Big Time Gaming"},{n:"Extra Chilli",p:"Big Time Gaming"},{n:"White Rabbit",p:"Big Time Gaming"},
+    {n:"Lil Devil",p:"Big Time Gaming"},{n:"Opal Fruits",p:"Big Time Gaming"},{n:"Kingmaker",p:"Big Time Gaming"},
+    {n:"Royal Mint Megaways",p:"Big Time Gaming"},{n:"Donuts",p:"Big Time Gaming"},
+    // ELK Studios
+    {n:"Cygnus",p:"ELK Studios"},{n:"Kaiju",p:"ELK Studios"},{n:"Bloopers",p:"ELK Studios"},
+    {n:"Ecuador Gold",p:"ELK Studios"},{n:"Poltava",p:"ELK Studios"},{n:"Toro",p:"ELK Studios"},
+    {n:"Valkyrie",p:"ELK Studios"},{n:"Cygnus 2",p:"ELK Studios"},{n:"O'Reilly's Fortune",p:"ELK Studios"},
+    // Novomatic
+    {n:"Book of Ra",p:"Novomatic"},{n:"Book of Ra Deluxe",p:"Novomatic"},{n:"Lucky Lady's Charm",p:"Novomatic"},
+    {n:"Sizzling Hot",p:"Novomatic"},{n:"Dolphin's Pearl",p:"Novomatic"},{n:"Columbus",p:"Novomatic"},
+    {n:"Lord of the Ocean",p:"Novomatic"},{n:"Pharaoh's Ring",p:"Novomatic"},{n:"Ultra Hot",p:"Novomatic"},
+    // Thunderkick
+    {n:"Beat the Beast: Griffin's Gold",p:"Thunderkick"},{n:"Pink Elephants",p:"Thunderkick"},
+    {n:"Pink Elephants 2",p:"Thunderkick"},{n:"Esqueleto Explosivo 2",p:"Thunderkick"},{n:"1429 Uncharted Seas",p:"Thunderkick"},
+    // Red Tiger
+    {n:"Gonzo's Quest Megaways",p:"Red Tiger"},{n:"Mystery Reels Megaways",p:"Red Tiger"},
+    {n:"Dragon's Fire Megaways",p:"Red Tiger"},{n:"Piggy Riches Megaways",p:"Red Tiger"},
+    // Yggdrasil
+    {n:"Valley of the Gods",p:"Yggdrasil"},{n:"Vikings Go Berzerk",p:"Yggdrasil"},
+    {n:"Champions of Rome",p:"Yggdrasil"},{n:"Hades Gigablox",p:"Yggdrasil"},
+    // Microgaming
+    {n:"Mega Moolah",p:"Microgaming"},{n:"Immortal Romance",p:"Microgaming"},{n:"Thunderstruck II",p:"Microgaming"},
+    {n:"Break da Bank Again",p:"Microgaming"},{n:"Avalon II",p:"Microgaming"},
+  ];
+
+  var selectedProvider = 'all';
+
+  // ========== AUTOCOMPLETE ==========
+  var slotInput = document.getElementById('slot-name');
+  var autoList = document.getElementById('autocomplete-list');
+
+  function getFilteredSlots(query) {
+    var q = query.toLowerCase();
+    var filtered = SLOTS_DB;
+    if (selectedProvider !== 'all') {
+      filtered = filtered.filter(function(s) { return s.p === selectedProvider; });
+    }
+    if (q.length < 2) return [];
+    return filtered.filter(function(s) {
+      return s.n.toLowerCase().indexOf(q) !== -1;
+    }).slice(0, 10);
+  }
+
+  function showAutocomplete() {
+    var query = slotInput.value;
+    var matches = getFilteredSlots(query);
+    if (matches.length === 0) {
+      autoList.classList.add('hidden');
+      return;
+    }
+    autoList.innerHTML = '';
+    matches.forEach(function(s) {
+      var item = document.createElement('div');
+      item.className = 'px-3 py-2 hover:bg-[#2a2d35] cursor-pointer transition-colors flex items-center justify-between';
+      item.innerHTML = '<span class="text-white text-sm font-medium">' + highlightMatch(s.n, query) + '</span><span class="text-gray-600 text-[10px]">' + s.p + '</span>';
+      item.addEventListener('mousedown', function(e) {
+        e.preventDefault();
+        slotInput.value = s.n;
+        autoList.classList.add('hidden');
+      });
+      autoList.appendChild(item);
+    });
+    autoList.classList.remove('hidden');
+  }
+
+  function highlightMatch(text, query) {
+    var idx = text.toLowerCase().indexOf(query.toLowerCase());
+    if (idx === -1) return text;
+    return text.substring(0, idx) + '<span class="text-primary font-bold">' + text.substring(idx, idx + query.length) + '</span>' + text.substring(idx + query.length);
+  }
+
+  slotInput.addEventListener('input', showAutocomplete);
+  slotInput.addEventListener('focus', function() { if (slotInput.value.length >= 2) showAutocomplete(); });
+  slotInput.addEventListener('blur', function() { setTimeout(function() { autoList.classList.add('hidden'); }, 150); });
+
+  // Provider filter
+  document.querySelectorAll('.provider-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      selectedProvider = btn.dataset.provider;
+      document.querySelectorAll('.provider-btn').forEach(function(b) {
+        b.className = 'provider-btn bg-bg-surface text-gray-400 text-[10px] font-bold px-3 py-1.5 rounded-full cursor-pointer transition-all border border-bg-border hover:border-primary/30';
+      });
+      btn.className = 'provider-btn bg-primary text-white text-[10px] font-bold px-3 py-1.5 rounded-full cursor-pointer transition-all';
+      // Re-trigger autocomplete if input has text
+      if (slotInput.value.length >= 2) showAutocomplete();
+    });
+  });
+
+  // Random slot
+  document.getElementById('random-slot-btn').addEventListener('click', function() {
+    var pool = SLOTS_DB;
+    if (selectedProvider !== 'all') {
+      pool = pool.filter(function(s) { return s.p === selectedProvider; });
+    }
+    var random = pool[Math.floor(Math.random() * pool.length)];
+    slotInput.value = random.n;
+    autoList.classList.add('hidden');
+  });
+
+  // ========== BONUS HUNT LOGIC ==========
   var slots = []; // [{name, bet, result, multi, status}]
   var huntName = 'Bonus Hunt ' + new Date().toLocaleDateString('fr-FR');
 
