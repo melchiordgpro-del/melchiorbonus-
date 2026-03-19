@@ -179,6 +179,84 @@ import { casinos } from '../../data/casinos';
     25% { transform: translateX(-4px); }
     75% { transform: translateX(4px); }
   }
+  /* Car animation */
+  .car-container {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 50;
+    pointer-events: none;
+  }
+  .car-sprite {
+    font-size: 48px;
+    filter: drop-shadow(0 4px 12px rgba(0,0,0,.6));
+  }
+  @keyframes car-drive-in {
+    0% { transform: translateX(-300px); }
+    40% { transform: translateX(0px); }
+    50% { transform: translateX(0px); }
+    100% { transform: translateX(600px); }
+  }
+  @keyframes car-honk {
+    0%, 100% { transform: translateY(-50%) scale(1); }
+    50% { transform: translateY(-50%) scale(1.05); }
+  }
+  /* Feathers flying */
+  .feather {
+    position: absolute;
+    font-size: 16px;
+    pointer-events: none;
+    z-index: 60;
+    opacity: 1;
+  }
+  @keyframes feather-fly-1 {
+    0% { transform: translate(0, 0) rotate(0deg); opacity: 1; }
+    100% { transform: translate(-60px, -80px) rotate(360deg); opacity: 0; }
+  }
+  @keyframes feather-fly-2 {
+    0% { transform: translate(0, 0) rotate(0deg); opacity: 1; }
+    100% { transform: translate(40px, -100px) rotate(-300deg); opacity: 0; }
+  }
+  @keyframes feather-fly-3 {
+    0% { transform: translate(0, 0) rotate(0deg); opacity: 1; }
+    100% { transform: translate(-30px, -60px) rotate(200deg); opacity: 0; }
+  }
+  @keyframes feather-fly-4 {
+    0% { transform: translate(0, 0) rotate(0deg); opacity: 1; }
+    100% { transform: translate(70px, -50px) rotate(-250deg); opacity: 0; }
+  }
+  @keyframes feather-fly-5 {
+    0% { transform: translate(0, 0) rotate(0deg); opacity: 1; }
+    100% { transform: translate(20px, -120px) rotate(400deg); opacity: 0; }
+  }
+  /* Splat mark */
+  .splat {
+    position: absolute;
+    font-size: 32px;
+    z-index: 5;
+    animation: splat-appear 0.3s ease forwards;
+  }
+  @keyframes splat-appear {
+    0% { transform: scale(0) rotate(0deg); opacity: 0; }
+    60% { transform: scale(1.3) rotate(10deg); opacity: 1; }
+    100% { transform: scale(1) rotate(0deg); opacity: 0.6; }
+  }
+  /* Tire marks */
+  .tire-marks {
+    position: absolute;
+    bottom: -4px;
+    left: -20px;
+    right: -20px;
+    height: 4px;
+    background: repeating-linear-gradient(90deg, #333 0px, #333 8px, transparent 8px, transparent 12px);
+    opacity: 0;
+    z-index: 2;
+    animation: tire-appear 0.3s ease 0.4s forwards;
+  }
+  @keyframes tire-appear {
+    0% { opacity: 0; }
+    100% { opacity: 0.5; }
+  }
 </style>
 
 <script is:inline>
@@ -212,9 +290,21 @@ import { casinos } from '../../data/casinos';
         gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.15);
         osc.start(); osc.stop(ctx.currentTime + 0.15);
       } else if (type === 'boom') {
-        osc.frequency.value = 120; osc.type = 'sawtooth';
-        gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.6);
-        osc.start(); osc.stop(ctx.currentTime + 0.6);
+        // Honk sound
+        osc.frequency.value = 400; osc.type = 'square';
+        gain.gain.value = 0.15;
+        gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3);
+        osc.start(); osc.stop(ctx.currentTime + 0.3);
+        // Crash sound after honk
+        setTimeout(function() {
+          try {
+            var o2 = ctx.createOscillator(); var g2 = ctx.createGain();
+            o2.connect(g2); g2.connect(ctx.destination);
+            o2.frequency.value = 100; o2.type = 'sawtooth'; g2.gain.value = 0.2;
+            g2.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.5);
+            o2.start(); o2.stop(ctx.currentTime + 0.5);
+          } catch(e2) {}
+        }, 400);
       } else if (type === 'cashout') {
         osc.frequency.value = 700; osc.type = 'sine';
         gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3);
@@ -377,37 +467,92 @@ import { casinos } from '../../data/casinos';
     var isBomb = road[stepIdx];
 
     if (isBomb) {
-      // BOOM
-      playSound('boom');
+      // CAR KILLS CHICKEN!
+      playing = false;
+      document.getElementById('advance-btn').classList.add('hidden');
+
       var cell = document.getElementById('cell-' + stepIdx);
       cell.className = 'road-cell bomb';
-      cell.innerHTML = '<span style="font-size:24px">💥</span>';
       cell.style.animation = 'boom-shake 0.3s ease 3';
 
-      // Kill chicken
-      document.querySelectorAll('.chicken-sprite').forEach(function(c) {
-        c.style.transform = 'translateX(-50%) rotate(90deg)';
-        c.style.filter = 'drop-shadow(0 4px 8px rgba(0,0,0,.5)) grayscale(1)';
-      });
+      // Honk sound
+      playSound('boom');
 
-      playing = false;
-      document.getElementById('game-msg').textContent = '💥 BOOM ! Le poulet est tombé à l\'étape ' + (stepIdx + 1) + ' !';
-      document.getElementById('game-msg').style.color = '#ef4444';
+      // Pick random car
+      var cars = ['🚗', '🚙', '🚕', '🏎️', '🚐', '🚛', '🚑'];
+      var carEmoji = cars[Math.floor(Math.random() * cars.length)];
 
-      // Reveal remaining bombs
+      // Create car element at the cell position
+      var carDiv = document.createElement('div');
+      carDiv.className = 'car-container';
+      carDiv.style.left = '0';
+      carDiv.style.top = '-20px';
+      carDiv.innerHTML = '<div class="car-sprite" style="animation: car-drive-in 1.2s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;">' + carEmoji + '</div>';
+      cell.style.position = 'relative';
+      cell.appendChild(carDiv);
+
+      // After car reaches chicken (at 40% = 480ms), show impact
+      setTimeout(function() {
+        // Hide chicken
+        document.querySelectorAll('.chicken-sprite').forEach(function(c) {
+          c.style.opacity = '0';
+          c.style.transition = 'opacity 0.1s';
+        });
+
+        // Feathers explosion!
+        var featherEmojis = ['🪶', '🪶', '🪶', '🪶', '🪶', '✨', '💫'];
+        var featherAnims = ['feather-fly-1', 'feather-fly-2', 'feather-fly-3', 'feather-fly-4', 'feather-fly-5', 'feather-fly-1', 'feather-fly-2'];
+        for (var f = 0; f < 7; f++) {
+          var feather = document.createElement('div');
+          feather.className = 'feather';
+          feather.textContent = featherEmojis[f];
+          feather.style.left = '50%';
+          feather.style.top = '-20px';
+          feather.style.animation = featherAnims[f] + ' 0.8s ease-out forwards';
+          feather.style.animationDelay = (f * 0.05) + 's';
+          cell.appendChild(feather);
+        }
+
+        // Tire marks on the cell
+        var tire = document.createElement('div');
+        tire.className = 'tire-marks';
+        cell.appendChild(tire);
+
+        // Show splat where chicken was
+        setTimeout(function() {
+          cell.innerHTML = '<span style="font-size:20px; opacity:0.5">💀</span>';
+          cell.className = 'road-cell bomb';
+
+          // Add tire marks back
+          var tire2 = document.createElement('div');
+          tire2.className = 'tire-marks';
+          tire2.style.opacity = '0.4';
+          tire2.style.animation = 'none';
+          cell.appendChild(tire2);
+        }, 600);
+
+      }, 480);
+
+      // Message after animation
+      setTimeout(function() {
+        document.getElementById('game-msg').textContent = '🚗💨 Le poulet s\'est fait écraser à l\'étape ' + (stepIdx + 1) + ' !';
+        document.getElementById('game-msg').style.color = '#ef4444';
+      }, 600);
+
+      // Reveal remaining bombs after full animation
       setTimeout(function() {
         for (var i = stepIdx + 1; i < totalSteps; i++) {
           var c = document.getElementById('cell-' + i);
           if (road[i]) {
             c.className = 'road-cell bomb';
             c.style.opacity = '0.4';
-            c.innerHTML = '<span style="font-size:18px">💣</span>';
+            c.innerHTML = '<span style="font-size:18px">🚗</span>';
           }
         }
-      }, 500);
+        resetBtn();
+      }, 1500);
 
       addHistory(false, 0);
-      resetBtn();
     } else {
       // Safe!
       currentStep++;
