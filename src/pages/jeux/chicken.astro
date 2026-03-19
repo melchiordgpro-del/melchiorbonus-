@@ -72,9 +72,9 @@ import { casinos } from '../../data/casinos';
           </button>
           <div class="hidden group-hover:block absolute bottom-full left-0 w-full mb-2 bg-[#1a1d23] border border-[#2a2d35] rounded-xl overflow-hidden shadow-xl z-50">
             {casinos.map(c => (
-              <a href={c.affiliateLink} target="_blank" rel="noopener" class="flex items-center gap-2 px-3 py-2 hover:bg-[#2a2d35] text-white text-xs font-medium transition-colors">
+              <a href={c.affiliateUrl} target="_blank" rel="noopener" class="flex items-center gap-2 px-3 py-2 hover:bg-[#2a2d35] text-white text-xs font-medium transition-colors">
                 <span>{c.name}</span>
-                <span class="ml-auto text-primary text-[10px]">{c.bonus}</span>
+                <span class="ml-auto text-primary text-[10px]">{c.bonusAmount}</span>
               </a>
             ))}
           </div>

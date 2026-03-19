@@ -14,7 +14,7 @@ import { casinos } from '../../data/casinos';
       <div class="lg:w-72 flex-shrink-0 bg-bg-card border border-bg-border rounded-2xl p-5 flex flex-col gap-4">
         <div>
           <p class="text-gray-500 text-[10px] uppercase tracking-wider mb-1">Solde</p>
-          <p class="text-gold font-extrabold text-2xl" id="balance">1000 Ⓜ</p>
+          <p class="text-gold font-extrabold text-2xl" id="balance">0 Ⓜ</p>
         </div>
         <div class="border-t border-bg-border"></div>
         <div>
@@ -131,7 +131,9 @@ import { casinos } from '../../data/casinos';
     var REDS = [1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36];
     // European roulette wheel order
     var WHEEL_ORDER = [0,32,15,19,4,21,2,25,17,34,6,27,13,36,11,30,8,23,10,5,24,16,33,1,20,14,31,9,22,18,29,7,28,12,35,3,26];
-    var balance = 1000, currentBet = 10, betType = 'rouge', spinning = false;
+    function getBalance() { return parseFloat(localStorage.getItem('melchior_coins') || '1000000'); }
+    function setBalance(v) { localStorage.setItem('melchior_coins', v.toFixed(2)); window.dispatchEvent(new Event('coins-updated')); }
+    var currentBet = 10, betType = 'rouge', spinning = false;
     var historyArr = [];
 
     function isRed(n) { return REDS.indexOf(n) !== -1; }
@@ -259,10 +261,10 @@ import { casinos } from '../../data/casinos';
 
     // Spin
     document.getElementById('btn-spin').addEventListener('click', function() {
-      if (spinning || balance < currentBet) return;
+      if (spinning || getBalance() < currentBet) return;
       spinning = true;
-      balance -= currentBet;
-      document.getElementById('balance').textContent = balance + ' Ⓜ';
+      setBalance(getBalance() - currentBet);
+      document.getElementById('balance').textContent = getBalance().toLocaleString('fr-FR', {maximumFractionDigits: 0}) + ' Ⓜ';
       document.getElementById('result').innerHTML = '';
       document.getElementById('last-number').classList.add('hidden');
 
@@ -336,14 +338,12 @@ import { casinos } from '../../data/casinos';
 
       var resEl = document.getElementById('result');
       if (won) {
-        balance += currentBet * 2;
-        var mc = parseInt(localStorage.getItem('melchior_coins') || '0') + 3;
-        localStorage.setItem('melchior_coins', mc.toString());
-        resEl.innerHTML = '<div class="bg-gradient-to-r from-green-500 to-green-600 text-white font-extrabold text-lg px-8 py-3 rounded-2xl shadow-xl animate-bounce">Gagné ! +' + currentBet + ' Ⓜ <span class="text-sm">+3⭐</span></div>';
+        setBalance(getBalance() + currentBet * 2);
+        resEl.innerHTML = '<div class="bg-gradient-to-r from-green-500 to-green-600 text-white font-extrabold text-lg px-8 py-3 rounded-2xl shadow-xl animate-bounce">Gagné ! +' + currentBet + ' Ⓜ</div>';
       } else {
         resEl.innerHTML = '<div class="bg-gradient-to-r from-red-500 to-red-600 text-white font-extrabold text-lg px-8 py-3 rounded-2xl shadow-xl">Perdu !</div>';
       }
-      document.getElementById('balance').textContent = balance + ' Ⓜ';
+      document.getElementById('balance').textContent = getBalance().toLocaleString('fr-FR', {maximumFractionDigits: 0}) + ' Ⓜ';
 
       // History
       historyArr.unshift(num);
@@ -457,5 +457,11 @@ import { casinos } from '../../data/casinos';
       cCtx.fillStyle = lastProfit >= 0 ? 'rgba(34,197,94,0.1)' : 'rgba(239,68,68,0.1)';
       cCtx.fill();
     }
+
+    // Initialize balance display from localStorage
+    document.getElementById('balance').textContent = getBalance().toLocaleString('fr-FR', {maximumFractionDigits: 0}) + ' Ⓜ';
+    window.addEventListener('coins-updated', function() {
+      document.getElementById('balance').textContent = getBalance().toLocaleString('fr-FR', {maximumFractionDigits: 0}) + ' Ⓜ';
+    });
   </script>
 </Layout>

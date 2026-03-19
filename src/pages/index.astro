@@ -7,8 +7,20 @@ const topCasinos = casinos.slice(0, 5);
 ---
 
 <Layout title="MelchiorBonus — Meilleurs Casinos en Ligne 2026 | Comparatif & Bonus Exclusifs">
+  <!-- Mini hero badge -->
+  <div class="text-center pt-8 pb-4">
+    <div class="inline-flex items-center gap-2 bg-primary/10 border border-primary/20 rounded-full px-4 py-1.5 text-sm">
+      <span class="w-2 h-2 bg-accent-green rounded-full animate-pulse"></span>
+      <span class="text-gray-300 font-medium">Classement mis à jour — <span class="text-primary-light font-bold">Mars 2026</span></span>
+    </div>
+    <h1 class="text-3xl sm:text-4xl font-extrabold text-white mt-4 mb-2">
+      Les <span class="gradient-text">Meilleurs Casinos</span> en Ligne
+    </h1>
+    <p class="text-gray-400 text-sm max-w-lg mx-auto">Comparés, testés et approuvés par notre équipe. Bonus exclusifs via nos liens.</p>
+  </div>
+
   <!-- Casinos — directly visible -->
-  <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
+  <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4">
 
     <!-- Discord Giveaway Banner -->
     <a href={discordUrl} target="_blank" rel="noopener" class="group block bg-gradient-to-r from-[#5865F2]/20 via-[#5865F2]/10 to-[#5865F2]/20 border border-[#5865F2]/30 rounded-2xl p-5 mb-8 hover:border-[#5865F2]/50 transition-all">
@@ -36,7 +48,7 @@ const topCasinos = casinos.slice(0, 5);
   </section>
 
   <!-- How We Rate -->
-  <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-24">
+  <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-24 fade-in">
     <div class="text-center mb-12">
       <h2 class="text-3xl font-extrabold text-white mb-3">
         Comment Nous <span class="text-primary-light">Évaluons</span>
@@ -82,7 +94,7 @@ const topCasinos = casinos.slice(0, 5);
   </section>
 
   <!-- FAQ -->
-  <section class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 mt-24">
+  <section class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 mt-24 fade-in">
     <div class="text-center mb-10">
       <h2 class="text-3xl font-extrabold text-white mb-3">
         Questions <span class="text-primary-light">Fréquentes</span>
@@ -133,7 +145,7 @@ const topCasinos = casinos.slice(0, 5);
   </section>
 
   <!-- Discord Banner -->
-  <section class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 mt-24">
+  <section class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 mt-24 fade-in">
     <a href={discordUrl} target="_blank" rel="noopener" class="block bg-[#5865F2]/10 border border-[#5865F2]/20 rounded-2xl p-8 text-center hover:bg-[#5865F2]/15 transition-all group">
       <span class="text-4xl mb-4 block">💬</span>
       <h2 class="text-2xl font-extrabold text-white mb-2 group-hover:text-[#5865F2] transition-colors">
@@ -149,7 +161,7 @@ const topCasinos = casinos.slice(0, 5);
   </section>
 
   <!-- CTA Final -->
-  <section class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 mt-24 mb-10">
+  <section class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 mt-24 mb-10 fade-in">
     <div class="bg-gradient-to-r from-primary/10 via-primary/5 to-primary/10 border border-primary/20 rounded-3xl p-8 sm:p-12 text-center">
       <h2 class="text-2xl sm:text-3xl font-extrabold text-white mb-4">
         Prêt à jouer ?
