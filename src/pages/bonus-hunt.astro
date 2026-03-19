@@ -9,126 +9,125 @@ import { casinos } from '../data/casinos';
     <div class="text-center mb-10">
       <div class="inline-flex items-center gap-2 bg-accent/10 border border-accent/20 text-accent text-sm font-medium px-4 py-1.5 rounded-full mb-4">
         <span>🔥</span>
-        <span>En direct</span>
+        <span>Bonus Hunt Tracker</span>
       </div>
       <h1 class="text-4xl sm:text-5xl font-extrabold text-white mb-4 flex items-center justify-center gap-3">
-        <svg class="w-10 h-10 text-primary-light" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 5h2v14H4zM18 5h2v14h-2zM8 3h8v4H8zM8 17h8v4H8zM9 7h6v10H9z" /></svg>
-        Bonus Hunt
+        🎰 Bonus Hunt
       </h1>
       <p class="text-gray-400 text-lg max-w-xl mx-auto">
-        Ouvre des bonus sur les meilleurs slots et suis les résultats en temps réel !
+        Ajoute tes bonus, suis les résultats et calcule ton break even en temps réel !
       </p>
     </div>
 
     <AuthGate>
-      <!-- Hunt Status -->
-      <div class="bg-bg-card border border-bg-border rounded-2xl p-6 mb-8">
-        <div class="flex flex-col sm:flex-row items-center justify-between gap-4 mb-6">
-          <div>
-            <h2 class="text-xl font-extrabold text-white">Bonus Hunt en cours</h2>
-            <p class="text-gray-400 text-sm mt-1">Session du jour — Mars 2026</p>
+      <!-- Hunt Controls -->
+      <div class="flex flex-wrap items-center gap-3 mb-6">
+        <button id="new-hunt-btn" class="bg-primary hover:bg-primary-light text-white font-bold text-sm px-5 py-2.5 rounded-lg transition-all">
+          + Nouveau Bonus Hunt
+        </button>
+        <button id="save-hunt-btn" class="bg-accent-green/20 border border-accent-green/30 text-accent-green hover:bg-accent-green/30 font-bold text-sm px-5 py-2.5 rounded-lg transition-all">
+          💾 Sauvegarder
+        </button>
+        <button id="delete-hunt-btn" class="bg-accent-red/20 border border-accent-red/30 text-accent-red hover:bg-accent-red/30 font-bold text-sm px-5 py-2.5 rounded-lg transition-all">
+          🗑️ Supprimer
+        </button>
+        <select id="load-hunt-select" class="bg-bg-surface border border-bg-border text-white text-sm px-3 py-2.5 rounded-lg outline-none ml-auto">
+          <option value="">-- Charger un hunt --</option>
+        </select>
+      </div>
+
+      <!-- Stats -->
+      <div class="bg-bg-card border border-bg-border rounded-2xl p-6 mb-6">
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+          <div class="bg-bg-surface border border-bg-border rounded-xl p-3 text-center">
+            <p class="text-gray-500 text-[10px] uppercase">Nb Bonus</p>
+            <p class="text-primary-light font-extrabold text-xl" id="stat-count">0</p>
           </div>
-          <div class="flex items-center gap-3">
-            <div class="bg-accent-green/10 text-accent-green font-bold text-sm px-4 py-2 rounded-lg border border-accent-green/20">
-              EN COURS
-            </div>
+          <div class="bg-bg-surface border border-bg-border rounded-xl p-3 text-center">
+            <p class="text-gray-500 text-[10px] uppercase">Total Investi</p>
+            <p class="text-white font-extrabold text-xl" id="stat-invested">0€</p>
+          </div>
+          <div class="bg-bg-surface border border-bg-border rounded-xl p-3 text-center">
+            <p class="text-gray-500 text-[10px] uppercase">Total Gagné</p>
+            <p class="text-accent-green font-extrabold text-xl" id="stat-won">0€</p>
+          </div>
+          <div class="bg-bg-surface border border-bg-border rounded-xl p-3 text-center">
+            <p class="text-gray-500 text-[10px] uppercase">Profit</p>
+            <p class="font-extrabold text-xl" id="stat-profit">0€</p>
+          </div>
+          <div class="bg-bg-surface border border-bg-border rounded-xl p-3 text-center">
+            <p class="text-gray-500 text-[10px] uppercase">Multi Moyen</p>
+            <p class="text-gold font-extrabold text-xl" id="stat-avg-multi">0×</p>
+          </div>
+          <div class="bg-bg-surface border border-bg-border rounded-xl p-3 text-center">
+            <p class="text-gray-500 text-[10px] uppercase">Break Even</p>
+            <p class="text-accent font-extrabold text-xl" id="stat-breakeven">0×</p>
           </div>
         </div>
 
-        <!-- Stats -->
-        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
-          <div class="bg-bg-surface border border-bg-border rounded-xl p-4 text-center">
-            <p class="text-gray-500 text-xs mb-1">Total Investi</p>
-            <p class="text-white font-extrabold text-xl" id="total-invested">0€</p>
+        <!-- Progress bar -->
+        <div class="mt-4">
+          <div class="flex items-center justify-between text-xs text-gray-500 mb-1">
+            <span>Progression</span>
+            <span id="stat-progress-text">0/0 ouverts</span>
           </div>
-          <div class="bg-bg-surface border border-bg-border rounded-xl p-4 text-center">
-            <p class="text-gray-500 text-xs mb-1">Total Gagné</p>
-            <p class="text-accent-green font-extrabold text-xl" id="total-won">0€</p>
-          </div>
-          <div class="bg-bg-surface border border-bg-border rounded-xl p-4 text-center">
-            <p class="text-gray-500 text-xs mb-1">Bonus Ouverts</p>
-            <p class="text-primary-light font-extrabold text-xl" id="bonus-opened">0</p>
-          </div>
-          <div class="bg-bg-surface border border-bg-border rounded-xl p-4 text-center">
-            <p class="text-gray-500 text-xs mb-1">Multiplicateur Moyen</p>
-            <p class="text-gold font-extrabold text-xl" id="avg-multi">0x</p>
+          <div class="w-full bg-bg-surface rounded-full h-2.5 border border-bg-border">
+            <div id="stat-progress-bar" class="bg-primary h-full rounded-full transition-all duration-500" style="width: 0%"></div>
           </div>
         </div>
       </div>
 
-      <!-- Bonus Slots Table -->
-      <div class="bg-bg-card border border-bg-border rounded-2xl overflow-hidden">
-        <div class="p-5 border-b border-bg-border flex items-center justify-between">
-          <h3 class="text-white font-bold text-lg">Slots du Bonus Hunt</h3>
-          <button id="add-slot-btn" class="bg-primary hover:bg-primary-light text-white font-bold text-sm px-4 py-2 rounded-lg transition-all">
-            + Ajouter un slot
+      <!-- Add Slot Form -->
+      <div id="add-form" class="bg-bg-card border border-bg-border rounded-2xl p-5 mb-6">
+        <h3 class="text-white font-bold mb-4">Ajouter un bonus</h3>
+        <div class="flex flex-wrap gap-3 items-end">
+          <div class="flex-1 min-w-[180px]">
+            <label class="text-gray-500 text-xs block mb-1">Nom du slot</label>
+            <input id="slot-name" type="text" placeholder="Gates of Olympus" class="w-full bg-bg-surface border border-bg-border text-white text-sm px-3 py-2.5 rounded-lg outline-none focus:border-primary/50" />
+          </div>
+          <div class="w-28">
+            <label class="text-gray-500 text-xs block mb-1">Mise (€)</label>
+            <input id="slot-bet" type="number" step="0.01" value="1" min="0.01" class="w-full bg-bg-surface border border-bg-border text-white text-sm px-3 py-2.5 rounded-lg outline-none focus:border-primary/50" />
+          </div>
+          <button id="add-slot-btn" class="bg-primary hover:bg-primary-light text-white font-bold text-sm px-6 py-2.5 rounded-lg transition-all">
+            + Ajouter
           </button>
         </div>
+      </div>
 
+      <!-- Slots Table -->
+      <div class="bg-bg-card border border-bg-border rounded-2xl overflow-hidden mb-8">
         <div class="overflow-x-auto">
           <table class="w-full">
             <thead>
               <tr class="border-b border-bg-border bg-bg-surface">
-                <th class="text-left text-gray-500 text-xs uppercase tracking-wider py-3 px-5">#</th>
-                <th class="text-left text-gray-500 text-xs uppercase tracking-wider py-3 px-5">Slot</th>
-                <th class="text-left text-gray-500 text-xs uppercase tracking-wider py-3 px-5">Mise</th>
-                <th class="text-left text-gray-500 text-xs uppercase tracking-wider py-3 px-5">Résultat</th>
-                <th class="text-left text-gray-500 text-xs uppercase tracking-wider py-3 px-5">Multi</th>
-                <th class="text-left text-gray-500 text-xs uppercase tracking-wider py-3 px-5">Statut</th>
+                <th class="text-left text-gray-500 text-xs uppercase tracking-wider py-3 px-4">#</th>
+                <th class="text-left text-gray-500 text-xs uppercase tracking-wider py-3 px-4">Slot</th>
+                <th class="text-left text-gray-500 text-xs uppercase tracking-wider py-3 px-4">Mise</th>
+                <th class="text-left text-gray-500 text-xs uppercase tracking-wider py-3 px-4">Résultat (€)</th>
+                <th class="text-left text-gray-500 text-xs uppercase tracking-wider py-3 px-4">Multi</th>
+                <th class="text-left text-gray-500 text-xs uppercase tracking-wider py-3 px-4">Statut</th>
+                <th class="text-left text-gray-500 text-xs uppercase tracking-wider py-3 px-4"></th>
               </tr>
             </thead>
             <tbody id="slots-table">
-              <tr class="border-b border-bg-border/30">
-                <td class="py-4 px-5 text-primary font-bold">1</td>
-                <td class="py-4 px-5 text-white font-medium">Gates of Olympus</td>
-                <td class="py-4 px-5 text-gray-300">2€</td>
-                <td class="py-4 px-5 text-accent-green font-bold">—</td>
-                <td class="py-4 px-5 text-gold font-bold">—</td>
-                <td class="py-4 px-5"><span class="bg-gold/10 text-gold text-xs font-bold px-2 py-1 rounded">En attente</span></td>
-              </tr>
-              <tr class="border-b border-bg-border/30">
-                <td class="py-4 px-5 text-primary font-bold">2</td>
-                <td class="py-4 px-5 text-white font-medium">Sweet Bonanza</td>
-                <td class="py-4 px-5 text-gray-300">1€</td>
-                <td class="py-4 px-5 text-accent-green font-bold">—</td>
-                <td class="py-4 px-5 text-gold font-bold">—</td>
-                <td class="py-4 px-5"><span class="bg-gold/10 text-gold text-xs font-bold px-2 py-1 rounded">En attente</span></td>
-              </tr>
-              <tr class="border-b border-bg-border/30">
-                <td class="py-4 px-5 text-primary font-bold">3</td>
-                <td class="py-4 px-5 text-white font-medium">Wanted Dead or a Wild</td>
-                <td class="py-4 px-5 text-gray-300">2€</td>
-                <td class="py-4 px-5 text-accent-green font-bold">—</td>
-                <td class="py-4 px-5 text-gold font-bold">—</td>
-                <td class="py-4 px-5"><span class="bg-gold/10 text-gold text-xs font-bold px-2 py-1 rounded">En attente</span></td>
-              </tr>
-              <tr class="border-b border-bg-border/30">
-                <td class="py-4 px-5 text-primary font-bold">4</td>
-                <td class="py-4 px-5 text-white font-medium">Mental</td>
-                <td class="py-4 px-5 text-gray-300">0.50€</td>
-                <td class="py-4 px-5 text-accent-green font-bold">—</td>
-                <td class="py-4 px-5 text-gold font-bold">—</td>
-                <td class="py-4 px-5"><span class="bg-gold/10 text-gold text-xs font-bold px-2 py-1 rounded">En attente</span></td>
-              </tr>
-              <tr>
-                <td class="py-4 px-5 text-primary font-bold">5</td>
-                <td class="py-4 px-5 text-white font-medium">Book of Dead</td>
-                <td class="py-4 px-5 text-gray-300">1€</td>
-                <td class="py-4 px-5 text-accent-green font-bold">—</td>
-                <td class="py-4 px-5 text-gold font-bold">—</td>
-                <td class="py-4 px-5"><span class="bg-gold/10 text-gold text-xs font-bold px-2 py-1 rounded">En attente</span></td>
-              </tr>
+              <!-- Dynamic rows -->
             </tbody>
           </table>
         </div>
+        <div id="empty-state" class="p-8 text-center text-gray-500">
+          <span class="text-4xl block mb-3">🎰</span>
+          <p class="font-medium">Aucun bonus ajouté</p>
+          <p class="text-sm">Ajoute un slot pour commencer ton Bonus Hunt !</p>
+        </div>
       </div>
 
-      <!-- Casino Partners for Bonus Hunt -->
-      <div class="mt-8">
+      <!-- Casino Partners -->
+      <div>
         <h3 class="text-white font-bold text-lg mb-4">Joue le Bonus Hunt sur nos casinos partenaires</h3>
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
           {casinos.slice(0, 3).map((casino) => (
-            <a href={casino.affiliateUrl} target="_blank" rel="nofollow noopener" class="group bg-bg-card border border-bg-border rounded-xl p-4 hover:border-primary/30 transition-all flex items-center gap-3">
+            <a href={casino.affiliateUrl} target="_blank" rel="nofollow noopener" class="group bg-bg-card border border-bg-border rounded-xl p-4 hover:border-primary/30 transition-all flex items-center gap-3 card-hover">
               <span class="text-2xl">{casino.logo}</span>
               <div>
                 <p class="text-white font-bold group-hover:text-primary transition-colors">{casino.name}</p>
@@ -141,3 +140,226 @@ import { casinos } from '../data/casinos';
     </AuthGate>
   </section>
 </Layout>
+
+<script is:inline>
+(function() {
+  var slots = []; // [{name, bet, result, multi, status}]
+  var huntName = 'Bonus Hunt ' + new Date().toLocaleDateString('fr-FR');
+
+  function updateStats() {
+    var count = slots.length;
+    var invested = 0, won = 0, opened = 0;
+
+    slots.forEach(function(s) {
+      invested += s.bet;
+      if (s.result !== null) {
+        won += s.result;
+        opened++;
+      }
+    });
+
+    var profit = won - invested;
+    var avgMulti = opened > 0 ? (won / slots.filter(function(s){return s.result !== null}).reduce(function(a,s){return a + s.bet}, 0)) : 0;
+    var breakeven = invested > 0 ? (invested / (count > 0 ? slots.reduce(function(a,s){return a + s.bet}, 0) / count : 1)) : 0;
+    // Break even = total invested / average bet per slot => needed avg multi
+    var avgBet = count > 0 ? invested / count : 0;
+    var breakEvenMulti = avgBet > 0 ? invested / (avgBet * count) * count : 0;
+    // Simpler: breakeven multi = total invested / total bet of remaining unopened
+    var remainingBet = slots.filter(function(s){return s.result === null}).reduce(function(a,s){return a + s.bet}, 0);
+    var neededFromRemaining = invested - won;
+    var beMulti = remainingBet > 0 ? neededFromRemaining / remainingBet : 0;
+    if (beMulti < 0) beMulti = 0;
+
+    document.getElementById('stat-count').textContent = count;
+    document.getElementById('stat-invested').textContent = invested.toFixed(2) + '€';
+    document.getElementById('stat-won').textContent = won.toFixed(2) + '€';
+
+    var profitEl = document.getElementById('stat-profit');
+    profitEl.textContent = (profit >= 0 ? '+' : '') + profit.toFixed(2) + '€';
+    profitEl.style.color = profit >= 0 ? '#22c55e' : '#ef4444';
+
+    document.getElementById('stat-avg-multi').textContent = avgMulti > 0 ? avgMulti.toFixed(2) + '×' : '—';
+
+    var beEl = document.getElementById('stat-breakeven');
+    if (opened >= count && count > 0) {
+      beEl.textContent = profit >= 0 ? '✅' : '❌';
+    } else if (remainingBet > 0 && neededFromRemaining > 0) {
+      beEl.textContent = beMulti.toFixed(2) + '×';
+    } else {
+      beEl.textContent = profit >= 0 ? '✅' : '—';
+    }
+
+    var progress = count > 0 ? Math.round(opened / count * 100) : 0;
+    document.getElementById('stat-progress-bar').style.width = progress + '%';
+    document.getElementById('stat-progress-text').textContent = opened + '/' + count + ' ouverts';
+  }
+
+  function renderTable() {
+    var tbody = document.getElementById('slots-table');
+    var empty = document.getElementById('empty-state');
+
+    if (slots.length === 0) {
+      tbody.innerHTML = '';
+      empty.style.display = 'block';
+      updateStats();
+      return;
+    }
+
+    empty.style.display = 'none';
+    var html = '';
+
+    slots.forEach(function(s, i) {
+      var multi = (s.result !== null && s.bet > 0) ? (s.result / s.bet).toFixed(2) : '—';
+      var statusClass, statusText;
+      if (s.result === null) {
+        statusClass = 'bg-gold/10 text-gold';
+        statusText = 'En attente';
+      } else if (s.result >= s.bet) {
+        statusClass = 'bg-accent-green/10 text-accent-green';
+        statusText = 'Gagné';
+      } else {
+        statusClass = 'bg-accent-red/10 text-accent-red';
+        statusText = 'Perdu';
+      }
+
+      html += '<tr class="border-b border-bg-border/30 hover:bg-bg-surface/50 transition-colors">';
+      html += '<td class="py-3 px-4 text-primary font-bold text-sm">' + (i + 1) + '</td>';
+      html += '<td class="py-3 px-4 text-white font-medium text-sm">' + escapeHtml(s.name) + '</td>';
+      html += '<td class="py-3 px-4 text-gray-300 text-sm">' + s.bet.toFixed(2) + '€</td>';
+      html += '<td class="py-3 px-4">';
+      if (s.result === null) {
+        html += '<input type="number" step="0.01" min="0" placeholder="Résultat" data-idx="' + i + '" class="result-input bg-bg-surface border border-bg-border text-white text-sm px-2 py-1.5 rounded-lg w-24 outline-none focus:border-primary/50" />';
+        html += '<button data-idx="' + i + '" class="confirm-result-btn bg-accent-green/20 text-accent-green text-xs font-bold px-2 py-1.5 rounded-lg ml-1 hover:bg-accent-green/30">✓</button>';
+      } else {
+        html += '<span class="' + (s.result >= s.bet ? 'text-accent-green' : 'text-accent-red') + ' font-bold text-sm">' + s.result.toFixed(2) + '€</span>';
+      }
+      html += '</td>';
+      html += '<td class="py-3 px-4 text-gold font-bold text-sm">' + (multi !== '—' ? multi + '×' : '—') + '</td>';
+      html += '<td class="py-3 px-4"><span class="' + statusClass + ' text-xs font-bold px-2 py-1 rounded">' + statusText + '</span></td>';
+      html += '<td class="py-3 px-4"><button data-idx="' + i + '" class="delete-slot-btn text-gray-600 hover:text-accent-red text-sm transition-colors">✕</button></td>';
+      html += '</tr>';
+    });
+
+    tbody.innerHTML = html;
+
+    // Bind result confirm buttons
+    document.querySelectorAll('.confirm-result-btn').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        var idx = parseInt(btn.dataset.idx);
+        var input = document.querySelector('.result-input[data-idx="' + idx + '"]');
+        var val = parseFloat(input.value);
+        if (isNaN(val) || val < 0) return;
+        slots[idx].result = val;
+        renderTable();
+      });
+    });
+
+    // Bind result inputs (enter key)
+    document.querySelectorAll('.result-input').forEach(function(inp) {
+      inp.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+          var idx = parseInt(inp.dataset.idx);
+          var val = parseFloat(inp.value);
+          if (isNaN(val) || val < 0) return;
+          slots[idx].result = val;
+          renderTable();
+        }
+      });
+    });
+
+    // Bind delete buttons
+    document.querySelectorAll('.delete-slot-btn').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        var idx = parseInt(btn.dataset.idx);
+        slots.splice(idx, 1);
+        renderTable();
+      });
+    });
+
+    updateStats();
+  }
+
+  function escapeHtml(str) {
+    return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+
+  // Add slot
+  document.getElementById('add-slot-btn').addEventListener('click', function() {
+    var name = document.getElementById('slot-name').value.trim();
+    var bet = parseFloat(document.getElementById('slot-bet').value);
+    if (!name || isNaN(bet) || bet <= 0) return;
+
+    slots.push({ name: name, bet: bet, result: null });
+    document.getElementById('slot-name').value = '';
+    renderTable();
+  });
+
+  // Enter key on slot name
+  document.getElementById('slot-name').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') document.getElementById('add-slot-btn').click();
+  });
+
+  // Save hunt
+  document.getElementById('save-hunt-btn').addEventListener('click', function() {
+    var hunts = JSON.parse(localStorage.getItem('bonus_hunts') || '{}');
+    var name = prompt('Nom du Bonus Hunt :', huntName);
+    if (!name) return;
+    huntName = name;
+    hunts[name] = { slots: slots, date: new Date().toISOString() };
+    localStorage.setItem('bonus_hunts', JSON.stringify(hunts));
+    updateHuntSelect();
+    alert('Bonus Hunt "' + name + '" sauvegardé !');
+  });
+
+  // Delete hunt
+  document.getElementById('delete-hunt-btn').addEventListener('click', function() {
+    if (!confirm('Supprimer ce Bonus Hunt ?')) return;
+    var sel = document.getElementById('load-hunt-select').value;
+    if (sel) {
+      var hunts = JSON.parse(localStorage.getItem('bonus_hunts') || '{}');
+      delete hunts[sel];
+      localStorage.setItem('bonus_hunts', JSON.stringify(hunts));
+      updateHuntSelect();
+    }
+    slots = [];
+    renderTable();
+  });
+
+  // New hunt
+  document.getElementById('new-hunt-btn').addEventListener('click', function() {
+    if (slots.length > 0 && !confirm('Commencer un nouveau Bonus Hunt ? (Les données non sauvegardées seront perdues)')) return;
+    slots = [];
+    huntName = 'Bonus Hunt ' + new Date().toLocaleDateString('fr-FR');
+    document.getElementById('load-hunt-select').value = '';
+    renderTable();
+  });
+
+  // Load hunt
+  document.getElementById('load-hunt-select').addEventListener('change', function() {
+    var name = this.value;
+    if (!name) return;
+    var hunts = JSON.parse(localStorage.getItem('bonus_hunts') || '{}');
+    if (hunts[name]) {
+      huntName = name;
+      slots = hunts[name].slots;
+      renderTable();
+    }
+  });
+
+  function updateHuntSelect() {
+    var sel = document.getElementById('load-hunt-select');
+    var hunts = JSON.parse(localStorage.getItem('bonus_hunts') || '{}');
+    sel.innerHTML = '<option value="">-- Charger un hunt --</option>';
+    Object.keys(hunts).forEach(function(name) {
+      var opt = document.createElement('option');
+      opt.value = name;
+      opt.textContent = name + ' (' + hunts[name].slots.length + ' bonus)';
+      sel.appendChild(opt);
+    });
+  }
+
+  // Init
+  updateHuntSelect();
+  renderTable();
+})();
+</script>

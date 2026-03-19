@@ -1,0 +1,860 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { casinos } from '../data/casinos';
+---
+
+<Layout title="Admin Panel - MelchiorBonus">
+  <!-- Login Screen -->
+  <div id="admin-login" class="min-h-[80vh] flex items-center justify-center px-4">
+    <div class="w-full max-w-md bg-[#1a1d23] border border-[#2a2d35] rounded-2xl p-8">
+      <div class="text-center mb-8">
+        <div class="w-16 h-16 bg-[#7c5bf5]/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
+          <svg class="w-8 h-8 text-[#7c5bf5]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
+        </div>
+        <h1 class="text-2xl font-bold text-white">Admin Panel</h1>
+        <p class="text-gray-500 text-sm mt-1">MelchiorBonus Staff Only</p>
+      </div>
+      <div id="login-error" class="hidden mb-4 bg-red-500/10 border border-red-500/30 text-red-400 text-sm rounded-lg px-4 py-3"></div>
+      <div class="space-y-4">
+        <input id="admin-password" type="password" placeholder="Mot de passe admin" class="w-full bg-[#0e1015] border border-[#2a2d35] text-white rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-[#7c5bf5] transition-colors" />
+        <button id="admin-login-btn" class="w-full bg-[#7c5bf5] hover:bg-[#6a4be0] text-white font-bold text-sm py-3 rounded-lg transition-all cursor-pointer">
+          Connexion
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Dashboard -->
+  <div id="admin-dashboard" class="hidden max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Header -->
+    <div class="flex items-center justify-between mb-8">
+      <div>
+        <h1 class="text-3xl font-bold text-white">Dashboard Admin</h1>
+        <p class="text-gray-500 text-sm mt-1">Gestion du site MelchiorBonus</p>
+      </div>
+      <div class="flex items-center gap-3">
+        <span id="admin-time" class="text-gray-500 text-sm"></span>
+        <button id="admin-logout-btn" class="bg-red-500/10 border border-red-500/30 text-red-400 text-sm font-medium px-4 py-2 rounded-lg hover:bg-red-500/20 transition-all cursor-pointer">
+          Deconnexion
+        </button>
+      </div>
+    </div>
+
+    <!-- Tab Navigation -->
+    <div class="flex flex-wrap gap-2 mb-8 border-b border-[#2a2d35] pb-4">
+      <button class="admin-tab active bg-[#7c5bf5] text-white text-sm font-medium px-4 py-2 rounded-lg cursor-pointer transition-all" data-tab="overview">Vue d'ensemble</button>
+      <button class="admin-tab bg-[#1a1d23] text-gray-400 text-sm font-medium px-4 py-2 rounded-lg cursor-pointer transition-all hover:text-white" data-tab="casinos">Casinos</button>
+      <button class="admin-tab bg-[#1a1d23] text-gray-400 text-sm font-medium px-4 py-2 rounded-lg cursor-pointer transition-all hover:text-white" data-tab="giveaways">Giveaways</button>
+      <button class="admin-tab bg-[#1a1d23] text-gray-400 text-sm font-medium px-4 py-2 rounded-lg cursor-pointer transition-all hover:text-white" data-tab="bonushunt">Bonus Hunt</button>
+      <button class="admin-tab bg-[#1a1d23] text-gray-400 text-sm font-medium px-4 py-2 rounded-lg cursor-pointer transition-all hover:text-white" data-tab="users">Utilisateurs</button>
+      <button class="admin-tab bg-[#1a1d23] text-gray-400 text-sm font-medium px-4 py-2 rounded-lg cursor-pointer transition-all hover:text-white" data-tab="settings">Parametres</button>
+      <button class="admin-tab bg-[#1a1d23] text-gray-400 text-sm font-medium px-4 py-2 rounded-lg cursor-pointer transition-all hover:text-white" data-tab="actions">Actions rapides</button>
+    </div>
+
+    <!-- Tab: Overview -->
+    <div id="tab-overview" class="admin-tab-content">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        <div class="bg-[#1a1d23] border border-[#2a2d35] rounded-xl p-6">
+          <div class="flex items-center justify-between mb-3">
+            <span class="text-gray-500 text-sm">Utilisateurs inscrits</span>
+            <div class="w-10 h-10 bg-[#7c5bf5]/20 rounded-lg flex items-center justify-center">
+              <svg class="w-5 h-5 text-[#7c5bf5]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" /></svg>
+            </div>
+          </div>
+          <p id="stat-users" class="text-3xl font-bold text-white">0</p>
+        </div>
+        <div class="bg-[#1a1d23] border border-[#2a2d35] rounded-xl p-6">
+          <div class="flex items-center justify-between mb-3">
+            <span class="text-gray-500 text-sm">Parties jouees</span>
+            <div class="w-10 h-10 bg-green-500/20 rounded-lg flex items-center justify-center">
+              <svg class="w-5 h-5 text-green-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M14.25 6.087c0-.355.313-.745.653-.860.227-.077.462-.12.702-.12.468 0 .894.228 1.153.592L21.746 12l-4.988 6.301A1.396 1.396 0 0115.605 19c-.24 0-.475-.043-.702-.12-.34-.115-.653-.505-.653-.86V6.087z" /></svg>
+            </div>
+          </div>
+          <p id="stat-games" class="text-3xl font-bold text-white">0</p>
+        </div>
+        <div class="bg-[#1a1d23] border border-[#2a2d35] rounded-xl p-6">
+          <div class="flex items-center justify-between mb-3">
+            <span class="text-gray-500 text-sm">Giveaways actifs</span>
+            <div class="w-10 h-10 bg-yellow-500/20 rounded-lg flex items-center justify-center">
+              <svg class="w-5 h-5 text-yellow-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 11.25v8.25a1.5 1.5 0 01-1.5 1.5H5.25a1.5 1.5 0 01-1.5-1.5v-8.25M12 4.875A2.625 2.625 0 109.375 7.5H12m0-2.625V7.5m0-2.625A2.625 2.625 0 1114.625 7.5H12m0 0V21m-8.625-9.75h18c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125h-18c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z" /></svg>
+            </div>
+          </div>
+          <p id="stat-giveaways" class="text-3xl font-bold text-white">0</p>
+        </div>
+        <div class="bg-[#1a1d23] border border-[#2a2d35] rounded-xl p-6">
+          <div class="flex items-center justify-between mb-3">
+            <span class="text-gray-500 text-sm">Clics affilies</span>
+            <div class="w-10 h-10 bg-blue-500/20 rounded-lg flex items-center justify-center">
+              <svg class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.042 21.672L13.684 16.6m0 0l-2.51 2.225.569-9.47 5.227 7.917-3.286-.672zM12 2.25V4.5m5.834.166l-1.591 1.591M20.25 10.5H18M7.757 14.743l-1.59 1.59M6 10.5H3.75m4.007-4.243l-1.59-1.59" /></svg>
+            </div>
+          </div>
+          <p id="stat-clicks" class="text-3xl font-bold text-white">0</p>
+        </div>
+      </div>
+
+      <!-- Recent Activity -->
+      <div class="bg-[#1a1d23] border border-[#2a2d35] rounded-xl p-6">
+        <h3 class="text-white font-semibold text-lg mb-4">Activite recente</h3>
+        <div id="recent-activity" class="space-y-3">
+          <p class="text-gray-500 text-sm">Aucune activite recente.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab: Casinos -->
+    <div id="tab-casinos" class="admin-tab-content hidden">
+      <div class="bg-[#1a1d23] border border-[#2a2d35] rounded-xl overflow-hidden">
+        <div class="p-6 border-b border-[#2a2d35]">
+          <h3 class="text-white font-semibold text-lg">Gestion des Casinos</h3>
+          <p class="text-gray-500 text-sm mt-1">Gerez les casinos partenaires et leurs liens affilies</p>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full">
+            <thead>
+              <tr class="border-b border-[#2a2d35]">
+                <th class="text-left text-gray-500 text-xs font-medium uppercase tracking-wider px-6 py-4">Casino</th>
+                <th class="text-left text-gray-500 text-xs font-medium uppercase tracking-wider px-6 py-4">Bonus</th>
+                <th class="text-left text-gray-500 text-xs font-medium uppercase tracking-wider px-6 py-4">Statut</th>
+                <th class="text-left text-gray-500 text-xs font-medium uppercase tracking-wider px-6 py-4">Lien Affilie</th>
+                <th class="text-left text-gray-500 text-xs font-medium uppercase tracking-wider px-6 py-4">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="casinos-table-body">
+              {casinos.map((casino) => (
+                <tr class="border-b border-[#2a2d35] hover:bg-[#0e1015]/50 transition-colors" data-casino={casino.slug}>
+                  <td class="px-6 py-4">
+                    <div class="flex items-center gap-3">
+                      <img src={casino.logoUrl} alt={casino.name} class="w-8 h-8 rounded-lg" loading="lazy" />
+                      <div>
+                        <p class="text-white font-medium text-sm">{casino.name}</p>
+                        <p class="text-gray-500 text-xs">{casino.slug}</p>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="px-6 py-4">
+                    <p class="text-white text-sm">{casino.bonusAmount}</p>
+                    <p class="text-gray-500 text-xs">Wager: {casino.wager}</p>
+                  </td>
+                  <td class="px-6 py-4">
+                    <button class="casino-toggle flex items-center gap-2 cursor-pointer" data-slug={casino.slug}>
+                      <span class="casino-dot w-2.5 h-2.5 rounded-full bg-green-400"></span>
+                      <span class="casino-status text-green-400 text-sm">Actif</span>
+                    </button>
+                  </td>
+                  <td class="px-6 py-4">
+                    <p class="text-gray-400 text-xs truncate max-w-[200px]" title={casino.affiliateUrl}>{casino.affiliateUrl}</p>
+                  </td>
+                  <td class="px-6 py-4">
+                    <button class="copy-link-btn bg-[#7c5bf5]/10 border border-[#7c5bf5]/30 text-[#7c5bf5] text-xs font-medium px-3 py-1.5 rounded-lg hover:bg-[#7c5bf5]/20 transition-all cursor-pointer" data-url={casino.affiliateUrl}>
+                      Copier le lien
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab: Giveaways -->
+    <div id="tab-giveaways" class="admin-tab-content hidden">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Create Giveaway -->
+        <div class="bg-[#1a1d23] border border-[#2a2d35] rounded-xl p-6">
+          <h3 class="text-white font-semibold text-lg mb-4">Creer un Giveaway</h3>
+          <div class="space-y-4">
+            <div>
+              <label class="text-gray-400 text-sm block mb-1">Titre</label>
+              <input id="gw-title" type="text" placeholder="ex: Giveaway 500 MelchiorCoins" class="w-full bg-[#0e1015] border border-[#2a2d35] text-white rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-[#7c5bf5]" />
+            </div>
+            <div>
+              <label class="text-gray-400 text-sm block mb-1">Prix</label>
+              <input id="gw-prize" type="text" placeholder="ex: 500 MelchiorCoins + 25 EUR" class="w-full bg-[#0e1015] border border-[#2a2d35] text-white rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-[#7c5bf5]" />
+            </div>
+            <div>
+              <label class="text-gray-400 text-sm block mb-1">Date de fin</label>
+              <input id="gw-end" type="datetime-local" class="w-full bg-[#0e1015] border border-[#2a2d35] text-white rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-[#7c5bf5]" />
+            </div>
+            <div>
+              <label class="text-gray-400 text-sm block mb-1">Casino sponsor</label>
+              <select id="gw-casino" class="w-full bg-[#0e1015] border border-[#2a2d35] text-white rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-[#7c5bf5]">
+                <option value="">-- Selectionnez --</option>
+                {casinos.map((c) => (
+                  <option value={c.slug}>{c.name}</option>
+                ))}
+              </select>
+            </div>
+            <button id="gw-create-btn" class="w-full bg-[#7c5bf5] hover:bg-[#6a4be0] text-white font-bold text-sm py-3 rounded-lg transition-all cursor-pointer">
+              Creer le Giveaway
+            </button>
+          </div>
+        </div>
+
+        <!-- Giveaway List -->
+        <div class="bg-[#1a1d23] border border-[#2a2d35] rounded-xl p-6">
+          <h3 class="text-white font-semibold text-lg mb-4">Giveaways en cours</h3>
+          <div id="giveaway-list" class="space-y-3">
+            <p class="text-gray-500 text-sm">Aucun giveaway actif.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab: Bonus Hunt -->
+    <div id="tab-bonushunt" class="admin-tab-content hidden">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Create Hunt -->
+        <div class="bg-[#1a1d23] border border-[#2a2d35] rounded-xl p-6">
+          <h3 class="text-white font-semibold text-lg mb-4">Ajouter une session Bonus Hunt</h3>
+          <div class="space-y-4">
+            <div>
+              <label class="text-gray-400 text-sm block mb-1">Date</label>
+              <input id="bh-date" type="date" class="w-full bg-[#0e1015] border border-[#2a2d35] text-white rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-[#7c5bf5]" />
+            </div>
+            <div>
+              <label class="text-gray-400 text-sm block mb-1">Balance de depart (EUR)</label>
+              <input id="bh-start" type="number" placeholder="ex: 1000" class="w-full bg-[#0e1015] border border-[#2a2d35] text-white rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-[#7c5bf5]" />
+            </div>
+            <div>
+              <label class="text-gray-400 text-sm block mb-1">Balance finale (EUR)</label>
+              <input id="bh-end" type="number" placeholder="ex: 2500" class="w-full bg-[#0e1015] border border-[#2a2d35] text-white rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-[#7c5bf5]" />
+            </div>
+            <div>
+              <label class="text-gray-400 text-sm block mb-1">Resultats / Notes</label>
+              <textarea id="bh-notes" rows="3" placeholder="ex: Big win sur Gates of Olympus x500" class="w-full bg-[#0e1015] border border-[#2a2d35] text-white rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-[#7c5bf5] resize-none"></textarea>
+            </div>
+            <button id="bh-create-btn" class="w-full bg-[#7c5bf5] hover:bg-[#6a4be0] text-white font-bold text-sm py-3 rounded-lg transition-all cursor-pointer">
+              Ajouter la session
+            </button>
+          </div>
+        </div>
+
+        <!-- Hunt List -->
+        <div class="bg-[#1a1d23] border border-[#2a2d35] rounded-xl p-6">
+          <h3 class="text-white font-semibold text-lg mb-4">Sessions Bonus Hunt</h3>
+          <div id="bonushunt-list" class="space-y-3">
+            <p class="text-gray-500 text-sm">Aucune session enregistree.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab: Users -->
+    <div id="tab-users" class="admin-tab-content hidden">
+      <div class="bg-[#1a1d23] border border-[#2a2d35] rounded-xl overflow-hidden">
+        <div class="p-6 border-b border-[#2a2d35]">
+          <h3 class="text-white font-semibold text-lg">Gestion des Utilisateurs</h3>
+          <p class="text-gray-500 text-sm mt-1">Gerez les comptes utilisateurs enregistres</p>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full">
+            <thead>
+              <tr class="border-b border-[#2a2d35]">
+                <th class="text-left text-gray-500 text-xs font-medium uppercase tracking-wider px-6 py-4">Utilisateur</th>
+                <th class="text-left text-gray-500 text-xs font-medium uppercase tracking-wider px-6 py-4">Email</th>
+                <th class="text-left text-gray-500 text-xs font-medium uppercase tracking-wider px-6 py-4">MelchiorCoins</th>
+                <th class="text-left text-gray-500 text-xs font-medium uppercase tracking-wider px-6 py-4">Statut</th>
+                <th class="text-left text-gray-500 text-xs font-medium uppercase tracking-wider px-6 py-4">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="users-table-body">
+              <tr><td colspan="5" class="px-6 py-8 text-center text-gray-500 text-sm">Aucun utilisateur enregistre.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab: Settings -->
+    <div id="tab-settings" class="admin-tab-content hidden">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div class="bg-[#1a1d23] border border-[#2a2d35] rounded-xl p-6">
+          <h3 class="text-white font-semibold text-lg mb-4">Parametres du site</h3>
+          <div class="space-y-5">
+            <!-- Maintenance -->
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-white text-sm font-medium">Mode maintenance</p>
+                <p class="text-gray-500 text-xs">Affiche une banniere de maintenance sur le site</p>
+              </div>
+              <button id="toggle-maintenance" class="relative w-12 h-6 rounded-full bg-[#2a2d35] transition-colors cursor-pointer" data-on="false">
+                <span class="absolute left-1 top-1 w-4 h-4 rounded-full bg-gray-500 transition-all"></span>
+              </button>
+            </div>
+            <!-- Welcome Message -->
+            <div>
+              <label class="text-white text-sm font-medium block mb-2">Message d'accueil</label>
+              <input id="setting-welcome" type="text" placeholder="Bienvenue sur MelchiorBonus !" class="w-full bg-[#0e1015] border border-[#2a2d35] text-white rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-[#7c5bf5]" />
+            </div>
+            <!-- Min Bet -->
+            <div>
+              <label class="text-white text-sm font-medium block mb-2">Mise minimum (jeux)</label>
+              <input id="setting-minbet" type="number" placeholder="100" class="w-full bg-[#0e1015] border border-[#2a2d35] text-white rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-[#7c5bf5]" />
+            </div>
+            <!-- Discord Webhook -->
+            <div>
+              <label class="text-white text-sm font-medium block mb-2">Discord Webhook URL</label>
+              <input id="setting-webhook" type="url" placeholder="https://discord.com/api/webhooks/..." class="w-full bg-[#0e1015] border border-[#2a2d35] text-white rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-[#7c5bf5]" />
+            </div>
+            <button id="save-settings-btn" class="w-full bg-[#7c5bf5] hover:bg-[#6a4be0] text-white font-bold text-sm py-3 rounded-lg transition-all cursor-pointer">
+              Sauvegarder les parametres
+            </button>
+          </div>
+        </div>
+
+        <div class="bg-[#1a1d23] border border-[#2a2d35] rounded-xl p-6">
+          <h3 class="text-white font-semibold text-lg mb-4">Informations systeme</h3>
+          <div class="space-y-3">
+            <div class="flex items-center justify-between py-2 border-b border-[#2a2d35]">
+              <span class="text-gray-400 text-sm">Version</span>
+              <span class="text-white text-sm font-medium">1.0.0</span>
+            </div>
+            <div class="flex items-center justify-between py-2 border-b border-[#2a2d35]">
+              <span class="text-gray-400 text-sm">Casinos actifs</span>
+              <span id="info-casinos" class="text-white text-sm font-medium">5</span>
+            </div>
+            <div class="flex items-center justify-between py-2 border-b border-[#2a2d35]">
+              <span class="text-gray-400 text-sm">Taille localStorage</span>
+              <span id="info-storage" class="text-white text-sm font-medium">--</span>
+            </div>
+            <div class="flex items-center justify-between py-2">
+              <span class="text-gray-400 text-sm">Derniere connexion admin</span>
+              <span id="info-last-login" class="text-white text-sm font-medium">--</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab: Quick Actions -->
+    <div id="tab-actions" class="admin-tab-content hidden">
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <button id="action-reset-balances" class="bg-[#1a1d23] border border-[#2a2d35] rounded-xl p-6 text-left hover:border-[#7c5bf5]/40 transition-all cursor-pointer group">
+          <div class="w-12 h-12 bg-yellow-500/20 rounded-lg flex items-center justify-center mb-4">
+            <svg class="w-6 h-6 text-yellow-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818l.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+          </div>
+          <h4 class="text-white font-semibold group-hover:text-[#7c5bf5] transition-colors">Reset all user balances to 1M</h4>
+          <p class="text-gray-500 text-sm mt-1">Remet le solde MelchiorCoins de tous les utilisateurs a 1 000 000</p>
+        </button>
+
+        <button id="action-clear-history" class="bg-[#1a1d23] border border-[#2a2d35] rounded-xl p-6 text-left hover:border-red-500/40 transition-all cursor-pointer group">
+          <div class="w-12 h-12 bg-red-500/20 rounded-lg flex items-center justify-center mb-4">
+            <svg class="w-6 h-6 text-red-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" /></svg>
+          </div>
+          <h4 class="text-white font-semibold group-hover:text-red-400 transition-colors">Clear all game history</h4>
+          <p class="text-gray-500 text-sm mt-1">Supprime tout l'historique des parties jouees sur le site</p>
+        </button>
+
+        <button id="action-export" class="bg-[#1a1d23] border border-[#2a2d35] rounded-xl p-6 text-left hover:border-green-500/40 transition-all cursor-pointer group">
+          <div class="w-12 h-12 bg-green-500/20 rounded-lg flex items-center justify-center mb-4">
+            <svg class="w-6 h-6 text-green-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" /></svg>
+          </div>
+          <h4 class="text-white font-semibold group-hover:text-green-400 transition-colors">Export data as JSON</h4>
+          <p class="text-gray-500 text-sm mt-1">Telecharge toutes les donnees localStorage en fichier JSON</p>
+        </button>
+
+        <button id="action-import" class="bg-[#1a1d23] border border-[#2a2d35] rounded-xl p-6 text-left hover:border-blue-500/40 transition-all cursor-pointer group relative">
+          <input type="file" id="import-file" accept=".json" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
+          <div class="w-12 h-12 bg-blue-500/20 rounded-lg flex items-center justify-center mb-4">
+            <svg class="w-6 h-6 text-blue-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" /></svg>
+          </div>
+          <h4 class="text-white font-semibold group-hover:text-blue-400 transition-colors">Import data from JSON</h4>
+          <p class="text-gray-500 text-sm mt-1">Importe des donnees depuis un fichier JSON dans localStorage</p>
+        </button>
+      </div>
+    </div>
+
+    <!-- Toast notification -->
+    <div id="admin-toast" class="fixed bottom-6 right-6 bg-[#1a1d23] border border-[#7c5bf5]/40 text-white text-sm px-5 py-3 rounded-xl shadow-2xl shadow-black/40 transform translate-y-20 opacity-0 transition-all duration-300 z-50"></div>
+  </div>
+
+  <script is:inline>
+  (function() {
+    var DEFAULT_PASS = 'melchior2026';
+
+    // ========================
+    // AUTH
+    // ========================
+    function isAuthed() {
+      return localStorage.getItem('admin_auth') === 'true';
+    }
+
+    function checkAuth() {
+      if (isAuthed()) {
+        document.getElementById('admin-login').classList.add('hidden');
+        document.getElementById('admin-dashboard').classList.remove('hidden');
+        loadDashboard();
+      }
+    }
+
+    // Login
+    var loginBtn = document.getElementById('admin-login-btn');
+    var passInput = document.getElementById('admin-password');
+    var loginErr = document.getElementById('login-error');
+
+    function doLogin() {
+      var pass = passInput.value;
+      var storedPass = localStorage.getItem('admin_pass') || DEFAULT_PASS;
+      if (pass === storedPass) {
+        localStorage.setItem('admin_auth', 'true');
+        localStorage.setItem('admin_last_login', new Date().toISOString());
+        checkAuth();
+      } else {
+        loginErr.classList.remove('hidden');
+        loginErr.textContent = 'Mot de passe incorrect.';
+        passInput.value = '';
+      }
+    }
+
+    loginBtn.addEventListener('click', doLogin);
+    passInput.addEventListener('keydown', function(e) { if (e.key === 'Enter') doLogin(); });
+
+    // Logout
+    document.getElementById('admin-logout-btn').addEventListener('click', function() {
+      localStorage.removeItem('admin_auth');
+      location.reload();
+    });
+
+    // ========================
+    // TOAST
+    // ========================
+    function toast(msg) {
+      var t = document.getElementById('admin-toast');
+      t.textContent = msg;
+      t.classList.remove('translate-y-20', 'opacity-0');
+      setTimeout(function() { t.classList.add('translate-y-20', 'opacity-0'); }, 2500);
+    }
+
+    // ========================
+    // TABS
+    // ========================
+    var tabs = document.querySelectorAll('.admin-tab');
+    tabs.forEach(function(tab) {
+      tab.addEventListener('click', function() {
+        tabs.forEach(function(t) {
+          t.classList.remove('active', 'bg-[#7c5bf5]', 'text-white');
+          t.classList.add('bg-[#1a1d23]', 'text-gray-400');
+        });
+        tab.classList.add('active', 'bg-[#7c5bf5]', 'text-white');
+        tab.classList.remove('bg-[#1a1d23]', 'text-gray-400');
+        document.querySelectorAll('.admin-tab-content').forEach(function(c) { c.classList.add('hidden'); });
+        document.getElementById('tab-' + tab.dataset.tab).classList.remove('hidden');
+      });
+    });
+
+    // ========================
+    // DASHBOARD LOAD
+    // ========================
+    function loadDashboard() {
+      // Clock
+      function updateTime() {
+        document.getElementById('admin-time').textContent = new Date().toLocaleString('fr-FR');
+      }
+      updateTime();
+      setInterval(updateTime, 1000);
+
+      // Stats
+      document.getElementById('stat-users').textContent = localStorage.getItem('melchior_users_count') || '0';
+      document.getElementById('stat-games').textContent = localStorage.getItem('melchior_games_count') || '0';
+      document.getElementById('stat-clicks').textContent = localStorage.getItem('melchior_clicks') || '0';
+
+      // Giveaways count
+      var giveaways = JSON.parse(localStorage.getItem('admin_giveaways') || '[]');
+      var now = Date.now();
+      var activeGw = giveaways.filter(function(g) { return new Date(g.endDate).getTime() > now; });
+      document.getElementById('stat-giveaways').textContent = activeGw.length;
+
+      // Casino statuses
+      loadCasinoStatuses();
+      // Giveaways
+      renderGiveaways();
+      // Bonus hunts
+      renderBonusHunts();
+      // Users
+      renderUsers();
+      // Settings
+      loadSettings();
+      // System info
+      loadSystemInfo();
+    }
+
+    // ========================
+    // CASINOS
+    // ========================
+    function loadCasinoStatuses() {
+      var statuses = JSON.parse(localStorage.getItem('admin_casino_statuses') || '{}');
+      document.querySelectorAll('.casino-toggle').forEach(function(btn) {
+        var slug = btn.dataset.slug;
+        var paused = statuses[slug] === 'paused';
+        var dot = btn.querySelector('.casino-dot');
+        var label = btn.querySelector('.casino-status');
+        if (paused) {
+          dot.classList.remove('bg-green-400');
+          dot.classList.add('bg-red-400');
+          label.classList.remove('text-green-400');
+          label.classList.add('text-red-400');
+          label.textContent = 'Pause';
+        }
+      });
+    }
+
+    document.querySelectorAll('.casino-toggle').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        var slug = btn.dataset.slug;
+        var statuses = JSON.parse(localStorage.getItem('admin_casino_statuses') || '{}');
+        var dot = btn.querySelector('.casino-dot');
+        var label = btn.querySelector('.casino-status');
+        if (statuses[slug] === 'paused') {
+          delete statuses[slug];
+          dot.classList.remove('bg-red-400');
+          dot.classList.add('bg-green-400');
+          label.classList.remove('text-red-400');
+          label.classList.add('text-green-400');
+          label.textContent = 'Actif';
+          toast(slug + ' active');
+        } else {
+          statuses[slug] = 'paused';
+          dot.classList.remove('bg-green-400');
+          dot.classList.add('bg-red-400');
+          label.classList.remove('text-green-400');
+          label.classList.add('text-red-400');
+          label.textContent = 'Pause';
+          toast(slug + ' mis en pause');
+        }
+        localStorage.setItem('admin_casino_statuses', JSON.stringify(statuses));
+      });
+    });
+
+    document.querySelectorAll('.copy-link-btn').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        navigator.clipboard.writeText(btn.dataset.url).then(function() {
+          toast('Lien copie !');
+          btn.textContent = 'Copie !';
+          setTimeout(function() { btn.textContent = 'Copier le lien'; }, 1500);
+        });
+      });
+    });
+
+    // ========================
+    // GIVEAWAYS
+    // ========================
+    function renderGiveaways() {
+      var list = document.getElementById('giveaway-list');
+      var giveaways = JSON.parse(localStorage.getItem('admin_giveaways') || '[]');
+      if (!giveaways.length) {
+        list.innerHTML = '<p class="text-gray-500 text-sm">Aucun giveaway actif.</p>';
+        return;
+      }
+      var html = '';
+      giveaways.forEach(function(g, i) {
+        var isActive = new Date(g.endDate).getTime() > Date.now();
+        html += '<div class="flex items-center justify-between bg-[#0e1015] border border-[#2a2d35] rounded-lg p-4">' +
+          '<div>' +
+            '<p class="text-white text-sm font-medium">' + escHTML(g.title) + '</p>' +
+            '<p class="text-gray-500 text-xs mt-0.5">Prix: ' + escHTML(g.prize) + ' | Casino: ' + escHTML(g.casino || 'N/A') + '</p>' +
+            '<p class="text-xs mt-1 ' + (isActive ? 'text-green-400' : 'text-red-400') + '">' +
+              (isActive ? 'Actif' : 'Termine') + ' - Fin: ' + new Date(g.endDate).toLocaleString('fr-FR') +
+            '</p>' +
+          '</div>' +
+          '<button class="gw-delete text-red-400 hover:text-red-300 text-sm cursor-pointer p-2" data-index="' + i + '">Supprimer</button>' +
+        '</div>';
+      });
+      list.innerHTML = html;
+
+      list.querySelectorAll('.gw-delete').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+          var idx = parseInt(btn.dataset.index);
+          giveaways.splice(idx, 1);
+          localStorage.setItem('admin_giveaways', JSON.stringify(giveaways));
+          renderGiveaways();
+          document.getElementById('stat-giveaways').textContent = giveaways.filter(function(g) { return new Date(g.endDate).getTime() > Date.now(); }).length;
+          toast('Giveaway supprime');
+        });
+      });
+    }
+
+    document.getElementById('gw-create-btn').addEventListener('click', function() {
+      var title = document.getElementById('gw-title').value.trim();
+      var prize = document.getElementById('gw-prize').value.trim();
+      var endDate = document.getElementById('gw-end').value;
+      var casino = document.getElementById('gw-casino').value;
+      if (!title || !prize || !endDate) { toast('Remplissez tous les champs obligatoires'); return; }
+      var giveaways = JSON.parse(localStorage.getItem('admin_giveaways') || '[]');
+      giveaways.push({ title: title, prize: prize, endDate: endDate, casino: casino, createdAt: new Date().toISOString() });
+      localStorage.setItem('admin_giveaways', JSON.stringify(giveaways));
+      document.getElementById('gw-title').value = '';
+      document.getElementById('gw-prize').value = '';
+      document.getElementById('gw-end').value = '';
+      document.getElementById('gw-casino').value = '';
+      renderGiveaways();
+      document.getElementById('stat-giveaways').textContent = giveaways.filter(function(g) { return new Date(g.endDate).getTime() > Date.now(); }).length;
+      toast('Giveaway cree !');
+    });
+
+    // ========================
+    // BONUS HUNTS
+    // ========================
+    function renderBonusHunts() {
+      var list = document.getElementById('bonushunt-list');
+      var hunts = JSON.parse(localStorage.getItem('admin_bonus_hunts') || '[]');
+      if (!hunts.length) {
+        list.innerHTML = '<p class="text-gray-500 text-sm">Aucune session enregistree.</p>';
+        return;
+      }
+      var html = '';
+      hunts.forEach(function(h, i) {
+        var profit = (h.endBalance || 0) - (h.startBalance || 0);
+        var profitColor = profit >= 0 ? 'text-green-400' : 'text-red-400';
+        html += '<div class="flex items-center justify-between bg-[#0e1015] border border-[#2a2d35] rounded-lg p-4">' +
+          '<div>' +
+            '<p class="text-white text-sm font-medium">' + escHTML(h.date) + '</p>' +
+            '<p class="text-gray-500 text-xs mt-0.5">Depart: ' + h.startBalance + ' EUR | Fin: ' + h.endBalance + ' EUR</p>' +
+            '<p class="' + profitColor + ' text-xs font-medium mt-0.5">Profit: ' + (profit >= 0 ? '+' : '') + profit + ' EUR</p>' +
+            (h.notes ? '<p class="text-gray-400 text-xs mt-1">' + escHTML(h.notes) + '</p>' : '') +
+          '</div>' +
+          '<button class="bh-delete text-red-400 hover:text-red-300 text-sm cursor-pointer p-2" data-index="' + i + '">Supprimer</button>' +
+        '</div>';
+      });
+      list.innerHTML = html;
+
+      list.querySelectorAll('.bh-delete').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+          hunts.splice(parseInt(btn.dataset.index), 1);
+          localStorage.setItem('admin_bonus_hunts', JSON.stringify(hunts));
+          renderBonusHunts();
+          toast('Session supprimee');
+        });
+      });
+    }
+
+    document.getElementById('bh-create-btn').addEventListener('click', function() {
+      var date = document.getElementById('bh-date').value;
+      var startB = parseFloat(document.getElementById('bh-start').value);
+      var endB = parseFloat(document.getElementById('bh-end').value);
+      var notes = document.getElementById('bh-notes').value.trim();
+      if (!date || isNaN(startB)) { toast('Remplissez la date et la balance de depart'); return; }
+      var hunts = JSON.parse(localStorage.getItem('admin_bonus_hunts') || '[]');
+      hunts.unshift({ date: date, startBalance: startB, endBalance: isNaN(endB) ? 0 : endB, notes: notes });
+      localStorage.setItem('admin_bonus_hunts', JSON.stringify(hunts));
+      document.getElementById('bh-date').value = '';
+      document.getElementById('bh-start').value = '';
+      document.getElementById('bh-end').value = '';
+      document.getElementById('bh-notes').value = '';
+      renderBonusHunts();
+      toast('Session ajoutee !');
+    });
+
+    // ========================
+    // USERS
+    // ========================
+    function renderUsers() {
+      var tbody = document.getElementById('users-table-body');
+      var users = JSON.parse(localStorage.getItem('melchior_registered_users') || '[]');
+      if (!users.length) {
+        tbody.innerHTML = '<tr><td colspan="5" class="px-6 py-8 text-center text-gray-500 text-sm">Aucun utilisateur enregistre.</td></tr>';
+        return;
+      }
+      var html = '';
+      users.forEach(function(u, i) {
+        var banned = u.banned === true;
+        html += '<tr class="border-b border-[#2a2d35] hover:bg-[#0e1015]/50">' +
+          '<td class="px-6 py-4 text-white text-sm">' + escHTML(u.name || u.username || 'User ' + i) + '</td>' +
+          '<td class="px-6 py-4 text-gray-400 text-sm">' + escHTML(u.email || 'N/A') + '</td>' +
+          '<td class="px-6 py-4 text-yellow-400 text-sm font-medium">' + (u.coins != null ? Number(u.coins).toLocaleString('fr-FR') : '1,000,000') + '</td>' +
+          '<td class="px-6 py-4">' +
+            '<span class="text-xs font-medium px-2 py-1 rounded-full ' + (banned ? 'bg-red-500/20 text-red-400' : 'bg-green-500/20 text-green-400') + '">' +
+              (banned ? 'Banni' : 'Actif') +
+            '</span>' +
+          '</td>' +
+          '<td class="px-6 py-4">' +
+            '<div class="flex items-center gap-2">' +
+              '<button class="user-ban text-xs px-2 py-1 rounded border cursor-pointer ' + (banned ? 'border-green-500/30 text-green-400 hover:bg-green-500/10' : 'border-red-500/30 text-red-400 hover:bg-red-500/10') + '" data-index="' + i + '">' +
+                (banned ? 'Debannir' : 'Bannir') +
+              '</button>' +
+              '<button class="user-reset-coins text-xs px-2 py-1 rounded border border-yellow-500/30 text-yellow-400 hover:bg-yellow-500/10 cursor-pointer" data-index="' + i + '">Reset coins</button>' +
+            '</div>' +
+          '</td>' +
+        '</tr>';
+      });
+      tbody.innerHTML = html;
+
+      tbody.querySelectorAll('.user-ban').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+          var idx = parseInt(btn.dataset.index);
+          users[idx].banned = !users[idx].banned;
+          localStorage.setItem('melchior_registered_users', JSON.stringify(users));
+          renderUsers();
+          toast(users[idx].banned ? 'Utilisateur banni' : 'Utilisateur debanni');
+        });
+      });
+
+      tbody.querySelectorAll('.user-reset-coins').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+          var idx = parseInt(btn.dataset.index);
+          users[idx].coins = 1000000;
+          localStorage.setItem('melchior_registered_users', JSON.stringify(users));
+          renderUsers();
+          toast('Solde reinitialise a 1 000 000 MC');
+        });
+      });
+    }
+
+    // ========================
+    // SETTINGS
+    // ========================
+    function loadSettings() {
+      var settings = JSON.parse(localStorage.getItem('admin_settings') || '{}');
+      document.getElementById('setting-welcome').value = settings.welcomeMessage || '';
+      document.getElementById('setting-minbet').value = settings.minBet || '';
+      document.getElementById('setting-webhook').value = settings.webhookUrl || '';
+
+      // Maintenance toggle
+      var mBtn = document.getElementById('toggle-maintenance');
+      if (settings.maintenance) {
+        mBtn.dataset.on = 'true';
+        mBtn.classList.remove('bg-[#2a2d35]');
+        mBtn.classList.add('bg-[#7c5bf5]');
+        mBtn.querySelector('span').classList.remove('left-1', 'bg-gray-500');
+        mBtn.querySelector('span').classList.add('left-7', 'bg-white');
+      }
+    }
+
+    document.getElementById('toggle-maintenance').addEventListener('click', function() {
+      var btn = this;
+      var isOn = btn.dataset.on === 'true';
+      btn.dataset.on = isOn ? 'false' : 'true';
+      if (!isOn) {
+        btn.classList.remove('bg-[#2a2d35]');
+        btn.classList.add('bg-[#7c5bf5]');
+        btn.querySelector('span').classList.remove('left-1', 'bg-gray-500');
+        btn.querySelector('span').classList.add('left-7', 'bg-white');
+      } else {
+        btn.classList.remove('bg-[#7c5bf5]');
+        btn.classList.add('bg-[#2a2d35]');
+        btn.querySelector('span').classList.remove('left-7', 'bg-white');
+        btn.querySelector('span').classList.add('left-1', 'bg-gray-500');
+      }
+      var settings = JSON.parse(localStorage.getItem('admin_settings') || '{}');
+      settings.maintenance = !isOn;
+      localStorage.setItem('admin_settings', JSON.stringify(settings));
+      toast('Mode maintenance ' + (!isOn ? 'active' : 'desactive'));
+    });
+
+    document.getElementById('save-settings-btn').addEventListener('click', function() {
+      var settings = JSON.parse(localStorage.getItem('admin_settings') || '{}');
+      settings.welcomeMessage = document.getElementById('setting-welcome').value.trim();
+      settings.minBet = parseInt(document.getElementById('setting-minbet').value) || 100;
+      settings.webhookUrl = document.getElementById('setting-webhook').value.trim();
+      localStorage.setItem('admin_settings', JSON.stringify(settings));
+      toast('Parametres sauvegardes !');
+    });
+
+    // ========================
+    // SYSTEM INFO
+    // ========================
+    function loadSystemInfo() {
+      var statuses = JSON.parse(localStorage.getItem('admin_casino_statuses') || '{}');
+      var pausedCount = Object.values(statuses).filter(function(v) { return v === 'paused'; }).length;
+      document.getElementById('info-casinos').textContent = (5 - pausedCount) + '/5 actifs';
+
+      // localStorage size
+      var total = 0;
+      for (var k in localStorage) {
+        if (localStorage.hasOwnProperty(k)) {
+          total += localStorage[k].length + k.length;
+        }
+      }
+      document.getElementById('info-storage').textContent = (total / 1024).toFixed(1) + ' KB';
+
+      var lastLogin = localStorage.getItem('admin_last_login');
+      document.getElementById('info-last-login').textContent = lastLogin ? new Date(lastLogin).toLocaleString('fr-FR') : 'Premiere connexion';
+    }
+
+    // ========================
+    // QUICK ACTIONS
+    // ========================
+    document.getElementById('action-reset-balances').addEventListener('click', function() {
+      if (!confirm('Reinitialiser tous les soldes utilisateurs a 1 000 000 MelchiorCoins ?')) return;
+      var users = JSON.parse(localStorage.getItem('melchior_registered_users') || '[]');
+      users.forEach(function(u) { u.coins = 1000000; });
+      localStorage.setItem('melchior_registered_users', JSON.stringify(users));
+      // Also reset the logged-in user's balance
+      localStorage.setItem('melchior_coins', '1000000');
+      renderUsers();
+      toast('Tous les soldes remis a 1 000 000 MC');
+    });
+
+    document.getElementById('action-clear-history').addEventListener('click', function() {
+      if (!confirm('Supprimer tout l\'historique des jeux ? Cette action est irreversible.')) return;
+      var keysToRemove = [];
+      for (var k in localStorage) {
+        if (localStorage.hasOwnProperty(k) && (k.indexOf('_history') !== -1 || k.indexOf('game_') !== -1)) {
+          keysToRemove.push(k);
+        }
+      }
+      keysToRemove.forEach(function(k) { localStorage.removeItem(k); });
+      localStorage.setItem('melchior_games_count', '0');
+      document.getElementById('stat-games').textContent = '0';
+      toast('Historique des jeux supprime (' + keysToRemove.length + ' cles)');
+    });
+
+    document.getElementById('action-export').addEventListener('click', function() {
+      var data = {};
+      for (var i = 0; i < localStorage.length; i++) {
+        var key = localStorage.key(i);
+        data[key] = localStorage.getItem(key);
+      }
+      var blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement('a');
+      a.href = url;
+      a.download = 'melchiorbonus-backup-' + new Date().toISOString().slice(0, 10) + '.json';
+      a.click();
+      URL.revokeObjectURL(url);
+      toast('Export JSON telecharge !');
+    });
+
+    document.getElementById('import-file').addEventListener('change', function(e) {
+      var file = e.target.files[0];
+      if (!file) return;
+      if (!confirm('Importer les donnees depuis ' + file.name + ' ? Cela ecrasera les donnees existantes.')) {
+        e.target.value = '';
+        return;
+      }
+      var reader = new FileReader();
+      reader.onload = function(ev) {
+        try {
+          var data = JSON.parse(ev.target.result);
+          var count = 0;
+          for (var key in data) {
+            if (data.hasOwnProperty(key)) {
+              localStorage.setItem(key, data[key]);
+              count++;
+            }
+          }
+          toast(count + ' cles importees avec succes !');
+          setTimeout(function() { location.reload(); }, 1000);
+        } catch (err) {
+          toast('Erreur: fichier JSON invalide');
+        }
+      };
+      reader.readAsText(file);
+      e.target.value = '';
+    });
+
+    // ========================
+    // HELPERS
+    // ========================
+    function escHTML(s) {
+      if (!s) return '';
+      var div = document.createElement('div');
+      div.textContent = s;
+      return div.innerHTML;
+    }
+
+    // Init
+    checkAuth();
+  })();
+  </script>
+</Layout>
