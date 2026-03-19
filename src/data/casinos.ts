@@ -131,7 +131,7 @@ export const casinos: Casino[] = [
     slug: "vibebet",
     name: "Vibebet",
     logo: "🎰",
-    logoUrl: "https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=http://vibebet.com&size=128",
+    logoUrl: "/logos/vibebet.svg",
     bannerImage: "https://cdn.beacons.ai/user_content/utoICWn4YnWZ9kTPzJLpbuWnXhM2/referenced_images/generated-images__link-in-bio__links-block__home__785d9f26-e1b4-42af-bce5-0653af95365e__4c2dc19e-d3da-4fe8-87d1-e6bf0f040428__e0160a25-7c13-47ef-b237-90f7728bb26c.webp",
     rating: 4.4,
     bonusTitle: "Bonus de Bienvenue",
