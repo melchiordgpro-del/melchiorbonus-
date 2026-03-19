@@ -71,6 +71,9 @@ import Layout from '../layouts/Layout.astro';
       localStorage.setItem('melchior_logged_in', 'true');
       localStorage.setItem('melchior_user_name', name);
       localStorage.setItem('melchior_login_method', method);
+      if (!localStorage.getItem('melchior_coins')) {
+        localStorage.setItem('melchior_coins', '3000.00');
+      }
       window.location.href = '/';
     }
 

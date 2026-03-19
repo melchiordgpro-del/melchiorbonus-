@@ -1,0 +1,34 @@
+---
+// Shows "under construction" message. Admin bypass with localStorage 'melchior_admin' = 'true'
+---
+
+<div id="construction-gate">
+  <div id="construction-blocked" class="hidden">
+    <div class="max-w-lg mx-auto text-center py-20 px-4">
+      <div class="text-6xl mb-6">🚧</div>
+      <h2 class="text-2xl font-extrabold text-white mb-3">En construction</h2>
+      <p class="text-gray-400 mb-6">Ce jeu est en cours de développement. Reviens bientôt !</p>
+      <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+        <a href="/" class="bg-primary hover:bg-primary-light text-white font-bold px-8 py-3.5 rounded-xl transition-all">
+          Retour à l'accueil
+        </a>
+      </div>
+    </div>
+  </div>
+  <div id="construction-content" class="hidden">
+    <slot />
+  </div>
+</div>
+
+<script is:inline>
+  (function() {
+    var isAdmin = localStorage.getItem('admin_auth') === 'true';
+    if (isAdmin) {
+      document.getElementById('construction-content').classList.remove('hidden');
+      document.getElementById('construction-blocked').classList.add('hidden');
+    } else {
+      document.getElementById('construction-blocked').classList.remove('hidden');
+      document.getElementById('construction-content').classList.add('hidden');
+    }
+  })();
+</script>
