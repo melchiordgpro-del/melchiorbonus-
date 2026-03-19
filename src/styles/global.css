@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
 @import "tailwindcss";
 
 @theme {
@@ -20,6 +21,10 @@
 }
 
 @layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
   body {
     @apply bg-bg text-gray-300 font-body antialiased;
   }
@@ -29,11 +34,15 @@
   }
 
   a {
-    @apply transition-colors duration-200;
+    @apply transition-all duration-200;
   }
 
   ::selection {
     @apply bg-primary/30 text-white;
+  }
+
+  ::placeholder {
+    color: #4a4a6a;
   }
 
   ::-webkit-scrollbar {
@@ -156,6 +165,67 @@
     0% { background-position: 0% 50%; }
     50% { background-position: 100% 50%; }
     100% { background-position: 0% 50%; }
+  }
+
+  /* Animated gradient border for CTA */
+  .animated-border {
+    position: relative;
+    z-index: 0;
+  }
+  .animated-border::before {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    border-radius: inherit;
+    background: linear-gradient(90deg, #7c5bf5, #22c55e, #9b7cff, #22c55e, #7c5bf5);
+    background-size: 300% 100%;
+    animation: gradient-slide 4s linear infinite;
+    z-index: -1;
+    opacity: 0.6;
+  }
+  .animated-border::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: inherit;
+    z-index: -1;
+  }
+  @keyframes gradient-slide {
+    0% { background-position: 0% 50%; }
+    100% { background-position: 300% 50%; }
+  }
+
+  /* Card top gradient lines for podium */
+  .card-top-gold::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #f5b83d, #f59e0b, #fbbf24);
+    z-index: 10;
+  }
+  .card-top-silver::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #94a3b8, #cbd5e1, #94a3b8);
+    z-index: 10;
+  }
+  .card-top-bronze::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #b45309, #d97706, #b45309);
+    z-index: 10;
   }
 }
 

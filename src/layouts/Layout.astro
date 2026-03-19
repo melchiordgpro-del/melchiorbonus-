@@ -23,8 +23,11 @@ const currentPath = Astro.url.pathname;
   <title>{title}</title>
 </head>
 <body class="min-h-screen flex flex-col">
+  <!-- Top gradient accent line -->
+  <div class="h-0.5 bg-gradient-to-r from-primary via-accent-green to-primary w-full fixed top-0 z-[60]"></div>
+
   <!-- Header -->
-  <header class="sticky top-0 z-50 bg-bg/95 backdrop-blur-md border-b border-bg-border">
+  <header class="sticky top-0.5 z-50 bg-bg/90 backdrop-blur-xl border-b border-bg-border">
     <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex items-center justify-between h-16">
         <a href="/" class="flex items-center gap-2 text-xl font-extrabold">

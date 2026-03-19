@@ -9,7 +9,7 @@ const sortedByBonus = [...casinos].sort((a, b) => {
 ---
 
 <Layout title="Meilleurs Bonus Casino 2026 — Comparatif Exclusif | MelchiorBonus" description="Comparez tous les bonus de bienvenue des casinos en ligne.">
-  <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+  <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 fade-in">
     <div class="text-center mb-12">
       <h1 class="text-4xl sm:text-5xl font-extrabold text-white mb-4">
         Meilleurs <span class="text-primary-light">Bonus Casino</span> 2026
@@ -33,7 +33,7 @@ const sortedByBonus = [...casinos].sort((a, b) => {
         </thead>
         <tbody>
           {sortedByBonus.map((casino, i) => (
-            <tr class="border-b border-bg-border/50 hover:bg-bg-card/50 transition-colors group">
+            <tr class="border-b border-bg-border/50 hover:bg-bg-card/50 transition-colors group card-hover">
               <td class="py-5 px-4">
                 <span class="text-primary font-bold">{i + 1}</span>
               </td>

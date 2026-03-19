@@ -12,9 +12,10 @@ const medalColors: Record<number, {bg: string, border: string, text: string, emo
   3: { bg: 'bg-amber-700/20', border: 'border-amber-600/40', text: 'text-amber-500', emoji: '🥉' },
 };
 const medal = medalColors[rank];
+const topLineClass = rank === 1 ? 'card-top-gold' : rank === 2 ? 'card-top-silver' : rank === 3 ? 'card-top-bronze' : '';
 ---
 
-<div class="group relative bg-bg-card border border-bg-border rounded-2xl overflow-hidden hover:border-primary/40 transition-all duration-300 hover:shadow-xl hover:shadow-primary/10 flex flex-col card-hover">
+<div class:list={["group relative bg-bg-card border border-bg-border rounded-2xl overflow-hidden hover:border-primary/40 transition-all duration-300 hover:shadow-xl hover:shadow-primary/10 flex flex-col card-hover", topLineClass]}>
   <!-- Rank Medal / Number -->
   <div class="absolute top-0 left-0 z-10">
     {medal ? (
