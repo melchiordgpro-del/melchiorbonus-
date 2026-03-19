@@ -9,9 +9,38 @@ import { casinos } from '../../data/casinos';
   <section class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
     <div class="flex items-center justify-between mb-4">
       <h1 class="text-2xl font-extrabold text-white flex items-center gap-2">🃏 Blackjack Américain</h1>
-      <a href="/jeux/blackjack-tableau" class="bg-[#2a2d35] hover:bg-[#3a3d45] text-gray-300 hover:text-white text-xs font-bold px-4 py-2 rounded-lg transition-all flex items-center gap-2">
+      <button id="open-chart" class="bg-[#2a2d35] hover:bg-[#3a3d45] text-gray-300 hover:text-white text-xs font-bold px-4 py-2 rounded-lg transition-all flex items-center gap-2">
         📊 Tableau de stratégie
-      </a>
+      </button>
+    </div>
+
+    <!-- Draggable Strategy Chart Panel -->
+    <div id="chart-panel" class="hidden fixed z-[999] bg-[#1a1d23] border border-[#2a2d35] rounded-xl shadow-2xl shadow-black/60" style="width:420px;max-height:500px;top:80px;right:20px;">
+      <div id="chart-header" class="bg-[#2a2d35] px-4 py-2 rounded-t-xl flex items-center justify-between cursor-move select-none">
+        <span class="text-white text-xs font-bold">📊 Tableau de Stratégie</span>
+        <div class="flex items-center gap-2">
+          <a href="/jeux/blackjack-extension" class="text-primary text-[10px] hover:text-primary-light">🧠 Quiz</a>
+          <button id="close-chart" class="text-gray-500 hover:text-white text-lg leading-none">&times;</button>
+        </div>
+      </div>
+      <div class="overflow-auto p-3" style="max-height:450px;">
+        <!-- Legend -->
+        <div class="flex flex-wrap gap-2 mb-3 text-[9px]">
+          <span class="bg-green-600 text-white px-2 py-0.5 rounded font-bold">H = Tirer</span>
+          <span class="bg-red-600 text-white px-2 py-0.5 rounded font-bold">S = Rester</span>
+          <span class="bg-yellow-500 text-black px-2 py-0.5 rounded font-bold">D = Doubler</span>
+          <span class="bg-blue-600 text-white px-2 py-0.5 rounded font-bold">SP = Split</span>
+        </div>
+        <!-- Hard -->
+        <p class="text-gray-400 text-[10px] font-bold uppercase mb-1">Mains dures</p>
+        <table class="w-full text-center text-[9px] mb-3" id="chart-hard"></table>
+        <!-- Soft -->
+        <p class="text-gray-400 text-[10px] font-bold uppercase mb-1">Mains douces</p>
+        <table class="w-full text-center text-[9px] mb-3" id="chart-soft"></table>
+        <!-- Pairs -->
+        <p class="text-gray-400 text-[10px] font-bold uppercase mb-1">Paires</p>
+        <table class="w-full text-center text-[9px]" id="chart-pairs"></table>
+      </div>
     </div>
 
     <div class="flex flex-col lg:flex-row gap-4">
@@ -729,6 +758,105 @@ import { casinos } from '../../data/casinos';
     // Set default bet
     currentBet = 10; balance -= 10; lastBet = 10;
     showPhase('bet'); updateBalance(); updateBetZone();
+
+    // ========== STRATEGY CHART PANEL ==========
+    var chartData = {
+      hard: [
+        ['17-21','S','S','S','S','S','S','S','S','S','S'],
+        ['16','S','S','S','S','S','H','H','H','H','H'],
+        ['15','S','S','S','S','S','H','H','H','H','H'],
+        ['14','S','S','S','S','S','H','H','H','H','H'],
+        ['13','S','S','S','S','S','H','H','H','H','H'],
+        ['12','H','H','S','S','S','H','H','H','H','H'],
+        ['11','D','D','D','D','D','D','D','D','D','D'],
+        ['10','D','D','D','D','D','D','D','D','H','H'],
+        ['9','H','D','D','D','D','H','H','H','H','H'],
+        ['5-8','H','H','H','H','H','H','H','H','H','H'],
+      ],
+      soft: [
+        ['A,9','S','S','S','S','S','S','S','S','S','S'],
+        ['A,8','S','S','S','S','D','S','S','S','S','S'],
+        ['A,7','D','D','D','D','D','S','S','H','H','H'],
+        ['A,6','H','D','D','D','D','H','H','H','H','H'],
+        ['A,5','H','H','D','D','D','H','H','H','H','H'],
+        ['A,4','H','H','D','D','D','H','H','H','H','H'],
+        ['A,3','H','H','H','D','D','H','H','H','H','H'],
+        ['A,2','H','H','H','D','D','H','H','H','H','H'],
+      ],
+      pairs: [
+        ['A,A','SP','SP','SP','SP','SP','SP','SP','SP','SP','SP'],
+        ['10,10','S','S','S','S','S','S','S','S','S','S'],
+        ['9,9','SP','SP','SP','SP','SP','S','SP','SP','S','S'],
+        ['8,8','SP','SP','SP','SP','SP','SP','SP','SP','SP','SP'],
+        ['7,7','SP','SP','SP','SP','SP','SP','H','H','H','H'],
+        ['6,6','SP','SP','SP','SP','SP','H','H','H','H','H'],
+        ['5,5','D','D','D','D','D','D','D','D','H','H'],
+        ['4,4','H','H','H','SP','SP','H','H','H','H','H'],
+        ['3,3','SP','SP','SP','SP','SP','SP','H','H','H','H'],
+        ['2,2','SP','SP','SP','SP','SP','SP','H','H','H','H'],
+      ]
+    };
+    var dealerHeaders = ['','2','3','4','5','6','7','8','9','10','A'];
+
+    function actionBg(a) {
+      if (a==='S') return '#dc2626';
+      if (a==='H') return '#16a34a';
+      if (a==='D') return '#eab308';
+      if (a==='SP') return '#2563eb';
+      return '#374151';
+    }
+
+    function buildTable(tableId, rows) {
+      var el = document.getElementById(tableId);
+      var html = '<tr>' + dealerHeaders.map(function(h){return '<th style="padding:2px 3px;background:#1a1d23;color:'+(h?'#fff':'#666')+';border:1px solid #2a2d35;font-size:9px;">'+h+'</th>';}).join('') + '</tr>';
+      rows.forEach(function(row) {
+        html += '<tr>';
+        row.forEach(function(cell, i) {
+          if (i === 0) {
+            html += '<td style="padding:2px 3px;background:#1a1d23;color:#fff;border:1px solid #2a2d35;font-weight:bold;font-size:9px;">'+cell+'</td>';
+          } else {
+            var bg = actionBg(cell);
+            html += '<td style="padding:2px 3px;background:'+bg+';color:'+(cell==='D'?'#000':'#fff')+';border:1px solid #2a2d35;font-weight:bold;font-size:9px;">'+cell+'</td>';
+          }
+        });
+        html += '</tr>';
+      });
+      el.innerHTML = html;
+    }
+
+    buildTable('chart-hard', chartData.hard);
+    buildTable('chart-soft', chartData.soft);
+    buildTable('chart-pairs', chartData.pairs);
+
+    // Open/close
+    document.getElementById('open-chart').addEventListener('click', function() {
+      document.getElementById('chart-panel').classList.toggle('hidden');
+    });
+    document.getElementById('close-chart').addEventListener('click', function() {
+      document.getElementById('chart-panel').classList.add('hidden');
+    });
+
+    // Draggable
+    (function() {
+      var panel = document.getElementById('chart-panel');
+      var header = document.getElementById('chart-header');
+      var dragging = false, sx, sy, ox, oy;
+      header.addEventListener('mousedown', function(e) {
+        if (e.target.tagName === 'BUTTON' || e.target.tagName === 'A') return;
+        dragging = true;
+        sx = e.clientX; sy = e.clientY;
+        var r = panel.getBoundingClientRect();
+        ox = r.left; oy = r.top;
+        e.preventDefault();
+      });
+      document.addEventListener('mousemove', function(e) {
+        if (!dragging) return;
+        panel.style.left = (ox + e.clientX - sx) + 'px';
+        panel.style.top = (oy + e.clientY - sy) + 'px';
+        panel.style.right = 'auto';
+      });
+      document.addEventListener('mouseup', function() { dragging = false; });
+    })();
 
     // Card animation
     var style = document.createElement('style');
