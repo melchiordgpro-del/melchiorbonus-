@@ -51,22 +51,27 @@ const topLineClass = rank === 1 ? 'card-top-gold' : rank === 2 ? 'card-top-silve
   <div class="px-5 pb-5 flex flex-col flex-1">
     <!-- Bonus -->
     <div class:list={[
-      "rounded-xl p-3 mb-3 border",
+      "rounded-xl p-4 mb-3 border",
       medal ? medal.bg + ' ' + medal.border : "bg-bg-surface border-bg-border"
     ]}>
-      <p class="text-primary-light text-xs font-semibold uppercase tracking-wider mb-0.5">{casino.bonusTitle}</p>
-      <p class="text-white font-extrabold text-lg">{casino.bonusAmount}</p>
+      <p class="text-primary-light text-[10px] font-semibold uppercase tracking-wider mb-1">{casino.bonusTitle}</p>
+      <p class="text-white font-extrabold text-xl mb-2">{casino.bonusAmount}</p>
+      <p class="text-gray-400 text-xs leading-relaxed">{casino.bonusDescription}</p>
     </div>
 
     <!-- Wager + Code -->
     <div class="flex items-center gap-2 mb-3 flex-wrap">
-      <span class="text-xs text-gray-500">Wager:</span>
-      <span class:list={["text-xs font-bold px-2 py-0.5 rounded-full", casino.wager.includes("FREE") ? "bg-accent-green/10 text-accent-green border border-accent-green/20" : "bg-bg-surface text-gray-300 border border-bg-border"]}>
-        {casino.wager}
+      <span class:list={["text-xs font-bold px-2.5 py-1 rounded-full", casino.wager.includes("FREE") ? "bg-accent-green/10 text-accent-green border border-accent-green/20" : "bg-bg-surface text-gray-300 border border-bg-border"]}>
+        Wager: {casino.wager}
       </span>
       {casino.promoCode && (
-        <span class="text-xs font-mono font-bold text-primary bg-primary/10 px-2 py-0.5 rounded-full border border-primary/20">
-          {casino.promoCode}
+        <span class="text-xs font-mono font-bold text-primary bg-primary/10 px-2.5 py-1 rounded-full border border-primary/20">
+          Code: {casino.promoCode}
+        </span>
+      )}
+      {casino.discordBonus && (
+        <span class="text-xs font-bold text-[#5865F2] bg-[#5865F2]/10 px-2.5 py-1 rounded-full border border-[#5865F2]/20">
+          🎁 {casino.discordBonus}
         </span>
       )}
     </div>
