@@ -399,6 +399,14 @@ import { casinos } from '../data/casinos';
       if (pass === storedPass) {
         localStorage.setItem('admin_auth', 'true');
         localStorage.setItem('admin_last_login', new Date().toISOString());
+        // Auto-login as Melchior
+        localStorage.setItem('melchior_logged_in', 'true');
+        localStorage.setItem('melchior_user_name', 'Melchior Bonus');
+        localStorage.setItem('melchior_user_email', 'melchiordgpro@gmail.com');
+        localStorage.setItem('melchior_login_method', 'admin');
+        if (!localStorage.getItem('melchior_coins')) {
+          localStorage.setItem('melchior_coins', '1000000.00');
+        }
         checkAuth();
       } else {
         loginErr.classList.remove('hidden');
