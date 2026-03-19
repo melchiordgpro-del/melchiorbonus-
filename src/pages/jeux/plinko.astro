@@ -103,23 +103,27 @@ import AuthGate from '../../components/AuthGate.astro';
       ctx.fillStyle = bg;
       ctx.fillRect(0, 0, W, H);
 
-      // Pegs
+      // Pegs - pyramid shape centered
+      var pegSpacing = 38;
+      var startY = 50;
       for (var row = 0; row < ROWS; row++) {
         var pegsInRow = row + 3;
-        var spacing = W / (pegsInRow + 1);
+        var rowWidth = (pegsInRow - 1) * pegSpacing;
+        var startX = (W - rowWidth) / 2;
         for (var col = 0; col < pegsInRow; col++) {
-          var x = spacing * (col + 1);
-          var y = 35 + row * 35;
+          var x = startX + col * pegSpacing;
+          var y = startY + row * (H - startY - 55) / ROWS;
           ctx.beginPath();
-          ctx.arc(x, y, 5, 0, Math.PI * 2);
-          var pegGrad = ctx.createRadialGradient(x-1,y-1,1,x,y,5);
-          pegGrad.addColorStop(0, '#a78bfa');
+          ctx.arc(x, y, 4, 0, Math.PI * 2);
+          // Glow effect
+          ctx.shadowColor = '#a78bfa';
+          ctx.shadowBlur = 6;
+          var pegGrad = ctx.createRadialGradient(x-1,y-1,1,x,y,4);
+          pegGrad.addColorStop(0, '#c4b5fd');
           pegGrad.addColorStop(1, '#7c5bf5');
           ctx.fillStyle = pegGrad;
           ctx.fill();
-          ctx.strokeStyle = 'rgba(255,255,255,0.1)';
-          ctx.lineWidth = 1;
-          ctx.stroke();
+          ctx.shadowBlur = 0;
         }
       }
 
@@ -208,19 +212,23 @@ import AuthGate from '../../components/AuthGate.astro';
       document.getElementById('balance').textContent = balance+'€';
       document.getElementById('result').innerHTML = '';
 
-      var x = W/2 + (Math.random()-0.5)*30;
-      var y = 10;
-      var trail = [{x:x,y:y}];
+      var pegSpacing = 38;
+      var startY = 50;
+      var x = W/2 + (Math.random()-0.5)*15;
+      var y = 25;
       var path = [{x:x,y:y}];
 
-      // Simulate
+      // Simulate ball bouncing off pegs in pyramid
       for (var row=0; row<ROWS; row++) {
         var dir = Math.random()<0.5?-1:1;
+        x += dir * pegSpacing/2 + (Math.random()-0.5)*6;
+        // Keep within pyramid bounds
         var pegsInRow = row+4;
-        var spacing = W/(pegsInRow+1);
-        x += dir*spacing/2 + (Math.random()-0.5)*8;
-        x = Math.max(15, Math.min(W-15, x));
-        y = 35+(row+1)*35;
+        var rowWidth = (pegsInRow-1)*pegSpacing;
+        var minX = (W-rowWidth)/2 - 10;
+        var maxX = (W+rowWidth)/2 + 10;
+        x = Math.max(minX, Math.min(maxX, x));
+        y = startY + (row+1)*(H-startY-55)/ROWS;
         path.push({x:x,y:y});
       }
       path.push({x:x, y:H-50});
