@@ -74,6 +74,7 @@ export const casinos: Casino[] = [
     featured: true,
     tags: ["Gros Bonus", "150%"],
     discordBonus: "25€ gratuit sur Discord",
+    maxBet: "5€",
   },
   {
     slug: "shiny-wilds",
@@ -84,7 +85,7 @@ export const casinos: Casino[] = [
     rating: 4.6,
     bonusTitle: "Bonus de Bienvenue",
     bonusAmount: "150€ + 25€ Offert",
-    bonusDescription: "Bonus 100% jusqu'à 150€ — WAGER FREE ! Dépôt et retrait en carte bancaire + 25€ offert",
+    bonusDescription: "Bonus 100% sur votre premier dépôt jusqu'à 150€. Carte bancaire acceptée",
     affiliateUrl: "https://partners.shinywildpartners.com/v2/text/127/6/7c81fb35-147d-11f0-bf43-cad21936ea85/1",
     pros: ["WAGER FREE — Pas de conditions de mise !", "Dépôt et retrait en carte bancaire", "25€ offert", "Retraits rapides"],
     cons: ["Bonus plafonné à 150€"],
