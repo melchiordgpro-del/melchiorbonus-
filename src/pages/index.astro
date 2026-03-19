@@ -143,6 +143,7 @@ const topCasinos = casinos.slice(0, 5);
           { pct: 100, max: 350, fs: 50 },
           { pct: 100, max: 350, fs: 50 }
         ],
+        maxDeposit: 1000,
         wager: 'FREE',
         note: 'Réparti sur 3 dépôts'
       },
@@ -153,6 +154,7 @@ const topCasinos = casinos.slice(0, 5);
         deposits: [
           { pct: 150, max: 1500, fs: 0 }
         ],
+        maxDeposit: 1000,
         wager: 'x40',
         note: '1er dépôt uniquement'
       },
@@ -163,6 +165,7 @@ const topCasinos = casinos.slice(0, 5);
         deposits: [
           { pct: 100, max: 100, fs: 0 }
         ],
+        maxDeposit: 100,
         wager: 'x35',
         note: '1er dépôt uniquement'
       },
@@ -173,6 +176,7 @@ const topCasinos = casinos.slice(0, 5);
         deposits: [
           { pct: 100, max: 150, fs: 0 }
         ],
+        maxDeposit: 150,
         wager: 'x40',
         note: '1er dépôt uniquement'
       },
@@ -183,6 +187,7 @@ const topCasinos = casinos.slice(0, 5);
         deposits: [
           { pct: 150, max: 1500, fs: 0 }
         ],
+        maxDeposit: 1000,
         wager: 'x35',
         note: '1er dépôt uniquement'
       }
@@ -204,8 +209,9 @@ const topCasinos = casinos.slice(0, 5);
         var details = [];
         var remaining = deposit;
 
+        var effectiveDeposit = Math.min(deposit, c.maxDeposit);
         c.deposits.forEach(function(d, i) {
-          var depAmount = c.deposits.length > 1 ? Math.min(remaining, d.max) : deposit;
+          var depAmount = c.deposits.length > 1 ? Math.min(remaining, d.max) : effectiveDeposit;
           var bonus = Math.min(depAmount * d.pct / 100, d.max);
           totalBonus += bonus;
           totalFS += d.fs;
@@ -225,6 +231,13 @@ const topCasinos = casinos.slice(0, 5);
         html += '<span class="text-white font-extrabold text-sm">' + c.name + '</span>';
         html += '<span style="color:' + wagerColor + ';font-size:9px;font-weight:700;margin-left:auto;padding:2px 6px;border-radius:4px;background:' + wagerColor + '15;border:1px solid ' + wagerColor + '30;">' + wagerText + '</span>';
         html += '</div>';
+        html += '<div class="flex items-center justify-between mb-2 px-2 py-1.5 rounded-lg ' + (deposit > c.maxDeposit ? 'bg-red-500/10 border border-red-500/20' : 'bg-[#1a1d23] border border-[#2a2d35]') + '">';
+        html += '<span class="text-gray-500 text-[10px]">Dépôt max bonus</span>';
+        html += '<span class="font-extrabold text-xs ' + (deposit > c.maxDeposit ? 'text-red-400' : 'text-white') + '">' + c.maxDeposit + '€</span>';
+        html += '</div>';
+        if (deposit > c.maxDeposit) {
+          html += '<p class="text-red-400 text-[10px] text-center mb-2">⚠️ Ton dépôt dépasse le max — le bonus sera plafonné à ' + c.maxDeposit + '€</p>';
+        }
 
         html += '<div class="text-center mb-3">';
         html += '<p class="text-accent-green font-black text-3xl">' + Math.round(total) + '€</p>';
