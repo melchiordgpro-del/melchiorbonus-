@@ -201,12 +201,12 @@ import { casinos } from '../../data/casinos';
 
     function renderCard(card, delay) {
       delay = delay || 0;
-      if (card.hidden) return '<div class="relative w-[70px] h-[100px] rounded-xl shadow-xl" style="animation:cardDeal 0.5s ease-out '+delay+'s both"><div class="w-full h-full rounded-xl border-2 border-red-800 overflow-hidden" style="background: #b22222;"><div class="w-full h-full" style="background: repeating-linear-gradient(45deg, transparent, transparent 4px, rgba(255,255,255,0.08) 4px, rgba(255,255,255,0.08) 8px), repeating-linear-gradient(-45deg, transparent, transparent 4px, rgba(255,255,255,0.08) 4px, rgba(255,255,255,0.08) 8px);"><div class="w-full h-full flex items-center justify-center"><div class="w-12 h-16 rounded-lg border-2 border-yellow-600/50 flex items-center justify-center" style="background: radial-gradient(circle, #8b0000, #600000);"><span class="text-yellow-500 text-2xl font-bold">♠</span></div></div></div></div></div>';
+      if (card.hidden) return '<div class="relative w-[70px] h-[100px] rounded-xl shadow-xl" style="animation:cardDeal 0.35s ease-out '+delay+'s both"><div class="w-full h-full rounded-xl border-2 border-red-800 overflow-hidden" style="background: #b22222;"><div class="w-full h-full" style="background: repeating-linear-gradient(45deg, transparent, transparent 4px, rgba(255,255,255,0.08) 4px, rgba(255,255,255,0.08) 8px), repeating-linear-gradient(-45deg, transparent, transparent 4px, rgba(255,255,255,0.08) 4px, rgba(255,255,255,0.08) 8px);"><div class="w-full h-full flex items-center justify-center"><div class="w-12 h-16 rounded-lg border-2 border-yellow-600/50 flex items-center justify-center" style="background: radial-gradient(circle, #8b0000, #600000);"><span class="text-yellow-500 text-2xl font-bold">♠</span></div></div></div></div></div>';
       var isRed = card.suit==='♥'||card.suit==='♦';
       var col = isRed?'text-red-500':'text-gray-900';
-      return '<div class="relative w-[70px] h-[100px] rounded-xl shadow-xl" style="animation:cardDeal 0.5s ease-out '+delay+'s both"><div class="w-full h-full rounded-xl bg-white border border-gray-200 flex flex-col items-center justify-between p-1.5"><div class="self-start"><p class="text-xs font-bold '+col+' leading-none">'+card.value+'</p><p class="text-xs '+col+' leading-none">'+card.suit+'</p></div><p class="text-2xl '+col+'">'+card.suit+'</p><div class="self-end rotate-180"><p class="text-xs font-bold '+col+' leading-none">'+card.value+'</p><p class="text-xs '+col+' leading-none">'+card.suit+'</p></div></div></div>';
+      return '<div class="relative w-[70px] h-[100px] rounded-xl shadow-xl" style="animation:cardDeal 0.35s ease-out '+delay+'s both"><div class="w-full h-full rounded-xl bg-white border border-gray-200 flex flex-col items-center justify-between p-1.5"><div class="self-start"><p class="text-xs font-bold '+col+' leading-none">'+card.value+'</p><p class="text-xs '+col+' leading-none">'+card.suit+'</p></div><p class="text-2xl '+col+'">'+card.suit+'</p><div class="self-end rotate-180"><p class="text-xs font-bold '+col+' leading-none">'+card.value+'</p><p class="text-xs '+col+' leading-none">'+card.suit+'</p></div></div></div>';
     }
-    function renderHand(el, hand) { el.innerHTML = hand.map(function(c,i){return renderCard(c,i*0.25);}).join(''); }
+    function renderHand(el, hand) { el.innerHTML = hand.map(function(c,i){return renderCard(c,i*0.15);}).join(''); }
     function addCardToHand(el, card) {
       var div = document.createElement('div');
       div.innerHTML = renderCard(card, 0);
@@ -368,20 +368,32 @@ import { casinos } from '../../data/casinos';
     });
 
     // --- Game Logic ---
+    function highlightCards(color) {
+      var borderColor = color === 'green' ? '#22c55e' : color === 'red' ? '#ef4444' : '#6b7280';
+      var playerCards = document.getElementById('player-cards');
+      var dealerCards = document.getElementById('dealer-cards');
+      if (playerCards) Array.from(playerCards.children).forEach(function(c) { c.style.boxShadow = '0 0 12px ' + borderColor; c.style.borderRadius = '12px'; });
+      if (color === 'red' && dealerCards) Array.from(dealerCards.children).forEach(function(c) { c.style.boxShadow = '0 0 12px ' + borderColor; c.style.borderRadius = '12px'; });
+    }
+    function clearHighlights() {
+      ['player-cards','dealer-cards'].forEach(function(id) {
+        var el = document.getElementById(id);
+        if (el) Array.from(el.children).forEach(function(c) { c.style.boxShadow = ''; });
+      });
+    }
+
     function endHand(text, type, balAdd, fast) {
-      var delay = fast ? 300 : 1000;
+      var delay = fast ? 150 : 500;
       setTimeout(function() {
         showResult(text, type);
         if (balAdd) balance += balAdd;
         if (type==='win'||type==='blackjack') {
           wins++;
-          // Award MelchiorCoins
-          var mc = parseInt(localStorage.getItem('melchior_coins')||'0');
-          var earned = type==='blackjack' ? 5 : 2;
-          mc += earned;
-          localStorage.setItem('melchior_coins', mc.toString());
-          showResult(text + ' <span class="text-sm ml-2">+' + earned + ' ⭐</span>', type);
-          return; // skip the showResult below
+          highlightCards('green');
+        } else if (type==='lose') {
+          highlightCards('red');
+        } else {
+          highlightCards('gray');
         }
         addHistory(type==='blackjack'?'BJ':type==='win'?'W':type==='push'?'P':'L');
         gameActive = false;
@@ -397,6 +409,7 @@ import { casinos } from '../../data/casinos';
     function deal() {
       if (gameActive || currentBet <= 0) return;
       clearResult();
+      clearHighlights();
       document.getElementById('post-game-btns').classList.add('hidden');
       deck = deck.length>100 ? deck : createDeck();
       playerHand = [drawCard(), drawCard()];
@@ -459,7 +472,7 @@ import { casinos } from '../../data/casinos';
       hideAll();
       dealerHand[0].hidden = false;
       revealDealerCard(document.getElementById('dealer-cards'), dealerHand); updateScores();
-      setTimeout(function(){dealerDraw();}, 1800);
+      setTimeout(function(){dealerDraw();}, 800);
 
       function dealerDraw() {
         if (handValue(dealerHand) < 17) {
@@ -469,7 +482,7 @@ import { casinos } from '../../data/casinos';
             addCardToHand(document.getElementById('dealer-cards'), newCard);
             updateScores();
             dealerDraw();
-          }, 1500);
+          }, 700);
         } else { resolve(); }
       }
       function resolve() {
