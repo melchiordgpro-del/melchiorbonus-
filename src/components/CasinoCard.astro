@@ -6,102 +6,108 @@ interface Props {
 }
 const { casino, rank } = Astro.props;
 
-const medalColors: Record<number, {bg: string, border: string, text: string, emoji: string}> = {
-  1: { bg: 'bg-yellow-500/20', border: 'border-yellow-500/40', text: 'text-yellow-400', emoji: '🥇' },
-  2: { bg: 'bg-gray-300/20', border: 'border-gray-300/40', text: 'text-gray-300', emoji: '🥈' },
-  3: { bg: 'bg-amber-700/20', border: 'border-amber-600/40', text: 'text-amber-500', emoji: '🥉' },
-};
-const medal = medalColors[rank];
+const isFirst = rank === 1;
+const borderColor = rank === 1 ? 'border-yellow-500/60' : rank === 2 ? 'border-gray-400/40' : rank === 3 ? 'border-amber-600/40' : 'border-bg-border';
 const topLineClass = rank === 1 ? 'card-top-gold' : rank === 2 ? 'card-top-silver' : rank === 3 ? 'card-top-bronze' : '';
+
+// Extract the "offert" amount from bonusDescription (e.g. "25€ offert")
+const offertMatch = casino.bonusDescription.match(/(\d+€)\s*(offert|gratuit)/i);
+const offertAmount = offertMatch ? offertMatch[1] : null;
 ---
 
-<div class:list={["group relative bg-bg-card border border-bg-border rounded-2xl overflow-hidden hover:border-primary/40 transition-all duration-300 hover:shadow-xl hover:shadow-primary/10 flex flex-col card-hover", topLineClass]}>
-  <!-- Rank Medal / Number -->
-  <div class="absolute top-0 left-0 z-10">
-    {medal ? (
-      <div class:list={["flex items-center gap-1.5 px-3 py-1.5 rounded-br-xl font-extrabold text-sm", medal.bg, medal.border, "border-r border-b"]}>
-        <span class="text-lg">{medal.emoji}</span>
-        <span class={medal.text}>#{rank}</span>
-      </div>
-    ) : (
-      <div class="flex items-center gap-1.5 bg-bg-surface/80 border-r border-b border-bg-border px-3 py-1.5 rounded-br-xl">
-        <span class="text-primary font-extrabold text-sm">#{rank}</span>
-      </div>
+<div class:list={["group relative bg-bg-card border rounded-2xl overflow-hidden transition-all duration-300 hover:shadow-xl flex flex-col", borderColor, topLineClass, isFirst ? "hover:shadow-yellow-500/15 lg:scale-105 z-10" : "hover:shadow-primary/10 card-hover"]}>
+  <!-- Top badges -->
+  <div class="flex items-center justify-between px-4 pt-3">
+    <div class="flex items-center gap-2">
+      <span class:list={["text-[10px] font-extrabold px-2.5 py-1 rounded-full", rank === 1 ? "bg-yellow-500 text-black" : rank === 2 ? "bg-gray-400 text-black" : rank === 3 ? "bg-amber-600 text-white" : "bg-primary/20 text-primary"]}>
+        #{rank}
+      </span>
+      <span class="text-[10px] font-bold px-2.5 py-1 rounded-full bg-accent-green/10 text-accent-green border border-accent-green/20">
+        OFFRE EXCLUSIVE
+      </span>
+    </div>
+    {casino.promoCode && (
+      <span class="text-[10px] font-bold px-2.5 py-1 rounded-full bg-accent-green/20 text-accent-green animate-pulse">
+        CODE ACTIF
+      </span>
     )}
   </div>
 
-  <!-- Header -->
-  <div class="p-5 pb-0 pt-10">
-    <div class="flex items-center gap-3 mb-4">
-      <div class:list={[
-        "w-14 h-14 rounded-xl flex items-center justify-center flex-shrink-0 border overflow-hidden",
-        medal ? medal.bg + ' ' + medal.border : "bg-primary/10 border-primary/20"
-      ]}>
-        <img src={casino.logoUrl} alt={casino.name} class="w-10 h-10 object-contain" loading="lazy" onerror={`this.style.display='none';this.parentElement.innerHTML='<span class="text-2xl">${casino.logo}</span>'`} />
+  <!-- Casino Name + Logo -->
+  <div class="px-4 pt-3 pb-2">
+    <div class="flex items-center gap-3">
+      <div class:list={["w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 border overflow-hidden", rank === 1 ? "bg-yellow-500/10 border-yellow-500/30" : "bg-bg-surface border-bg-border"]}>
+        <img src={casino.logoUrl} alt={casino.name} class="w-9 h-9 object-contain" loading="lazy" onerror={`this.style.display='none';this.parentElement.innerHTML='<span class="text-2xl">${casino.logo}</span>'`} />
       </div>
-      <div class="flex-1 min-w-0">
-        <h3 class="text-white font-bold text-lg group-hover:text-primary transition-colors truncate">
-          <a href={`/casinos/${casino.slug}`}>{casino.name}</a>
-        </h3>
+      <div>
+        <h3 class="text-white font-extrabold text-lg">{casino.name}</h3>
       </div>
     </div>
   </div>
 
-  <!-- Content -->
-  <div class="px-5 pb-5 flex flex-col flex-1">
-    <!-- Bonus -->
-    <div class:list={[
-      "rounded-xl p-4 mb-3 border",
-      medal ? medal.bg + ' ' + medal.border : "bg-bg-surface border-bg-border"
-    ]}>
-      <p class="text-primary-light text-[10px] font-semibold uppercase tracking-wider mb-1">{casino.bonusTitle}</p>
-      <p class="text-white font-extrabold text-xl mb-2">{casino.bonusAmount}</p>
-      <p class="text-gray-400 text-xs leading-relaxed">{casino.bonusDescription}</p>
-    </div>
-
-    <!-- Wager + Code -->
-    <div class="flex items-center gap-2 mb-3 flex-wrap">
-      <span class:list={["text-xs font-bold px-2.5 py-1 rounded-full", casino.wager.includes("FREE") ? "bg-accent-green/10 text-accent-green border border-accent-green/20" : "bg-bg-surface text-gray-300 border border-bg-border"]}>
-        Wager: {casino.wager}
-      </span>
-      {casino.promoCode && (
-        <span class="text-xs font-mono font-bold text-primary bg-primary/10 px-2.5 py-1 rounded-full border border-primary/20">
-          Code: {casino.promoCode}
-        </span>
+  <!-- Big Offer Box -->
+  <div class="mx-4 mb-3">
+    <div class:list={["rounded-xl p-4 text-center border-2", rank === 1 ? "bg-yellow-500/5 border-yellow-500/40" : "bg-bg-surface border-bg-border"]}>
+      {offertAmount ? (
+        <>
+          <p class:list={["font-black uppercase tracking-wider", rank === 1 ? "text-yellow-400 text-3xl" : "text-accent-green text-2xl"]}>
+            {offertAmount} OFFERTS
+          </p>
+          <p class="text-gray-400 text-xs font-bold mt-1 uppercase tracking-wide">
+            + Wager {casino.wager}
+          </p>
+        </>
+      ) : (
+        <p class:list={["font-black uppercase tracking-wider", rank === 1 ? "text-yellow-400 text-2xl" : "text-accent-green text-xl"]}>
+          {casino.bonusAmount}
+        </p>
       )}
+      <p class="text-gray-400 text-xs mt-2">{casino.bonusDescription.replace(/—.*/, '').trim()}</p>
+    </div>
+  </div>
+
+  <!-- Payment Methods + Tags -->
+  <div class="px-4 mb-3">
+    <div class="flex flex-wrap gap-1.5">
+      {casino.paymentMethods.slice(0, 3).map((m) => (
+        <span class="text-[10px] font-bold px-2 py-1 rounded-lg bg-bg-surface border border-bg-border text-gray-300 flex items-center gap-1">
+          {m === 'Visa' || m === 'Mastercard' || m === 'Carte bancaire' ? '💳' : m === 'Crypto' ? '₿' : '💸'} {m}
+        </span>
+      ))}
       {casino.discordBonus && (
-        <span class="text-xs font-bold text-[#5865F2] bg-[#5865F2]/10 px-2.5 py-1 rounded-full border border-[#5865F2]/20">
+        <span class="text-[10px] font-bold px-2 py-1 rounded-lg bg-[#5865F2]/10 border border-[#5865F2]/20 text-[#5865F2] flex items-center gap-1">
           🎁 {casino.discordBonus}
         </span>
       )}
     </div>
+  </div>
 
-    <!-- Tags -->
-    <div class="flex flex-wrap gap-1.5 mb-4">
-      {casino.tags.map((tag) => (
-        <span class="text-xs font-medium bg-bg-surface text-gray-400 px-2.5 py-1 rounded-full border border-bg-border">
-          {tag}
-        </span>
-      ))}
+  <!-- Promo Code -->
+  {casino.promoCode && (
+    <div class="mx-4 mb-3 flex items-center gap-2 bg-bg-surface border border-bg-border rounded-lg px-3 py-2">
+      <span class="text-gray-500 text-[10px] uppercase font-bold">Code</span>
+      <span class="text-white font-mono font-extrabold tracking-widest text-sm flex-1">{casino.promoCode}</span>
     </div>
+  )}
 
-    <!-- CTA -->
-    <div class="mt-auto flex items-center gap-2">
-      <a
-        href={casino.affiliateUrl}
-        target="_blank"
-        rel="nofollow noopener"
-        class="btn-glow flex-1 bg-accent-green hover:bg-accent-green/80 text-white font-bold text-center py-3 rounded-xl transition-all duration-200 hover:shadow-lg hover:shadow-accent-green/20 text-sm flex items-center justify-center gap-2"
-      >
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7" /></svg>
-        Récupère ton bonus
-      </a>
-      <a
-        href={`/casinos/${casino.slug}`}
-        class="px-4 py-3 border border-bg-border text-gray-400 hover:text-white hover:border-primary/30 rounded-xl text-sm font-medium transition-all"
-      >
-        Avis
-      </a>
+  <!-- Trust badges -->
+  <div class="px-4 mb-3">
+    <div class="flex items-center gap-3 text-[10px] text-gray-500">
+      <span class="flex items-center gap-1"><span class="text-accent-green">✓</span> Retrait {casino.withdrawalTime}</span>
+      <span class="flex items-center gap-1"><span class="text-accent-green">✓</span> Vérifié</span>
+      {casino.promoCode && <span class="flex items-center gap-1"><span class="text-accent-green">✓</span> Code exclusif</span>}
     </div>
+  </div>
+
+  <!-- CTA -->
+  <div class="px-4 pb-4 mt-auto">
+    <a
+      href={casino.affiliateUrl}
+      target="_blank"
+      rel="nofollow noopener"
+      class:list={["btn-glow block text-center font-extrabold py-3.5 rounded-xl transition-all duration-200 text-sm uppercase tracking-wider", rank === 1 ? "bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-400 hover:to-yellow-500 text-black shadow-lg shadow-yellow-500/20" : "bg-gradient-to-r from-primary to-primary-light hover:from-primary-light hover:to-primary text-white shadow-lg shadow-primary/20"]}
+    >
+      🎁 Récupérer mes {offertAmount || casino.bonusAmount} →
+    </a>
   </div>
 </div>
