@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{width:420px;background:#0e1015;color:#fff;font-family:Inter,system-ui,sans-serif;font-size:11px}
+.header{background:#1a1d23;padding:10px 12px;display:flex;align-items:center;gap:8px;border-bottom:1px solid #2a2d35}
+.header .logo{color:#7c5bf5;font-size:16px}
+.header h1{font-size:13px;font-weight:800}
+.header h1 span{color:#7c5bf5}
+.tabs{display:flex;border-bottom:1px solid #2a2d35}
+.tab{flex:1;padding:8px;text-align:center;cursor:pointer;font-weight:700;font-size:11px;color:#666;background:#0e1015;border:none}
+.tab.active{color:#fff;background:#1a1d23}
+.tab:hover{color:#aaa}
+.section{display:none;padding:8px}
+.section.active{display:block}
+.legend{display:flex;gap:6px;padding:8px;flex-wrap:wrap}
+.legend span{padding:2px 6px;border-radius:4px;font-weight:700;font-size:9px}
+.leg-h{background:#16a34a;color:#fff}.leg-s{background:#dc2626;color:#fff}
+.leg-d{background:#eab308;color:#000}.leg-sp{background:#2563eb;color:#fff}
+table{width:100%;border-collapse:collapse}
+td,th{padding:3px 2px;border:1px solid #2a2d35;text-align:center;font-size:9px;font-weight:700}
+th{background:#1a1d23;color:#fff}
+.h{background:#16a34a;color:#fff}.s{background:#dc2626;color:#fff}
+.d{background:#eab308;color:#000}.sp{background:#2563eb;color:#fff}
+.input-section{padding:10px}
+.input-section label{display:block;color:#888;font-size:10px;text-transform:uppercase;margin-bottom:4px;margin-top:8px}
+.card-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:4px}
+.card-btn{background:#1a1d23;border:1px solid #2a2d35;color:#fff;padding:6px;border-radius:6px;cursor:pointer;font-weight:700;text-align:center;font-size:11px}
+.card-btn:hover{border-color:#7c5bf5}
+.card-btn.selected{background:#7c5bf5;border-color:#7c5bf5}
+.result-box{margin:10px;padding:12px;border-radius:8px;text-align:center;font-size:18px;font-weight:900;display:none}
+.result-desc{font-size:11px;font-weight:400;margin-top:4px}
+.link{display:block;text-align:center;padding:8px;color:#7c5bf5;font-size:10px;text-decoration:none}
+.link:hover{color:#9b7cff}
+/* Quiz */
+.quiz-card{width:54px;height:76px;background:#fff;border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;border:2px solid #ddd;box-shadow:0 2px 8px rgba(0,0,0,.3)}
+.quiz-card .suit{font-size:10px;color:#dc2626}
+.quiz-card .val{font-size:20px;font-weight:900;color:#dc2626}
+.quiz-btn{padding:10px 0;border-radius:10px;border:none;color:#fff;font-weight:800;font-size:12px;cursor:pointer;flex:1;transition:all .15s}
+.quiz-btn:hover{transform:scale(1.03)}
+.quiz-btn.hit{background:#16a34a}.quiz-btn.stand{background:#dc2626}
+.quiz-btn.dbl{background:#eab308;color:#000}.quiz-btn.split{background:#2563eb}
+.quiz-btn:disabled{opacity:.4;cursor:default;transform:none}
+.quiz-feedback{margin:8px 10px;padding:10px;border-radius:8px;text-align:center;display:none}
+.score-bar{display:flex;gap:12px;align-items:center;padding:8px 12px;background:#1a1d23;border-bottom:1px solid #2a2d35}
+.score-item{text-align:center}
+.score-item .label{font-size:8px;color:#666;text-transform:uppercase}
+.score-item .value{font-size:16px;font-weight:900}
+.new-btn{margin-left:auto;background:#7c5bf5;color:#fff;border:none;padding:6px 12px;border-radius:6px;font-weight:700;font-size:10px;cursor:pointer}
+.new-btn:hover{background:#9b7cff}
+</style>
+</head>
+<body>
+<div class="header">
+<span class="logo">♠</span>
+<h1>Melchior<span>Bonus</span> — Blackjack</h1>
+</div>
+
+<div class="legend">
+<span class="leg-h">H = Tirer</span>
+<span class="leg-s">S = Rester</span>
+<span class="leg-d">D = Doubler</span>
+<span class="leg-sp">SP = Split</span>
+</div>
+
+<div class="tabs">
+<div class="tab active" data-tab="quiz">🧠 Quiz</div>
+<div class="tab" data-tab="advisor">🔧 Assistant</div>
+<div class="tab" data-tab="hard">Dures</div>
+<div class="tab" data-tab="soft">Douces</div>
+<div class="tab" data-tab="pairs">Paires</div>
+</div>
+
+<!-- QUIZ -->
+<div class="section active" id="sec-quiz">
+<div class="score-bar">
+  <div class="score-item"><div class="label">Score</div><div class="value" id="q-score">0/0</div></div>
+  <div class="score-item"><div class="label">Serie</div><div class="value" style="color:#22c55e" id="q-streak">0 🔥</div></div>
+  <div class="score-item"><div class="label">%</div><div class="value" style="color:#7c5bf5" id="q-pct">0%</div></div>
+  <button class="new-btn" id="q-new">Nouvelle main</button>
+</div>
+<div style="display:flex;align-items:center;justify-content:center;gap:20px;padding:16px 0">
+  <div style="text-align:center">
+    <div style="font-size:9px;color:#666;text-transform:uppercase;margin-bottom:4px">Tes cartes</div>
+    <div style="display:flex;gap:6px;justify-content:center">
+      <div class="quiz-card"><span class="suit">♥</span><span class="val" id="qc1">7</span><span class="suit">♥</span></div>
+      <div class="quiz-card"><span class="suit">♥</span><span class="val" id="qc2">9</span><span class="suit">♥</span></div>
+    </div>
+    <div style="color:#fff;font-weight:800;margin-top:6px" id="q-total">16 pts</div>
+  </div>
+  <div style="color:#444;font-size:24px;font-weight:900">VS</div>
+  <div style="text-align:center">
+    <div style="font-size:9px;color:#666;text-transform:uppercase;margin-bottom:4px">Dealer</div>
+    <div style="display:flex;gap:6px;justify-content:center">
+      <div class="quiz-card"><span class="suit">♥</span><span class="val" id="qd">A</span><span class="suit">♥</span></div>
+    </div>
+  </div>
+</div>
+<div style="display:flex;gap:6px;padding:0 10px" id="q-btns">
+  <button class="quiz-btn hit" data-a="H">TIRER</button>
+  <button class="quiz-btn stand" data-a="S">RESTER</button>
+  <button class="quiz-btn dbl" data-a="D">DOUBLER</button>
+  <button class="quiz-btn split" data-a="P" id="q-split-btn">SPLIT</button>
+</div>
+<div class="quiz-feedback" id="q-fb"></div>
+</div>
+
+<!-- Advisor -->
+<div class="section" id="sec-advisor">
+<div class="input-section">
+<label>Ta carte 1</label>
+<div class="card-grid" id="g1"></div>
+<label>Ta carte 2</label>
+<div class="card-grid" id="g2"></div>
+<label>Carte du dealer</label>
+<div class="card-grid" id="gd"></div>
+</div>
+<div class="result-box" id="result"></div>
+</div>
+
+<!-- Tables -->
+<div class="section" id="sec-hard"></div>
+<div class="section" id="sec-soft"></div>
+<div class="section" id="sec-pairs"></div>
+
+<a href="https://melchiorbonus.vercel.app/jeux/blackjack" target="_blank" class="link">Jouer au Blackjack sur MelchiorBonus →</a>
+
+<script>
+var cards=['A','2','3','4','5','6','7','8','9','10'];
+var dIdx={'2':0,'3':1,'4':2,'5':3,'6':4,'7':5,'8':6,'9':7,'10':8,'A':9};
+var hard={'21':'SSSSSSSSSS','20':'SSSSSSSSSS','19':'SSSSSSSSSS','18':'SSSSSSSSSS','17':'SSSSSSSSSS','16':'SSSSSHHHHH','15':'SSSSSHHHHH','14':'SSSSSHHHHH','13':'SSSSSHHHHH','12':'HHSSSHHHHH','11':'DDDDDDDDDD','10':'DDDDDDDDHH','9':'HDDDDHHHHH','8':'HHHHHHHHHH','7':'HHHHHHHHHH','6':'HHHHHHHHHH','5':'HHHHHHHHHH'};
+var soft={'20':'SSSSSSSSSS','19':'SSSSDSSSSS','18':'DDDDDSSHHH','17':'HDDDDHHHHH','16':'HHDDDHHHHH','15':'HHDDDHHHHH','14':'HHHDDHHHHH','13':'HHHDDHHHHH'};
+var pairs={'A':'PPPPPPPPPP','10':'SSSSSSSSSS','9':'PPPPPSPPSS','8':'PPPPPPPPPP','7':'PPPPPPHHHHH','6':'PPPPPHHHHH','5':'DDDDDDDDHH','4':'HHHPPHHHHH','3':'PPPPPPHHHHH','2':'PPPPPPHHHHH'};
+var actionInfo={H:{l:'TIRER',c:'#16a34a'},S:{l:'RESTER',c:'#dc2626'},D:{l:'DOUBLER',c:'#eab308'},P:{l:'SEPARER',c:'#2563eb'}};
+
+function cv(v){return v==='A'?11:parseInt(v)||10}
+function getAdvice(c1,c2,d){
+  var di=dIdx[d];if(di===undefined)return'S';
+  if(c1===c2&&pairs[c1]){var a=pairs[c1][di];if(a==='P')return'P';}
+  var v1=cv(c1),v2=cv(c2),t=v1+v2;if(t>21)t-=10;
+  if((v1===11||v2===11)&&t<=21){var sk=t.toString();if(soft[sk])return soft[sk][di];}
+  var hk=t.toString();if(t>=17)hk='17';if(t<=8)hk='8';
+  if(hard[hk])return hard[hk][di];return'S';
+}
+
+// ========== QUIZ ==========
+var qCorrect=0,qTotal=0,qStreak=0,qC1,qC2,qD,qAnswer;
+
+function genQuiz(){
+  var att=0;
+  do{
+    qC1=cards[Math.floor(Math.random()*cards.length)];
+    qC2=cards[Math.floor(Math.random()*cards.length)];
+    qD=cards[Math.floor(Math.random()*cards.length)];
+    var v1=cv(qC1),v2=cv(qC2),t=v1+v2;if(t>21)t-=10;att++;
+  }while((t>=20||(qC1==='A'&&v2===10)||(qC2==='A'&&v1===10))&&att<50);
+
+  document.getElementById('qc1').textContent=qC1;
+  document.getElementById('qc2').textContent=qC2;
+  document.getElementById('qd').textContent=qD;
+  var v1=cv(qC1),v2=cv(qC2),t=v1+v2;if(t>21)t-=10;
+  document.getElementById('q-total').textContent=t+' pts';
+
+  qAnswer=getAdvice(qC1,qC2,qD);
+  document.getElementById('q-split-btn').style.display=(qC1===qC2)?'block':'none';
+
+  document.getElementById('q-fb').style.display='none';
+  document.querySelectorAll('.quiz-btn').forEach(function(b){b.disabled=false;b.style.opacity='1';b.style.boxShadow='';});
+}
+
+document.querySelectorAll('.quiz-btn').forEach(function(b){
+  b.addEventListener('click',function(){
+    var ans=b.dataset.a;qTotal++;
+    var ok=ans===qAnswer;
+    if(ok){qCorrect++;qStreak++}else{qStreak=0}
+
+    document.getElementById('q-score').textContent=qCorrect+'/'+qTotal;
+    document.getElementById('q-streak').textContent=qStreak+' 🔥';
+    document.getElementById('q-pct').textContent=Math.round(qCorrect/qTotal*100)+'%';
+
+    var fb=document.getElementById('q-fb');fb.style.display='block';
+    if(ok){
+      fb.style.background='rgba(34,197,94,.15)';fb.style.border='1px solid rgba(34,197,94,.3)';
+      fb.innerHTML='<div style="font-size:16px;font-weight:900;color:#22c55e">✅ Correct !</div><div style="font-size:10px;color:#86efac;margin-top:2px">'+actionInfo[qAnswer].l+' était la bonne réponse</div>';
+    }else{
+      fb.style.background='rgba(239,68,68,.15)';fb.style.border='1px solid rgba(239,68,68,.3)';
+      fb.innerHTML='<div style="font-size:16px;font-weight:900;color:#ef4444">❌ Faux !</div><div style="font-size:10px;color:#fca5a5;margin-top:2px">La bonne réponse : <strong>'+actionInfo[qAnswer].l+'</strong></div>';
+    }
+
+    document.querySelectorAll('.quiz-btn').forEach(function(x){x.disabled=true;x.style.opacity='.4'});
+    var correct=document.querySelector('.quiz-btn[data-a="'+qAnswer+'"]');
+    if(correct){correct.style.opacity='1';correct.style.boxShadow='0 0 12px '+(ok?'#22c55e':'#ef4444')}
+
+    setTimeout(genQuiz,1500);
+  });
+});
+
+document.getElementById('q-new').addEventListener('click',genQuiz);
+genQuiz();
+
+// ========== ADVISOR ==========
+['g1','g2','gd'].forEach(function(gid){
+  var g=document.getElementById(gid);
+  cards.forEach(function(v){
+    var b=document.createElement('div');b.className='card-btn';b.textContent=v;b.dataset.value=v;b.dataset.grid=gid;
+    b.onclick=function(){
+      g.querySelectorAll('.card-btn').forEach(function(x){x.classList.remove('selected')});
+      b.classList.add('selected');checkAdvice();
+    };
+    g.appendChild(b);
+  });
+});
+
+function checkAdvice(){
+  var s1=document.querySelector('#g1 .selected'),s2=document.querySelector('#g2 .selected'),sd=document.querySelector('#gd .selected');
+  if(!s1||!s2||!sd)return;
+  var a=getAdvice(s1.dataset.value,s2.dataset.value,sd.dataset.value);
+  var info=actionInfo[a]||actionInfo.H;
+  var r=document.getElementById('result');
+  r.style.display='block';r.style.background=info.c+'22';r.style.border='2px solid '+info.c;r.style.color=info.c;
+  r.innerHTML=info.l+'<div class="result-desc" style="color:#aaa">'+s1.dataset.value+' + '+s2.dataset.value+' vs '+sd.dataset.value+'</div>';
+}
+
+// ========== TABS ==========
+document.querySelectorAll('.tab').forEach(function(t){
+  t.onclick=function(){
+    document.querySelectorAll('.tab').forEach(function(x){x.classList.remove('active')});
+    document.querySelectorAll('.section').forEach(function(x){x.classList.remove('active')});
+    t.classList.add('active');document.getElementById('sec-'+t.dataset.tab).classList.add('active');
+  };
+});
+
+// ========== TABLES ==========
+var dh=['','2','3','4','5','6','7','8','9','10','A'];
+var hardRows=[['17-21','S','S','S','S','S','S','S','S','S','S'],['16','S','S','S','S','S','H','H','H','H','H'],['15','S','S','S','S','S','H','H','H','H','H'],['14','S','S','S','S','S','H','H','H','H','H'],['13','S','S','S','S','S','H','H','H','H','H'],['12','H','H','S','S','S','H','H','H','H','H'],['11','D','D','D','D','D','D','D','D','D','D'],['10','D','D','D','D','D','D','D','D','H','H'],['9','H','D','D','D','D','H','H','H','H','H'],['5-8','H','H','H','H','H','H','H','H','H','H']];
+var softRows=[['A,9','S','S','S','S','S','S','S','S','S','S'],['A,8','S','S','S','S','D','S','S','S','S','S'],['A,7','D','D','D','D','D','S','S','H','H','H'],['A,6','H','D','D','D','D','H','H','H','H','H'],['A,5','H','H','D','D','D','H','H','H','H','H'],['A,4','H','H','D','D','D','H','H','H','H','H'],['A,3','H','H','H','D','D','H','H','H','H','H'],['A,2','H','H','H','D','D','H','H','H','H','H']];
+var pairRows=[['A,A','SP','SP','SP','SP','SP','SP','SP','SP','SP','SP'],['10,10','S','S','S','S','S','S','S','S','S','S'],['9,9','SP','SP','SP','SP','SP','S','SP','SP','S','S'],['8,8','SP','SP','SP','SP','SP','SP','SP','SP','SP','SP'],['7,7','SP','SP','SP','SP','SP','SP','H','H','H','H'],['6,6','SP','SP','SP','SP','SP','H','H','H','H','H'],['5,5','D','D','D','D','D','D','D','D','H','H'],['4,4','H','H','H','SP','SP','H','H','H','H','H'],['3,3','SP','SP','SP','SP','SP','SP','H','H','H','H'],['2,2','SP','SP','SP','SP','SP','SP','H','H','H','H']];
+
+function buildT(id,rows){
+  var cls={S:'s',H:'h',D:'d',SP:'sp'};
+  var html='<table><tr>'+dh.map(function(h){return'<th>'+h+'</th>'}).join('')+'</tr>';
+  rows.forEach(function(r){html+='<tr>'+r.map(function(c,i){return i===0?'<th>'+c+'</th>':'<td class="'+(cls[c]||'')+'">'+c+'</td>'}).join('')+'</tr>'});
+  html+='</table>';document.getElementById(id).innerHTML=html;
+}
+buildT('sec-hard',hardRows);buildT('sec-soft',softRows);buildT('sec-pairs',pairRows);
+</script>
+</body>
+</html>

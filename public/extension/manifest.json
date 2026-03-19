@@ -1,0 +1,15 @@
+{
+  "manifest_version": 3,
+  "name": "MelchiorBonus - Quiz Blackjack",
+  "version": "1.0",
+  "description": "Quiz Blackjack interactif + Tableau de strategie par MelchiorBonus. Entraine-toi et affiche la decision optimale en temps reel.",
+  "permissions": [],
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": "icon48.png"
+  },
+  "icons": {
+    "48": "icon48.png",
+    "128": "icon128.png"
+  }
+}

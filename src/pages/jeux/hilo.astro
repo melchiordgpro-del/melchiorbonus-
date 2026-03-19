@@ -1,0 +1,338 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import AuthGate from '../../components/AuthGate.astro';
+import { casinos } from '../../data/casinos';
+---
+
+<Layout title="HiLo | MelchiorBonus" description="Joue au HiLo (Higher or Lower) sur MelchiorBonus. Style Stake.">
+  <AuthGate>
+  <section class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+    <h1 class="text-2xl font-extrabold text-white mb-4 flex items-center gap-2">📈 HiLo</h1>
+
+    <div class="flex flex-col lg:flex-row gap-0 rounded-xl overflow-hidden border border-[#2a2d35]">
+      <!-- LEFT: Controls -->
+      <div class="lg:w-64 flex-shrink-0 bg-[#1a1d23] p-5 flex flex-col gap-4">
+        <!-- Bet Amount -->
+        <div>
+          <p class="text-gray-400 text-xs mb-1.5">Mise</p>
+          <div class="flex items-center bg-[#0e1015] border border-[#2a2d35] rounded-lg overflow-hidden">
+            <input type="number" id="bet-input" value="10" min="1" class="flex-1 bg-transparent text-white font-bold text-sm px-3 py-2.5 outline-none w-20" />
+            <button id="bet-half" class="text-gray-500 hover:text-white font-bold text-xs px-2.5 py-2.5 border-l border-[#2a2d35] transition-colors cursor-pointer">½</button>
+            <button id="bet-double" class="text-gray-500 hover:text-white font-bold text-xs px-2.5 py-2.5 border-l border-[#2a2d35] transition-colors cursor-pointer">2×</button>
+          </div>
+        </div>
+
+        <!-- Current Game Info -->
+        <div id="game-info" class="hidden">
+          <div class="bg-[#0e1015] border border-[#2a2d35] rounded-lg p-3 space-y-2">
+            <div class="flex items-center justify-between">
+              <span class="text-gray-400 text-xs">Multiplicateur</span>
+              <span class="text-[#00e701] font-bold text-sm" id="multiplier-display">1.00x</span>
+            </div>
+            <div class="flex items-center justify-between">
+              <span class="text-gray-400 text-xs">Streak</span>
+              <span class="text-primary-light font-bold text-sm" id="streak-display">0</span>
+            </div>
+            <div class="flex items-center justify-between">
+              <span class="text-gray-400 text-xs">Gain potentiel</span>
+              <span class="text-gold font-bold text-sm" id="potential-win">0 Ⓜ</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Parier Button -->
+        <button id="btn-start" class="bg-[#00e701] hover:bg-[#00c801] text-black font-bold py-3 rounded-lg transition-all text-sm w-full cursor-pointer">
+          Parier
+        </button>
+
+        <!-- Higher / Lower buttons (hidden until game starts) -->
+        <div id="guess-buttons" class="hidden space-y-2">
+          <button id="btn-higher" class="w-full bg-[#00e701] hover:bg-[#00c801] text-black font-bold py-3 rounded-lg transition-all text-sm cursor-pointer flex items-center justify-between px-4">
+            <span class="flex items-center gap-2">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 15l7-7 7 7"/></svg>
+              Plus haut
+            </span>
+            <span id="prob-higher" class="bg-black/20 px-2 py-0.5 rounded text-xs font-extrabold">—</span>
+          </button>
+          <button id="btn-lower" class="w-full bg-[#ff003f] hover:bg-[#d9002e] text-white font-bold py-3 rounded-lg transition-all text-sm cursor-pointer flex items-center justify-between px-4">
+            <span class="flex items-center gap-2">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+              Plus bas
+            </span>
+            <span id="prob-lower" class="bg-black/20 px-2 py-0.5 rounded text-xs font-extrabold">—</span>
+          </button>
+          <div id="prob-equal" class="text-center text-gray-500 text-[10px]"></div>
+          <button id="btn-cashout" class="w-full bg-gold/20 border border-gold/30 text-gold font-bold py-2.5 rounded-lg text-xs uppercase tracking-wider hover:bg-gold/30 transition-all cursor-pointer">
+            💰 Encaisser
+          </button>
+        </div>
+
+        <!-- Jouer en argent réel -->
+        <div class="relative group">
+          <button class="w-full btn-glow bg-accent-green/20 border border-accent-green/30 text-accent-green font-bold py-2.5 rounded-lg text-xs uppercase tracking-wider hover:bg-accent-green/30 transition-all">
+            💰 Jouer en argent réel
+          </button>
+          <div class="absolute bottom-full left-0 mb-2 w-full bg-[#1a1d23] border border-[#2a2d35] rounded-lg shadow-2xl shadow-black/50 z-50 py-1 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
+            {casinos.map((casino, i) => (
+              <a href={casino.affiliateUrl} target="_blank" rel="nofollow noopener" class="flex items-center gap-2 px-3 py-2 hover:bg-[#2a2d35] transition-colors">
+                <span class="text-primary font-bold text-[10px]">#{i+1}</span>
+                <span class="text-sm">{casino.logo}</span>
+                <div class="flex-1 min-w-0">
+                  <p class="text-white font-bold text-[10px] truncate">{casino.name}</p>
+                  <p class="text-gray-500 text-[8px] truncate">{casino.bonusAmount}</p>
+                </div>
+              </a>
+            ))}
+          </div>
+        </div>
+
+        <!-- Balance -->
+        <div class="border-t border-[#2a2d35] pt-3 mt-auto">
+          <div class="flex items-center justify-between text-sm">
+            <span class="text-gray-500 text-xs">Solde</span>
+            <span class="text-white font-bold" id="balance">1000 Ⓜ</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT: Game Area -->
+      <div class="flex-1 bg-[#0e1015] flex flex-col items-center justify-center min-h-[500px] p-8 relative">
+        <!-- Card History -->
+        <div id="card-history" class="flex items-center gap-2 mb-8 flex-wrap justify-center"></div>
+
+        <!-- Current Card -->
+        <div id="card-container" class="relative">
+          <div id="current-card" class="w-40 h-56 bg-gradient-to-br from-[#2a2d35] to-[#1a1d23] border-2 border-[#3a3d45] rounded-2xl flex flex-col items-center justify-center text-6xl font-bold shadow-2xl transition-all duration-500 select-none">
+            <span id="card-suit" class="text-3xl mb-1"></span>
+            <span id="card-value" class="text-white"></span>
+          </div>
+        </div>
+
+        <!-- Next Card (hidden, for animation) -->
+        <div id="next-card" class="w-40 h-56 bg-gradient-to-br from-[#2a2d35] to-[#1a1d23] border-2 border-[#3a3d45] rounded-2xl flex flex-col items-center justify-center text-6xl font-bold shadow-2xl absolute opacity-0 transition-all duration-500 select-none" style="transform: translateX(200px) scale(0.8);">
+          <span id="next-card-suit" class="text-3xl mb-1"></span>
+          <span id="next-card-value" class="text-white"></span>
+        </div>
+
+        <!-- Result Message -->
+        <div id="result" class="mt-6 text-center min-h-[40px] flex items-center justify-center"></div>
+
+        <!-- Start prompt -->
+        <div id="start-prompt" class="text-gray-500 text-sm mt-4">Place ta mise et clique sur Parier pour commencer</div>
+      </div>
+    </div>
+  </section>
+  </AuthGate>
+
+  <script is:inline>
+    // Balance
+    function getBalance() { return parseInt(localStorage.getItem('melchior_coins') || '1000'); }
+    function setBalance(v) { localStorage.setItem('melchior_coins', Math.round(v).toString()); }
+    var balance = getBalance();
+    var currentBet = 10;
+
+    // Audio
+    var audioCtx = null;
+    function playSound(freq, dur, type) {
+      try {
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        var osc = audioCtx.createOscillator();
+        var gain = audioCtx.createGain();
+        osc.connect(gain); gain.connect(audioCtx.destination);
+        osc.type = type || 'sine';
+        osc.frequency.value = freq;
+        gain.gain.value = 0.08;
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + (dur || 0.2));
+        osc.start(audioCtx.currentTime);
+        osc.stop(audioCtx.currentTime + (dur || 0.2));
+      } catch(e) {}
+    }
+    function playWinSound() { playSound(800, 0.15); setTimeout(function(){playSound(1000, 0.15);}, 100); setTimeout(function(){playSound(1200, 0.2);}, 200); }
+    function playLoseSound() { playSound(300, 0.3, 'sawtooth'); setTimeout(function(){playSound(200, 0.4, 'sawtooth');}, 150); }
+    function playCardSound() { playSound(600, 0.08); }
+    function playCashoutSound() { [0,80,160,240].forEach(function(d,i){ setTimeout(function(){ playSound(600+i*150, 0.15); }, d); }); }
+
+    // Card deck
+    var SUITS = ['♠','♥','♦','♣'];
+    var SUIT_COLORS = {'♠':'#fff','♥':'#ff003f','♦':'#ff003f','♣':'#fff'};
+    var VALUES = ['A','2','3','4','5','6','7','8','9','10','J','Q','K'];
+    var VALUE_NUMS = {'A':1,'2':2,'3':3,'4':4,'5':5,'6':6,'7':7,'8':8,'9':9,'10':10,'J':11,'Q':12,'K':13};
+
+    function randomCard() {
+      return { suit: SUITS[Math.floor(Math.random()*4)], value: VALUES[Math.floor(Math.random()*13)] };
+    }
+
+    // Game state
+    var gameActive = false;
+    var currentCard = null;
+    var multiplier = 1.0;
+    var streak = 0;
+    var betAmount = 0;
+
+    function updateBalance() {
+      balance = getBalance();
+      document.getElementById('balance').textContent = balance + ' Ⓜ';
+    }
+    updateBalance();
+
+    function displayCard(card, elSuit, elValue) {
+      elSuit.textContent = card.suit;
+      elSuit.style.color = SUIT_COLORS[card.suit];
+      elValue.textContent = card.value;
+      elValue.style.color = SUIT_COLORS[card.suit];
+    }
+
+    function updateGameInfo() {
+      document.getElementById('multiplier-display').textContent = multiplier.toFixed(2) + 'x';
+      document.getElementById('streak-display').textContent = streak;
+      document.getElementById('potential-win').textContent = Math.round(betAmount * multiplier) + ' Ⓜ';
+      updateProbabilities();
+    }
+
+    function updateProbabilities() {
+      if (!currentCard) return;
+      var cv = VALUE_NUMS[currentCard.value]; // 1(A) to 13(K)
+      var higher = (13 - cv) / 13;
+      var lower = (cv - 1) / 13;
+      var equal = 1 / 13;
+      document.getElementById('prob-higher').textContent = Math.round(higher * 100) + '%';
+      document.getElementById('prob-lower').textContent = Math.round(lower * 100) + '%';
+      document.getElementById('prob-equal').textContent = 'Égalité: ' + Math.round(equal * 100) + '% (= gagné)';
+    }
+
+    // Bet controls
+    document.getElementById('bet-input').addEventListener('change', function() {
+      currentBet = Math.max(1, parseInt(this.value) || 10);
+      this.value = currentBet;
+    });
+    document.getElementById('bet-half').addEventListener('click', function() {
+      currentBet = Math.max(1, Math.floor(currentBet / 2));
+      document.getElementById('bet-input').value = currentBet;
+    });
+    document.getElementById('bet-double').addEventListener('click', function() {
+      currentBet = Math.min(balance, currentBet * 2);
+      document.getElementById('bet-input').value = currentBet;
+    });
+
+    // Start game
+    document.getElementById('btn-start').addEventListener('click', function() {
+      if (gameActive) return;
+      currentBet = parseInt(document.getElementById('bet-input').value) || 10;
+      if (balance < currentBet) return;
+
+      balance -= currentBet;
+      setBalance(balance);
+      updateBalance();
+      betAmount = currentBet;
+
+      currentCard = randomCard();
+      multiplier = 1.0;
+      streak = 0;
+      gameActive = true;
+
+      displayCard(currentCard, document.getElementById('card-suit'), document.getElementById('card-value'));
+      document.getElementById('current-card').style.borderColor = '#3a3d45';
+
+      document.getElementById('game-info').classList.remove('hidden');
+      document.getElementById('guess-buttons').classList.remove('hidden');
+      document.getElementById('btn-start').classList.add('hidden');
+      document.getElementById('start-prompt').classList.add('hidden');
+      document.getElementById('result').innerHTML = '';
+      document.getElementById('card-history').innerHTML = '';
+      updateGameInfo();
+      playCardSound();
+    });
+
+    function addToHistory(card, correct) {
+      var el = document.createElement('div');
+      el.className = 'w-10 h-14 rounded-lg flex flex-col items-center justify-center text-xs font-bold border transition-all duration-300';
+      el.style.background = '#1a1d23';
+      el.style.borderColor = correct ? '#00e701' : '#ff003f';
+      el.innerHTML = '<span style="color:' + SUIT_COLORS[card.suit] + ';font-size:8px;">' + card.suit + '</span><span style="color:' + SUIT_COLORS[card.suit] + '">' + card.value + '</span>';
+      document.getElementById('card-history').appendChild(el);
+    }
+
+    function makeGuess(guessHigher) {
+      if (!gameActive) return;
+
+      var nextCard = randomCard();
+      // Avoid same value for more excitement (re-roll once)
+      if (VALUE_NUMS[nextCard.value] === VALUE_NUMS[currentCard.value]) nextCard = randomCard();
+
+      var currVal = VALUE_NUMS[currentCard.value];
+      var nextVal = VALUE_NUMS[nextCard.value];
+      var correct = false;
+
+      if (nextVal === currVal) {
+        correct = true; // tie counts as win
+      } else if (guessHigher && nextVal > currVal) {
+        correct = true;
+      } else if (!guessHigher && nextVal < currVal) {
+        correct = true;
+      }
+
+      // Animate card reveal
+      var nextCardEl = document.getElementById('next-card');
+      displayCard(nextCard, document.getElementById('next-card-suit'), document.getElementById('next-card-value'));
+      nextCardEl.style.opacity = '1';
+      nextCardEl.style.transform = 'translateX(0) scale(1)';
+
+      // Disable buttons during animation
+      document.getElementById('btn-higher').disabled = true;
+      document.getElementById('btn-lower').disabled = true;
+
+      setTimeout(function() {
+        addToHistory(currentCard, correct);
+        currentCard = nextCard;
+        displayCard(currentCard, document.getElementById('card-suit'), document.getElementById('card-value'));
+
+        nextCardEl.style.opacity = '0';
+        nextCardEl.style.transform = 'translateX(200px) scale(0.8)';
+
+        if (correct) {
+          streak++;
+          // Multiplier calculation: roughly based on probability
+          var prob = guessHigher ? (13 - currVal) / 13 : (currVal - 1) / 13;
+          if (prob <= 0) prob = 1/13;
+          var stepMulti = Math.max(1.05, 0.95 / prob);
+          multiplier = Math.round(multiplier * stepMulti * 100) / 100;
+          updateGameInfo();
+          playWinSound();
+          document.getElementById('current-card').style.borderColor = '#00e701';
+          document.getElementById('result').innerHTML = '<span class="text-[#00e701] font-bold">✓ Correct ! ' + multiplier.toFixed(2) + 'x</span>';
+        } else {
+          gameActive = false;
+          playLoseSound();
+          document.getElementById('current-card').style.borderColor = '#ff003f';
+          document.getElementById('result').innerHTML = '<span class="text-[#ff003f] font-bold">✗ Perdu ! La carte était ' + nextCard.value + nextCard.suit + '</span>';
+          endGame(false);
+        }
+
+        document.getElementById('btn-higher').disabled = false;
+        document.getElementById('btn-lower').disabled = false;
+      }, 400);
+    }
+
+    document.getElementById('btn-higher').addEventListener('click', function() { makeGuess(true); });
+    document.getElementById('btn-lower').addEventListener('click', function() { makeGuess(false); });
+
+    // Cashout
+    document.getElementById('btn-cashout').addEventListener('click', function() {
+      if (!gameActive) return;
+      var winnings = Math.round(betAmount * multiplier);
+      balance += winnings;
+      setBalance(balance);
+      updateBalance();
+      playCashoutSound();
+      document.getElementById('result').innerHTML = '<span class="text-gold font-extrabold text-lg">💰 Encaissé ' + winnings + ' Ⓜ (' + multiplier.toFixed(2) + 'x)</span>';
+      endGame(true);
+    });
+
+    function endGame(won) {
+      gameActive = false;
+      document.getElementById('guess-buttons').classList.add('hidden');
+      document.getElementById('btn-start').classList.remove('hidden');
+      document.getElementById('btn-start').textContent = 'Parier';
+    }
+  </script>
+</Layout>
