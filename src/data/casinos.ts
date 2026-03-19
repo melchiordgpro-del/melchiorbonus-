@@ -98,6 +98,7 @@ export const casinos: Casino[] = [
     featured: true,
     tags: ["Wager Free", "Carte Bancaire"],
     discordBonus: "25€ gratuit sur Discord",
+    maxBet: "5€",
   },
   {
     slug: "betify",
