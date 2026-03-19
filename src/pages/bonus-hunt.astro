@@ -21,6 +21,26 @@ import { casinos } from '../data/casinos';
 
     <AuthGate>
       <!-- Hunt Controls -->
+      <!-- Jouer sur un site partenaire -->
+      <div class="relative group inline-block mb-4">
+        <button class="btn-glow bg-accent-green hover:bg-accent-green/80 text-white font-bold text-sm px-6 py-3 rounded-xl transition-all flex items-center gap-2">
+          🎰 Jouer le Bonus Hunt sur un site partenaire
+          <svg class="w-3.5 h-3.5 group-hover:rotate-180 transition-transform" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" /></svg>
+        </button>
+        <div class="hidden group-hover:block absolute top-full left-0 mt-1 w-72 bg-[#1a1d23] border border-[#2a2d35] rounded-xl shadow-2xl shadow-black/50 z-50 py-2">
+          {casinos.map((casino, i) => (
+            <a href={casino.affiliateUrl} target="_blank" rel="nofollow noopener" class="flex items-center gap-3 px-4 py-3 hover:bg-[#2a2d35] transition-colors">
+              <span class="text-xl">{casino.logo}</span>
+              <div class="flex-1 min-w-0">
+                <p class="text-white font-bold text-sm">{casino.name}</p>
+                <p class="text-gray-500 text-[10px] truncate">{casino.bonusAmount}</p>
+              </div>
+              <span class="text-accent-green text-xs font-bold">Jouer →</span>
+            </a>
+          ))}
+        </div>
+      </div>
+
       <div class="flex flex-wrap items-center gap-3 mb-6">
         <button id="new-hunt-btn" class="bg-primary hover:bg-primary-light text-white font-bold text-sm px-5 py-2.5 rounded-lg transition-all">
           + Nouveau Bonus Hunt
