@@ -14,14 +14,14 @@ import AuthGate from '../../components/AuthGate.astro';
         <!-- Balance -->
         <div>
           <p class="text-gray-500 text-[10px] uppercase tracking-wider mb-1">Solde</p>
-          <p class="text-gold font-extrabold text-2xl" id="balance">1000€</p>
+          <p class="text-gold font-extrabold text-2xl" id="balance">1000 Ⓜ</p>
         </div>
         <div class="border-t border-bg-border"></div>
 
         <!-- Mise -->
         <div>
           <p class="text-gray-500 text-[10px] uppercase tracking-wider mb-1">Mise actuelle</p>
-          <p class="text-primary-light font-extrabold text-xl" id="current-bet-display">10€</p>
+          <p class="text-primary-light font-extrabold text-xl" id="current-bet-display">10 Ⓜ</p>
         </div>
 
         <!-- Chips -->
@@ -107,7 +107,7 @@ import AuthGate from '../../components/AuthGate.astro';
               <div class="flex items-center justify-center mt-3">
                 <div id="bet-zone" class="w-16 h-16 rounded-full border-2 border-white/30 bg-black/20 flex flex-col items-center justify-center transition-all" ondragover="event.preventDefault()" ondrop="handleDrop(event)">
                   <div id="bet-chips-display"></div>
-                  <p id="bet-zone-amount" class="text-gold font-extrabold text-xs">0€</p>
+                  <p id="bet-zone-amount" class="text-gold font-extrabold text-xs">0 Ⓜ</p>
                 </div>
               </div>
             </div>
@@ -192,9 +192,9 @@ import AuthGate from '../../components/AuthGate.astro';
       document.getElementById('dealer-score-badge').classList.remove('hidden');
     }
     function updateBalance() {
-      document.getElementById('balance').textContent = balance+'€';
-      document.getElementById('current-bet-display').textContent = currentBet+'€';
-      document.getElementById('bet-zone-amount').textContent = currentBet+'€';
+      document.getElementById('balance').textContent = balance+' Ⓜ';
+      document.getElementById('current-bet-display').textContent = currentBet+' Ⓜ';
+      document.getElementById('bet-zone-amount').textContent = currentBet+' Ⓜ';
       document.getElementById('wins').textContent = wins;
     }
     function showResult(text, type) {
@@ -339,7 +339,7 @@ import AuthGate from '../../components/AuthGate.astro';
         lastBet = currentBet;
         currentBet = 0;
         showPhase('bet');
-        document.getElementById('btn-rebet').textContent = '♻ Remiser (' + lastBet + '€)';
+        document.getElementById('btn-rebet').textContent = '♻ Remiser (' + lastBet + ' Ⓜ)';
         updateBalance(); updateBetZone();
       }, delay);
     }
@@ -425,7 +425,7 @@ import AuthGate from '../../components/AuthGate.astro';
       function resolve() {
         var ps=handValue(playerHand), ds=handValue(dealerHand);
         if (ds>21) endHand('Dealer BUST ! Tu gagnes ! 🎉','win',currentBet*2);
-        else if (ps>ds) endHand('Tu gagnes ! +'+currentBet+'€','win',currentBet*2);
+        else if (ps>ds) endHand('Tu gagnes ! +'+currentBet+' Ⓜ','win',currentBet*2);
         else if (ps===ds) endHand('PUSH — Égalité','push',currentBet);
         else endHand('Perdu !','lose',0);
       }

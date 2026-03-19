@@ -13,12 +13,12 @@ import AuthGate from '../../components/AuthGate.astro';
       <div class="lg:w-72 flex-shrink-0 bg-bg-card border border-bg-border rounded-2xl p-5 flex flex-col gap-4">
         <div>
           <p class="text-gray-500 text-[10px] uppercase tracking-wider mb-1">Solde</p>
-          <p class="text-gold font-extrabold text-2xl" id="balance">1000€</p>
+          <p class="text-gold font-extrabold text-2xl" id="balance">1000 Ⓜ</p>
         </div>
         <div class="border-t border-bg-border"></div>
         <div>
           <p class="text-gray-500 text-[10px] uppercase tracking-wider mb-1">Mise</p>
-          <p class="text-primary-light font-extrabold text-xl" id="current-bet-display">10€</p>
+          <p class="text-primary-light font-extrabold text-xl" id="current-bet-display">10 Ⓜ</p>
         </div>
 
         <div>
@@ -194,7 +194,7 @@ import AuthGate from '../../components/AuthGate.astro';
         currentBet = parseInt(c.dataset.bet);
         document.querySelectorAll('.chip').forEach(function(b) { b.classList.remove('ring-2', 'ring-primary'); });
         c.classList.add('ring-2', 'ring-primary');
-        document.getElementById('current-bet-display').textContent = currentBet + '€';
+        document.getElementById('current-bet-display').textContent = currentBet + ' Ⓜ';
       });
     });
 
@@ -212,7 +212,7 @@ import AuthGate from '../../components/AuthGate.astro';
       if (spinning || balance < currentBet) return;
       spinning = true;
       balance -= currentBet;
-      document.getElementById('balance').textContent = balance + '€';
+      document.getElementById('balance').textContent = balance + ' Ⓜ';
       document.getElementById('result').innerHTML = '';
       document.getElementById('last-number').classList.add('hidden');
 
@@ -280,11 +280,11 @@ import AuthGate from '../../components/AuthGate.astro';
         balance += currentBet * 2;
         var mc = parseInt(localStorage.getItem('melchior_coins') || '0') + 3;
         localStorage.setItem('melchior_coins', mc.toString());
-        resEl.innerHTML = '<div class="bg-gradient-to-r from-green-500 to-green-600 text-white font-extrabold text-lg px-8 py-3 rounded-2xl shadow-xl animate-bounce">Gagné ! +' + currentBet + '€ <span class="text-sm">+3⭐</span></div>';
+        resEl.innerHTML = '<div class="bg-gradient-to-r from-green-500 to-green-600 text-white font-extrabold text-lg px-8 py-3 rounded-2xl shadow-xl animate-bounce">Gagné ! +' + currentBet + ' Ⓜ <span class="text-sm">+3⭐</span></div>';
       } else {
         resEl.innerHTML = '<div class="bg-gradient-to-r from-red-500 to-red-600 text-white font-extrabold text-lg px-8 py-3 rounded-2xl shadow-xl">Perdu !</div>';
       }
-      document.getElementById('balance').textContent = balance + '€';
+      document.getElementById('balance').textContent = balance + ' Ⓜ';
 
       // History
       historyArr.unshift(num);
