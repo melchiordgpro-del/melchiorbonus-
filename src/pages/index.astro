@@ -138,6 +138,7 @@ const topCasinos = casinos.slice(0, 5);
         name: 'Hugo Bets',
         logo: '🔥',
         offert: 25,
+        minDepositOffert: 25,
         deposits: [
           { pct: 100, max: 300, fs: 50 },
           { pct: 100, max: 350, fs: 50 },
@@ -151,6 +152,7 @@ const topCasinos = casinos.slice(0, 5);
         name: 'Grandz Bet',
         logo: '🎰',
         offert: 25,
+        minDepositOffert: 25,
         deposits: [
           { pct: 150, max: 1500, fs: 0 }
         ],
@@ -162,6 +164,7 @@ const topCasinos = casinos.slice(0, 5);
         name: 'Betify',
         logo: '⚡',
         offert: 30,
+        minDepositOffert: 30,
         deposits: [
           { pct: 100, max: 1000, fs: 0 }
         ],
@@ -177,6 +180,7 @@ const topCasinos = casinos.slice(0, 5);
         name: 'ShinyWilds',
         logo: '✨',
         offert: 25,
+        minDepositOffert: 25,
         deposits: [
           { pct: 100, max: 150, fs: 0 }
         ],
@@ -188,6 +192,7 @@ const topCasinos = casinos.slice(0, 5);
         name: 'Vibe Bet',
         logo: '🎯',
         offert: 25,
+        minDepositOffert: 25,
         deposits: [
           { pct: 150, max: 1500, fs: 0 }
         ],
@@ -225,7 +230,9 @@ const topCasinos = casinos.slice(0, 5);
           }
         });
 
-        var total = deposit + totalBonus + c.offert;
+        var offertEligible = deposit >= (c.minDepositOffert || 25);
+        var offertAmount = offertEligible ? c.offert : 0;
+        var total = deposit + totalBonus + offertAmount;
         var wagerColor = c.wager === 'FREE' ? '#22c55e' : '#eab308';
         var wagerText = c.wager === 'FREE' ? '✅ Wager FREE' : '⚡ Wager ' + c.wager;
         var bonusPct = c.deposits[0].pct + '%';
@@ -260,7 +267,12 @@ const topCasinos = casinos.slice(0, 5);
         }
         html += '</div>';
         html += '<div class="mt-2 pt-2 border-t border-dashed border-[#2a2d35]">';
-        html += '<div class="flex justify-between text-xs"><span class="text-[#5865F2]">🎁 Offert via Discord (hors bonus)</span><span class="text-[#5865F2] font-bold">+' + c.offert + '€</span></div>';
+        if (offertEligible) {
+          html += '<div class="flex justify-between text-xs"><span class="text-[#5865F2]">🎁 Offert via Discord (hors bonus)</span><span class="text-[#5865F2] font-bold">+' + c.offert + '€</span></div>';
+        } else {
+          html += '<div class="flex justify-between text-xs"><span class="text-gray-600">🎁 Offert via Discord</span><span class="text-gray-600 font-bold line-through">+' + c.offert + '€</span></div>';
+          html += '<p class="text-red-400 text-[10px] mt-1">⚠️ Dépôt min. ' + c.minDepositOffert + '€ requis pour débloquer les ' + c.offert + '€ offerts</p>';
+        }
         html += '</div>';
 
         if (details.length > 0) {
