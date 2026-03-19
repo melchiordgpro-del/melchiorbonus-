@@ -1,0 +1,162 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { casinos } from '../../data/casinos';
+import type { Casino } from '../../data/casinos';
+
+export function getStaticPaths() {
+  return casinos.map((casino) => ({
+    params: { slug: casino.slug },
+    props: { casino },
+  }));
+}
+
+interface Props {
+  casino: Casino;
+}
+
+const { casino } = Astro.props;
+const rank = casinos.findIndex(c => c.slug === casino.slug) + 1;
+
+function renderStars(rating: number): string {
+  const full = Math.floor(rating);
+  const half = rating % 1 >= 0.5 ? 1 : 0;
+  const empty = 5 - full - half;
+  return '★'.repeat(full) + (half ? '½' : '') + '☆'.repeat(empty);
+}
+---
+
+<Layout title={`${casino.name} — Avis Complet 2026 | MelchiorBonus`} description={`Avis détaillé sur ${casino.name}. ${casino.bonusAmount} de bonus. Note : ${casino.rating}/5.`}>
+  <article class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <nav class="flex items-center gap-2 text-sm text-gray-500 mb-8">
+      <a href="/" class="hover:text-primary">Accueil</a>
+      <span>/</span>
+      <a href="/casinos" class="hover:text-primary">Casinos</a>
+      <span>/</span>
+      <span class="text-gray-300">{casino.name}</span>
+    </nav>
+
+    <!-- Banner Image -->
+    <div class="rounded-2xl overflow-hidden mb-8">
+      <img src={casino.bannerImage} alt={`Bonus ${casino.name}`} class="w-full h-auto object-cover" />
+    </div>
+
+    <!-- Header -->
+    <div class="bg-bg-card border border-bg-border rounded-2xl p-6 sm:p-8 mb-8">
+      <div class="flex flex-col sm:flex-row items-start gap-6">
+        <div class="flex items-center gap-4">
+          <span class="text-5xl">{casino.logo}</span>
+          <div>
+            <div class="flex items-center gap-2 mb-1">
+              <span class="bg-primary/10 text-primary text-xs font-bold px-2 py-0.5 rounded">#{rank}</span>
+              {casino.featured && <span class="bg-accent-green/10 text-accent-green text-xs font-bold px-2 py-0.5 rounded">Recommandé</span>}
+            </div>
+            <h1 class="text-3xl font-extrabold text-white">{casino.name}</h1>
+            <div class="flex items-center gap-2 mt-1">
+              <span class="text-primary-light">{renderStars(casino.rating)}</span>
+              <span class="text-white font-bold">{casino.rating}/5</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="sm:ml-auto">
+          <a href={casino.affiliateUrl} target="_blank" rel="nofollow noopener"
+            class="inline-flex bg-primary hover:bg-primary-light text-white font-bold text-lg px-8 py-3.5 rounded-xl transition-all duration-200 hover:shadow-xl hover:shadow-primary/20">
+            Récupérer le bonus
+          </a>
+        </div>
+      </div>
+
+      <div class="mt-6 bg-primary/5 border border-primary/10 rounded-xl p-5">
+        <p class="text-primary-light text-xs font-semibold uppercase tracking-wider mb-1">{casino.bonusTitle}</p>
+        <p class="text-white font-extrabold text-2xl">{casino.bonusAmount}</p>
+        <p class="text-gray-400 text-sm mt-2">{casino.bonusDescription}</p>
+      </div>
+    </div>
+
+    {casino.promoCode && (
+      <div class="bg-primary/5 border border-primary/20 rounded-xl p-4 mb-8 flex flex-col sm:flex-row items-center gap-3 justify-center">
+        <span class="text-primary font-bold text-sm">CODE PROMO À UTILISER À L'INSCRIPTION :</span>
+        <span class="text-white font-mono font-extrabold text-lg bg-bg-surface px-4 py-1 rounded-lg">{casino.promoCode}</span>
+      </div>
+    )}
+
+    <div class="grid grid-cols-2 sm:grid-cols-5 gap-4 mb-8">
+      <div class="bg-bg-card border border-bg-border rounded-xl p-4 text-center">
+        <p class="text-gray-500 text-xs mb-1">Wager</p>
+        <p class:list={["font-bold text-lg", casino.wager.includes("FREE") ? "text-accent-green" : "text-white"]}>{casino.wager}</p>
+      </div>
+      <div class="bg-bg-card border border-bg-border rounded-xl p-4 text-center">
+        <p class="text-gray-500 text-xs mb-1">Jeux</p>
+        <p class="text-white font-bold text-lg">{casino.games}+</p>
+      </div>
+      <div class="bg-bg-card border border-bg-border rounded-xl p-4 text-center">
+        <p class="text-gray-500 text-xs mb-1">Retrait</p>
+        <p class="text-white font-bold text-lg">{casino.withdrawalTime}</p>
+      </div>
+      <div class="bg-bg-card border border-bg-border rounded-xl p-4 text-center">
+        <p class="text-gray-500 text-xs mb-1">Dépôt min.</p>
+        <p class="text-white font-bold text-lg">{casino.minDeposit}</p>
+      </div>
+      <div class="bg-bg-card border border-bg-border rounded-xl p-4 text-center">
+        <p class="text-gray-500 text-xs mb-1">Licence</p>
+        <p class="text-white font-bold text-sm">{casino.license}</p>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8">
+      <div class="bg-bg-card border border-bg-border rounded-xl p-6">
+        <h2 class="text-white font-bold text-lg mb-4 flex items-center gap-2">
+          <span class="text-accent-green">✓</span> Points Forts
+        </h2>
+        <ul class="space-y-3">
+          {casino.pros.map((pro) => (
+            <li class="flex items-start gap-3 text-gray-300 text-sm">
+              <span class="text-accent-green mt-0.5 flex-shrink-0">✓</span>
+              <span>{pro}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+      <div class="bg-bg-card border border-bg-border rounded-xl p-6">
+        <h2 class="text-white font-bold text-lg mb-4 flex items-center gap-2">
+          <span class="text-accent-red">✗</span> Points Faibles
+        </h2>
+        <ul class="space-y-3">
+          {casino.cons.map((con) => (
+            <li class="flex items-start gap-3 text-gray-300 text-sm">
+              <span class="text-accent-red mt-0.5 flex-shrink-0">✗</span>
+              <span>{con}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
+
+    <div class="bg-bg-card border border-bg-border rounded-xl p-6 mb-8">
+      <h2 class="text-white font-bold text-lg mb-4">Méthodes de Paiement</h2>
+      <div class="flex flex-wrap gap-2">
+        {casino.paymentMethods.map((method) => (
+          <span class="bg-bg-surface text-gray-300 text-sm px-4 py-2 rounded-lg border border-bg-border">{method}</span>
+        ))}
+      </div>
+    </div>
+
+    <div class="bg-bg-card border border-bg-border rounded-xl p-6 mb-8">
+      <h2 class="text-white font-bold text-lg mb-4">Fournisseurs de Jeux</h2>
+      <div class="flex flex-wrap gap-2">
+        {casino.providers.map((provider) => (
+          <span class="bg-bg-surface text-gray-300 text-sm px-4 py-2 rounded-lg border border-bg-border">{provider}</span>
+        ))}
+      </div>
+    </div>
+
+    <div class="bg-gradient-to-r from-primary/10 via-primary/5 to-primary/10 border border-primary/20 rounded-2xl p-8 text-center">
+      <h2 class="text-2xl font-extrabold text-white mb-3">Prêt à essayer {casino.name} ?</h2>
+      <p class="text-gray-400 mb-6">Profitez de {casino.bonusAmount} avec notre lien exclusif.</p>
+      <a href={casino.affiliateUrl} target="_blank" rel="nofollow noopener"
+        class="inline-flex bg-primary hover:bg-primary-light text-white font-bold text-lg px-10 py-4 rounded-xl transition-all duration-200 hover:shadow-xl hover:shadow-primary/20">
+        Récupérer le bonus →
+      </a>
+    </div>
+  </article>
+</Layout>

@@ -1,0 +1,160 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+import { slots } from '../../../data/slots';
+import { casinos } from '../../../data/casinos';
+
+export function getStaticPaths() {
+  return slots.map((slot) => ({
+    params: { slug: slot.slug },
+    props: { slot },
+  }));
+}
+
+const { slot } = Astro.props;
+---
+
+<Layout title={`${slot.name} — Jouer en démo gratuit | MelchiorBonus`} description={`Joue à ${slot.name} de ${slot.provider} gratuitement en mode démo. RTP: ${slot.rtp}, Gain Max: ${slot.maxWin}.`}>
+  <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Breadcrumb -->
+    <nav class="flex items-center gap-2 text-sm text-gray-500 mb-6">
+      <a href="/" class="hover:text-primary">Accueil</a>
+      <span>/</span>
+      <a href="/jeux/slots" class="hover:text-primary">Slots</a>
+      <span>/</span>
+      <span class="text-gray-300">{slot.name}</span>
+    </nav>
+
+    <!-- Header compact -->
+    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-4">
+      <div>
+        <h1 class="text-2xl font-extrabold text-white">{slot.name}</h1>
+        <p class="text-gray-400 text-sm">par <a href="/jeux/slots" class="text-primary hover:text-primary-light font-medium">{slot.provider}</a></p>
+      </div>
+      <div class="flex items-center gap-3 flex-wrap">
+        <div class="bg-bg-card border border-bg-border rounded-lg px-3 py-1.5">
+          <span class="text-gray-500 text-xs">RTP </span><span class="text-accent-green font-bold text-sm">{slot.rtp}</span>
+        </div>
+        <div class="bg-bg-card border border-bg-border rounded-lg px-3 py-1.5">
+          <span class="text-gray-500 text-xs">Vol. </span><span class="text-gold font-bold text-sm">{slot.volatility}</span>
+        </div>
+        <div class="bg-bg-card border border-bg-border rounded-lg px-3 py-1.5">
+          <span class="text-gray-500 text-xs">Max </span><span class="text-primary-light font-bold text-sm">{slot.maxWin}</span>
+        </div>
+        <!-- Top CTA dropdown -->
+        <div class="relative">
+          <button id="top-bonus-btn" class="btn-glow bg-accent-green hover:bg-accent-green/80 text-white font-bold px-5 py-2 rounded-lg transition-all text-sm flex items-center gap-2">
+            💰 Jouer en argent réel
+            <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" /></svg>
+          </button>
+          <div id="top-bonus-dropdown" class="hidden absolute right-0 top-full mt-2 w-72 bg-bg-card border border-bg-border rounded-xl shadow-2xl shadow-black/40 z-50 py-2">
+            {casinos.map((casino, i) => (
+              <a href={casino.affiliateUrl} target="_blank" rel="nofollow noopener" class="flex items-center gap-3 px-4 py-3 hover:bg-bg-surface transition-colors group">
+                <span class="text-primary font-bold text-xs">#{i+1}</span>
+                <span class="text-lg">{casino.logo}</span>
+                <div class="flex-1 min-w-0">
+                  <p class="text-white font-bold text-sm group-hover:text-primary transition-colors">{casino.name}</p>
+                  <p class="text-gray-500 text-xs truncate">{casino.bonusAmount}</p>
+                </div>
+              </a>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Game iframe -->
+    <div class="bg-bg-card border border-bg-border rounded-2xl overflow-hidden shadow-2xl mb-8">
+      <div class="relative w-full" style="padding-bottom: 62.5%;">
+        <iframe
+          id="game-frame"
+          src={slot.demoUrl}
+          class="absolute inset-0 w-full h-full border-0"
+          allowfullscreen
+          loading="lazy"
+          sandbox="allow-scripts allow-same-origin allow-popups allow-forms"
+        ></iframe>
+      </div>
+    </div>
+
+    <!-- Fullscreen button -->
+    <div class="flex items-center justify-between mb-8">
+      <p class="text-gray-500 text-sm">🎮 Mode démo — Jeu gratuit avec argent virtuel</p>
+      <button id="fullscreen-btn" class="bg-bg-card border border-bg-border text-gray-300 hover:text-white hover:border-primary/30 font-medium text-sm px-4 py-2 rounded-lg transition-all flex items-center gap-2">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 8V4h4M20 8V4h-4M4 16v4h4M20 16v4h-4" /></svg>
+        Plein écran
+      </button>
+    </div>
+
+    <!-- Play for real banner -->
+    <div class="bg-gradient-to-r from-primary/10 via-primary/5 to-primary/10 border border-primary/20 rounded-2xl p-6 mb-8">
+      <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div>
+          <h2 class="text-xl font-extrabold text-white mb-1">Tu aimes {slot.name} ?</h2>
+          <p class="text-gray-400 text-sm">Joue en argent réel avec un bonus exclusif !</p>
+        </div>
+        <div class="relative">
+          <button id="bonus-dropdown-btn" class="btn-glow bg-accent-green hover:bg-accent-green/80 text-white font-bold px-6 py-3 rounded-xl transition-all text-sm flex items-center gap-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7" /></svg>
+            Récupère ton bonus sur…
+            <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" /></svg>
+          </button>
+          <div id="bonus-dropdown" class="hidden absolute right-0 bottom-full mb-2 w-72 bg-bg-card border border-bg-border rounded-xl shadow-2xl shadow-black/40 z-50 py-2">
+            {casinos.map((casino, i) => (
+              <a href={casino.affiliateUrl} target="_blank" rel="nofollow noopener" class="flex items-center gap-3 px-4 py-3 hover:bg-bg-surface transition-colors group">
+                <span class="text-primary font-bold text-xs">#{i+1}</span>
+                <span class="text-lg">{casino.logo}</span>
+                <div class="flex-1 min-w-0">
+                  <p class="text-white font-bold text-sm group-hover:text-primary transition-colors">{casino.name}</p>
+                  <p class="text-gray-500 text-xs truncate">{casino.bonusAmount}</p>
+                </div>
+              </a>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Other slots by same provider -->
+    <div>
+      <h3 class="text-white font-bold text-lg mb-4">Autres slots <a href="/jeux/slots" class="text-primary hover:text-primary-light">{slot.provider}</a></h3>
+      <div class="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 gap-3">
+        {slots.filter(s => s.provider === slot.provider && s.slug !== slot.slug).slice(0, 6).map((s) => (
+          <a href={`/jeux/slots/${s.slug}`} class="group rounded-xl overflow-hidden hover:scale-105 transition-all duration-200">
+            <div class="aspect-square bg-gradient-to-br from-primary/30 via-bg-card to-bg-surface relative overflow-hidden flex items-center justify-center">
+              <img src={s.image} alt={s.name} class="w-full h-full object-cover absolute inset-0" loading="lazy" onerror="this.style.display='none'" />
+              <span class="text-white/80 font-extrabold text-center text-xs px-1 leading-tight uppercase tracking-wider drop-shadow-lg relative z-0">{s.name}</span>
+            </div>
+            <div class="bg-bg-card border-t border-bg-border p-2">
+              <p class="text-white font-bold text-xs truncate group-hover:text-primary transition-colors">{s.name}</p>
+              <div class="flex items-center gap-2 mt-0.5">
+                <span class="text-accent-green text-[10px] font-bold">{s.rtp}</span>
+                <span class="text-gold text-[10px] font-bold">{s.maxWin}</span>
+              </div>
+            </div>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <script is:inline>
+    document.getElementById('fullscreen-btn').addEventListener('click', function() {
+      var frame = document.getElementById('game-frame');
+      if (frame.requestFullscreen) frame.requestFullscreen();
+      else if (frame.webkitRequestFullscreen) frame.webkitRequestFullscreen();
+    });
+
+    // Dropdown toggles
+    function setupDropdown(btnId, ddId) {
+      var btn = document.getElementById(btnId);
+      var dd = document.getElementById(ddId);
+      if (!btn || !dd) return;
+      btn.addEventListener('click', function() { dd.classList.toggle('hidden'); });
+      document.addEventListener('click', function(e) {
+        if (!btn.contains(e.target) && !dd.contains(e.target)) dd.classList.add('hidden');
+      });
+    }
+    setupDropdown('bonus-dropdown-btn', 'bonus-dropdown');
+    setupDropdown('top-bonus-btn', 'top-bonus-dropdown');
+  </script>
+</Layout>

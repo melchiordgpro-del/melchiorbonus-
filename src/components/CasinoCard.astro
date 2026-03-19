@@ -1,0 +1,105 @@
+---
+import type { Casino } from '../data/casinos';
+interface Props {
+  casino: Casino;
+  rank: number;
+}
+const { casino, rank } = Astro.props;
+
+const medalColors: Record<number, {bg: string, border: string, text: string, emoji: string}> = {
+  1: { bg: 'bg-yellow-500/20', border: 'border-yellow-500/40', text: 'text-yellow-400', emoji: '🥇' },
+  2: { bg: 'bg-gray-300/20', border: 'border-gray-300/40', text: 'text-gray-300', emoji: '🥈' },
+  3: { bg: 'bg-amber-700/20', border: 'border-amber-600/40', text: 'text-amber-500', emoji: '🥉' },
+};
+const medal = medalColors[rank];
+---
+
+<div class="group relative bg-bg-card border border-bg-border rounded-2xl overflow-hidden hover:border-primary/40 transition-all duration-300 hover:shadow-xl hover:shadow-primary/10 flex flex-col">
+  <!-- Rank Medal / Number -->
+  <div class="absolute top-0 left-0 z-10">
+    {medal ? (
+      <div class:list={["flex items-center gap-1.5 px-3 py-1.5 rounded-br-xl font-extrabold text-sm", medal.bg, medal.border, "border-r border-b"]}>
+        <span class="text-lg">{medal.emoji}</span>
+        <span class={medal.text}>#{rank}</span>
+      </div>
+    ) : (
+      <div class="flex items-center gap-1.5 bg-bg-surface/80 border-r border-b border-bg-border px-3 py-1.5 rounded-br-xl">
+        <span class="text-primary font-extrabold text-sm">#{rank}</span>
+      </div>
+    )}
+  </div>
+
+  <!-- Header -->
+  <div class="p-5 pb-0 pt-10">
+    <div class="flex items-center gap-3 mb-4">
+      <div class:list={[
+        "w-14 h-14 rounded-xl flex items-center justify-center flex-shrink-0 border overflow-hidden",
+        medal ? medal.bg + ' ' + medal.border : "bg-primary/10 border-primary/20"
+      ]}>
+        <img src={casino.logoUrl} alt={casino.name} class="w-10 h-10 object-contain" loading="lazy" onerror={`this.style.display='none';this.parentElement.innerHTML='<span class="text-2xl">${casino.logo}</span>'`} />
+      </div>
+      <div class="flex-1 min-w-0">
+        <h3 class="text-white font-bold text-lg group-hover:text-primary transition-colors truncate">
+          <a href={`/casinos/${casino.slug}`}>{casino.name}</a>
+        </h3>
+        <div class="flex items-center gap-1">
+          <span class="text-primary-light text-sm">{'★'.repeat(Math.floor(casino.rating))}</span>
+          <span class="text-gray-400 text-sm">{casino.rating}/5</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Content -->
+  <div class="px-5 pb-5 flex flex-col flex-1">
+    <!-- Bonus -->
+    <div class:list={[
+      "rounded-xl p-3 mb-3 border",
+      medal ? medal.bg + ' ' + medal.border : "bg-bg-surface border-bg-border"
+    ]}>
+      <p class="text-primary-light text-xs font-semibold uppercase tracking-wider mb-0.5">{casino.bonusTitle}</p>
+      <p class="text-white font-extrabold text-lg">{casino.bonusAmount}</p>
+    </div>
+
+    <!-- Wager + Code -->
+    <div class="flex items-center gap-2 mb-3 flex-wrap">
+      <span class="text-xs text-gray-500">Wager:</span>
+      <span class:list={["text-xs font-bold px-2 py-0.5 rounded-full", casino.wager.includes("FREE") ? "bg-accent-green/10 text-accent-green border border-accent-green/20" : "bg-bg-surface text-gray-300 border border-bg-border"]}>
+        {casino.wager}
+      </span>
+      {casino.promoCode && (
+        <span class="text-xs font-mono font-bold text-primary bg-primary/10 px-2 py-0.5 rounded-full border border-primary/20">
+          {casino.promoCode}
+        </span>
+      )}
+    </div>
+
+    <!-- Tags -->
+    <div class="flex flex-wrap gap-1.5 mb-4">
+      {casino.tags.map((tag) => (
+        <span class="text-xs font-medium bg-bg-surface text-gray-400 px-2.5 py-1 rounded-full border border-bg-border">
+          {tag}
+        </span>
+      ))}
+    </div>
+
+    <!-- CTA -->
+    <div class="mt-auto flex items-center gap-2">
+      <a
+        href={casino.affiliateUrl}
+        target="_blank"
+        rel="nofollow noopener"
+        class="btn-glow flex-1 bg-accent-green hover:bg-accent-green/80 text-white font-bold text-center py-3 rounded-xl transition-all duration-200 hover:shadow-lg hover:shadow-accent-green/20 text-sm flex items-center justify-center gap-2"
+      >
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7" /></svg>
+        Récupère ton bonus
+      </a>
+      <a
+        href={`/casinos/${casino.slug}`}
+        class="px-4 py-3 border border-bg-border text-gray-400 hover:text-white hover:border-primary/30 rounded-xl text-sm font-medium transition-all"
+      >
+        Avis
+      </a>
+    </div>
+  </div>
+</div>

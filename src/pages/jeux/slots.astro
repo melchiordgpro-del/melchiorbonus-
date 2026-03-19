@@ -1,0 +1,170 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { slots, getSlotsByProvider } from '../../data/slots';
+import { casinos } from '../../data/casinos';
+
+const byProvider = getSlotsByProvider();
+const providerNames = Object.keys(byProvider);
+const allSlotsSorted = [...slots].sort((a, b) => b.players - a.players);
+---
+
+<Layout title="Slots — Jouer en démo ou en argent réel | MelchiorBonus" description="Joue aux meilleures machines à sous en démo gratuite ou en argent réel sur nos casinos partenaires.">
+  <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
+      <div>
+        <h1 class="text-3xl font-extrabold text-white mb-1">🎰 Machines à Sous</h1>
+        <p class="text-gray-400 text-sm">{slots.length} slots disponibles en démo et en argent réel</p>
+      </div>
+
+      <!-- Filters -->
+      <div class="flex items-center gap-3">
+        <span class="text-gray-500 text-sm">Éditeurs</span>
+        <select id="provider-filter" class="bg-bg-card border border-bg-border text-white text-sm rounded-lg px-3 py-2 focus:outline-none focus:border-primary">
+          <option value="all">Tous</option>
+          {providerNames.map(p => <option value={p}>{p}</option>)}
+        </select>
+        <span class="text-gray-500 text-sm">Trier</span>
+        <select id="sort-filter" class="bg-bg-card border border-bg-border text-white text-sm rounded-lg px-3 py-2 focus:outline-none focus:border-primary">
+          <option value="popular">Populaire</option>
+          <option value="name">Nom A-Z</option>
+          <option value="rtp">Meilleur RTP</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Slots Grid -->
+    <div id="slots-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+      {allSlotsSorted.map((slot) => (
+        <div class="slot-card group relative rounded-xl overflow-hidden cursor-pointer transition-all duration-300 hover:scale-105 hover:shadow-xl hover:shadow-primary/10 hover:z-10" data-provider={slot.provider} data-slug={slot.slug} data-name={slot.name} data-players={slot.players} data-rtp={slot.rtp}>
+          <!-- Image / Placeholder -->
+          <div class="aspect-square bg-gradient-to-br from-primary/30 via-bg-card to-bg-surface relative overflow-hidden flex items-center justify-center">
+            <img src={slot.image} alt={slot.name} class="w-full h-full object-cover absolute inset-0" loading="lazy" onerror="this.style.display='none'" />
+            <span class="text-white/80 font-extrabold text-center text-sm px-2 leading-tight uppercase tracking-wider drop-shadow-lg relative z-0">{slot.name}</span>
+            {slot.hasBonusBuy && (
+              <div class="absolute top-2 left-2 w-6 h-6 bg-accent-green rounded-full flex items-center justify-center shadow-lg" title="Bonus Buy disponible">
+                <span class="text-white text-xs font-bold">$</span>
+              </div>
+            )}
+            <!-- Hover overlay -->
+            <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex flex-col items-center justify-center gap-2 p-3">
+              <a href={`/jeux/slots/${slot.slug}`} class="w-full bg-primary hover:bg-primary-light text-white font-bold text-xs text-center py-2 rounded-lg transition-all">
+                ▶ Jouer en démo
+              </a>
+              <button class="open-real-btn w-full btn-glow bg-accent-green hover:bg-accent-green/80 text-white font-bold text-xs text-center py-2 rounded-lg transition-all" data-slug={slot.slug} data-name={slot.name}>
+                💰 Jouer en réel
+              </button>
+            </div>
+          </div>
+          <!-- Info -->
+          <div class="bg-bg-card border-t border-bg-border p-2.5">
+            <p class="text-white font-bold text-xs truncate">{slot.name}</p>
+            <button class="provider-link text-primary/70 hover:text-primary text-[10px] uppercase cursor-pointer transition-colors" data-provider={slot.provider}>{slot.provider}</button>
+            <div class="flex items-center gap-1 mt-1">
+              <span class="w-1.5 h-1.5 rounded-full bg-accent-green"></span>
+              <span class="text-gray-500 text-[10px]">{slot.players} joueurs</span>
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <!-- Modal: Jouer en argent réel -->
+  <div id="real-modal" class="fixed inset-0 z-50 hidden">
+    <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" id="modal-backdrop"></div>
+    <div class="relative flex items-center justify-center min-h-screen p-4">
+      <div class="bg-bg-card border border-bg-border rounded-2xl w-full max-w-lg shadow-2xl relative">
+        <div class="p-6">
+          <div class="flex items-center justify-between mb-5">
+            <h3 class="text-white font-extrabold text-xl">💰 Jouer à <span id="modal-game-name">...</span></h3>
+            <button id="modal-close" class="text-gray-500 hover:text-white text-2xl leading-none">&times;</button>
+          </div>
+          <p class="text-gray-400 text-sm mb-5">Choisis un casino pour jouer en argent réel avec un bonus exclusif :</p>
+
+          <div class="space-y-3">
+            {casinos.map((casino, i) => (
+              <a href={casino.affiliateUrl} target="_blank" rel="nofollow noopener" class="flex items-center gap-4 bg-bg-surface border border-bg-border rounded-xl p-4 hover:border-primary/30 hover:bg-bg-card transition-all group">
+                <div class="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center flex-shrink-0">
+                  <span class="text-xl">{casino.logo}</span>
+                </div>
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center gap-2">
+                    <span class="text-primary font-bold text-sm">#{i + 1}</span>
+                    <span class="text-white font-bold group-hover:text-primary transition-colors">{casino.name}</span>
+                  </div>
+                  <p class="text-gray-500 text-xs truncate">{casino.bonusAmount} — Wager {casino.wager}</p>
+                </div>
+                <div class="flex-shrink-0">
+                  <span class="btn-glow bg-accent-green text-white font-bold text-xs px-4 py-2 rounded-lg inline-block">
+                    Jouer
+                  </span>
+                </div>
+              </a>
+            ))}
+          </div>
+
+          <p class="text-gray-600 text-xs text-center mt-4">18+ · Jeu responsable · Liens d'affiliation</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script is:inline>
+    // Modal logic
+    var modal = document.getElementById('real-modal');
+    var modalName = document.getElementById('modal-game-name');
+
+    document.querySelectorAll('.open-real-btn').forEach(function(btn) {
+      btn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        e.preventDefault();
+        modalName.textContent = btn.dataset.name;
+        modal.classList.remove('hidden');
+      });
+    });
+
+    document.getElementById('modal-close').addEventListener('click', function() {
+      modal.classList.add('hidden');
+    });
+    document.getElementById('modal-backdrop').addEventListener('click', function() {
+      modal.classList.add('hidden');
+    });
+
+    // Provider filter
+    document.getElementById('provider-filter').addEventListener('change', function() {
+      var val = this.value;
+      document.querySelectorAll('.slot-card').forEach(function(card) {
+        if (val === 'all' || card.dataset.provider === val) {
+          card.style.display = '';
+        } else {
+          card.style.display = 'none';
+        }
+      });
+    });
+
+    // Provider name click in cards
+    document.querySelectorAll('.provider-link').forEach(function(btn) {
+      btn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        var provider = btn.dataset.provider;
+        document.getElementById('provider-filter').value = provider;
+        document.getElementById('provider-filter').dispatchEvent(new Event('change'));
+      });
+    });
+
+    // Sort filter
+    document.getElementById('sort-filter').addEventListener('change', function() {
+      var val = this.value;
+      var grid = document.getElementById('slots-grid');
+      var cards = Array.from(grid.querySelectorAll('.slot-card'));
+      cards.sort(function(a, b) {
+        if (val === 'popular') return parseInt(b.dataset.players) - parseInt(a.dataset.players);
+        if (val === 'name') return a.dataset.name.localeCompare(b.dataset.name);
+        if (val === 'rtp') return parseFloat(b.dataset.rtp) - parseFloat(a.dataset.rtp);
+        return 0;
+      });
+      cards.forEach(function(card) { grid.appendChild(card); });
+    });
+  </script>
+</Layout>

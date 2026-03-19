@@ -1,0 +1,108 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { casinos } from '../data/casinos';
+
+const sortedByBonus = [...casinos].sort((a, b) => {
+  const getAmount = (s: string) => parseInt(s.replace(/[^0-9]/g, '')) || 0;
+  return getAmount(b.bonusAmount) - getAmount(a.bonusAmount);
+});
+---
+
+<Layout title="Meilleurs Bonus Casino 2026 — Comparatif Exclusif | MelchiorBonus" description="Comparez tous les bonus de bienvenue des casinos en ligne.">
+  <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div class="text-center mb-12">
+      <h1 class="text-4xl sm:text-5xl font-extrabold text-white mb-4">
+        Meilleurs <span class="text-primary-light">Bonus Casino</span> 2026
+      </h1>
+      <p class="text-gray-400 text-lg max-w-2xl mx-auto">
+        Tous les bonus de bienvenue comparés. Trouvez l'offre la plus avantageuse.
+      </p>
+    </div>
+
+    <div class="overflow-x-auto">
+      <table class="w-full">
+        <thead>
+          <tr class="border-b border-bg-border">
+            <th class="text-left text-gray-500 text-xs uppercase tracking-wider py-4 px-4">#</th>
+            <th class="text-left text-gray-500 text-xs uppercase tracking-wider py-4 px-4">Casino</th>
+            <th class="text-left text-gray-500 text-xs uppercase tracking-wider py-4 px-4">Bonus</th>
+            <th class="text-left text-gray-500 text-xs uppercase tracking-wider py-4 px-4 hidden sm:table-cell">Wager</th>
+            <th class="text-left text-gray-500 text-xs uppercase tracking-wider py-4 px-4 hidden md:table-cell">Note</th>
+            <th class="text-right text-gray-500 text-xs uppercase tracking-wider py-4 px-4">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {sortedByBonus.map((casino, i) => (
+            <tr class="border-b border-bg-border/50 hover:bg-bg-card/50 transition-colors group">
+              <td class="py-5 px-4">
+                <span class="text-primary font-bold">{i + 1}</span>
+              </td>
+              <td class="py-5 px-4">
+                <div class="flex items-center gap-3">
+                  <span class="text-2xl">{casino.logo}</span>
+                  <div>
+                    <a href={`/casinos/${casino.slug}`} class="text-white font-bold group-hover:text-primary transition-colors">{casino.name}</a>
+                    <p class="text-gray-500 text-xs">{casino.license}</p>
+                  </div>
+                </div>
+              </td>
+              <td class="py-5 px-4">
+                <p class="text-primary-light font-extrabold">{casino.bonusAmount}</p>
+                <p class="text-gray-500 text-xs mt-0.5">{casino.bonusTitle}</p>
+              </td>
+              <td class="py-5 px-4 hidden sm:table-cell">
+                <span class:list={[casino.wager.includes("FREE") ? "text-accent-green font-bold" : "text-gray-300"]}>{casino.wager}</span>
+              </td>
+              <td class="py-5 px-4 hidden md:table-cell">
+                <span class="text-primary font-bold">{casino.rating}</span>
+                <span class="text-gray-500 text-sm">/5</span>
+              </td>
+              <td class="py-5 px-4 text-right">
+                <a href={casino.affiliateUrl} target="_blank" rel="nofollow noopener"
+                  class="inline-flex bg-primary hover:bg-primary-light text-white font-bold text-sm px-5 py-2.5 rounded-lg transition-all duration-200">
+                  Obtenir
+                </a>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="mt-16 bg-bg-card border border-bg-border rounded-2xl p-8">
+      <h2 class="text-2xl font-extrabold text-white mb-6">
+        Comment Bien Utiliser les <span class="text-primary-light">Bonus Casino</span>
+      </h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="flex items-start gap-4">
+          <span class="text-primary text-xl flex-shrink-0">1.</span>
+          <div>
+            <h3 class="text-white font-bold mb-1">Lisez les conditions de mise</h3>
+            <p class="text-gray-400 text-sm">Le wager indique combien de fois vous devez miser le bonus avant de retirer. x35 est raisonnable.</p>
+          </div>
+        </div>
+        <div class="flex items-start gap-4">
+          <span class="text-primary text-xl flex-shrink-0">2.</span>
+          <div>
+            <h3 class="text-white font-bold mb-1">Vérifiez les jeux éligibles</h3>
+            <p class="text-gray-400 text-sm">Les slots contribuent généralement à 100%, les jeux de table moins. Vérifiez avant de jouer.</p>
+          </div>
+        </div>
+        <div class="flex items-start gap-4">
+          <span class="text-primary text-xl flex-shrink-0">3.</span>
+          <div>
+            <h3 class="text-white font-bold mb-1">Respectez les délais</h3>
+            <p class="text-gray-400 text-sm">La plupart des bonus expirent en 7 à 30 jours. Planifiez votre jeu.</p>
+          </div>
+        </div>
+        <div class="flex items-start gap-4">
+          <span class="text-primary text-xl flex-shrink-0">4.</span>
+          <div>
+            <h3 class="text-white font-bold mb-1">Comparez toujours</h3>
+            <p class="text-gray-400 text-sm">Un gros bonus ne signifie pas le meilleur deal. Regardez le wager et les limites.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</Layout>
