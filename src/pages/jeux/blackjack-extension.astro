@@ -38,8 +38,67 @@ const actionNames: Record<string, {label: string, color: string, desc: string}> 
       <a href="/jeux/blackjack-tableau" class="text-gray-400 hover:text-white text-xs font-medium transition-colors">📊 Voir le tableau complet</a>
     </div>
 
-    <!-- Input Section -->
-    <div class="bg-[#1a1d23] border border-[#2a2d35] rounded-2xl p-6 mb-6">
+    <!-- Mode Toggle -->
+    <div class="flex rounded-lg overflow-hidden border border-[#2a2d35] mb-6 max-w-xs">
+      <button id="mode-manual" class="flex-1 py-2.5 text-sm font-bold text-white bg-[#2a2d35] cursor-pointer">🔧 Manuel</button>
+      <button id="mode-quiz" class="flex-1 py-2.5 text-sm font-bold text-gray-400 bg-[#1a1d23] cursor-pointer border-l border-[#2a2d35]">🎓 Quiz</button>
+    </div>
+
+    <!-- QUIZ MODE -->
+    <div id="quiz-section" class="hidden mb-6">
+      <div class="bg-[#1a1d23] border border-[#2a2d35] rounded-2xl p-6">
+        <!-- Score -->
+        <div class="flex items-center justify-between mb-5">
+          <div class="flex items-center gap-4">
+            <div class="text-center">
+              <p class="text-gray-500 text-[10px] uppercase">Score</p>
+              <p class="text-white font-extrabold text-xl" id="quiz-score">0/0</p>
+            </div>
+            <div class="text-center">
+              <p class="text-gray-500 text-[10px] uppercase">Série</p>
+              <p class="text-accent-green font-extrabold text-xl" id="quiz-streak">0 🔥</p>
+            </div>
+          </div>
+          <button id="quiz-new" class="bg-primary hover:bg-primary-light text-white font-bold text-xs px-4 py-2 rounded-lg transition-all">Nouvelle main</button>
+        </div>
+
+        <!-- Quiz Cards -->
+        <div class="flex items-center justify-center gap-8 mb-6">
+          <div class="text-center">
+            <p class="text-gray-500 text-xs uppercase mb-2">Tes cartes</p>
+            <div class="flex gap-2 justify-center">
+              <div id="quiz-card1" class="w-16 h-24 bg-white rounded-lg flex flex-col items-center justify-center shadow-lg border-2 border-gray-200"></div>
+              <div id="quiz-card2" class="w-16 h-24 bg-white rounded-lg flex flex-col items-center justify-center shadow-lg border-2 border-gray-200"></div>
+            </div>
+            <p class="text-white font-bold mt-2" id="quiz-total"></p>
+          </div>
+          <div class="text-gray-600 text-3xl font-bold">VS</div>
+          <div class="text-center">
+            <p class="text-gray-500 text-xs uppercase mb-2">Dealer</p>
+            <div class="flex gap-2 justify-center">
+              <div id="quiz-dealer" class="w-16 h-24 bg-white rounded-lg flex flex-col items-center justify-center shadow-lg border-2 border-gray-200"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Answer Buttons -->
+        <div id="quiz-buttons" class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
+          <button data-answer="H" class="quiz-answer bg-green-600 hover:bg-green-500 text-white font-bold py-3.5 rounded-xl text-sm transition-all">TIRER (H)</button>
+          <button data-answer="S" class="quiz-answer bg-red-600 hover:bg-red-500 text-white font-bold py-3.5 rounded-xl text-sm transition-all">RESTER (S)</button>
+          <button data-answer="D" class="quiz-answer bg-yellow-500 hover:bg-yellow-400 text-black font-bold py-3.5 rounded-xl text-sm transition-all">DOUBLER (D)</button>
+          <button data-answer="P" class="quiz-answer bg-blue-600 hover:bg-blue-500 text-white font-bold py-3.5 rounded-xl text-sm transition-all">SPLIT (SP)</button>
+        </div>
+
+        <!-- Feedback -->
+        <div id="quiz-feedback" class="hidden text-center p-4 rounded-xl mb-2">
+          <p class="font-extrabold text-xl" id="quiz-feedback-text"></p>
+          <p class="text-sm mt-1" id="quiz-feedback-explain"></p>
+        </div>
+      </div>
+    </div>
+
+    <!-- MANUAL MODE - Input Section -->
+    <div id="manual-section" class="bg-[#1a1d23] border border-[#2a2d35] rounded-2xl p-6 mb-6">
       <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
         <!-- Your Card 1 -->
         <div>
@@ -239,6 +298,102 @@ const actionNames: Record<string, {label: string, color: string, desc: string}> 
       explain += 'Contre un ' + dealerCard + ' du dealer, la stratégie optimale est de ' + info.label.toLowerCase() + '.';
       document.getElementById('advice-explain').textContent = explain;
     }
+
+    // ========== MODE TOGGLE ==========
+    document.getElementById('mode-manual').addEventListener('click', function() {
+      this.className = 'flex-1 py-2.5 text-sm font-bold text-white bg-[#2a2d35] cursor-pointer';
+      document.getElementById('mode-quiz').className = 'flex-1 py-2.5 text-sm font-bold text-gray-400 bg-[#1a1d23] cursor-pointer border-l border-[#2a2d35]';
+      document.getElementById('manual-section').classList.remove('hidden');
+      document.getElementById('quiz-section').classList.add('hidden');
+    });
+    document.getElementById('mode-quiz').addEventListener('click', function() {
+      this.className = 'flex-1 py-2.5 text-sm font-bold text-white bg-[#2a2d35] cursor-pointer border-l border-[#2a2d35]';
+      document.getElementById('mode-manual').className = 'flex-1 py-2.5 text-sm font-bold text-gray-400 bg-[#1a1d23] cursor-pointer';
+      document.getElementById('manual-section').classList.add('hidden');
+      document.getElementById('quiz-section').classList.remove('hidden');
+      if (!quizActive) generateQuiz();
+    });
+
+    // ========== QUIZ MODE ==========
+    var quizCards = ['A','2','3','4','5','6','7','8','9','10'];
+    var quizCorrect = 0, quizTotal = 0, quizStreak = 0, quizActive = false;
+    var quizC1, quizC2, quizD, quizCorrectAnswer;
+
+    function renderQuizCard(id, val) {
+      document.getElementById(id).innerHTML = '<span class="text-red-500 text-xs">♥</span><span class="text-red-600 text-2xl font-bold">' + val + '</span><span class="text-red-500 text-lg">♥</span>';
+    }
+
+    function generateQuiz() {
+      quizActive = true;
+      quizC1 = quizCards[Math.floor(Math.random() * quizCards.length)];
+      quizC2 = quizCards[Math.floor(Math.random() * quizCards.length)];
+      quizD = quizCards[Math.floor(Math.random() * quizCards.length)];
+
+      renderQuizCard('quiz-card1', quizC1);
+      renderQuizCard('quiz-card2', quizC2);
+      renderQuizCard('quiz-dealer', quizD);
+
+      var v1 = cardValue(quizC1), v2 = cardValue(quizC2);
+      var total = v1 + v2;
+      if (total > 21) total -= 10;
+      document.getElementById('quiz-total').textContent = total + ' points';
+
+      quizCorrectAnswer = getAdvice(quizC1, quizC2, quizD);
+
+      // Reset UI
+      document.getElementById('quiz-feedback').classList.add('hidden');
+      document.querySelectorAll('.quiz-answer').forEach(function(b) {
+        b.disabled = false;
+        b.style.opacity = '1';
+      });
+    }
+
+    document.querySelectorAll('.quiz-answer').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        if (!quizActive) return;
+        var answer = btn.dataset.answer;
+        quizTotal++;
+        var isCorrect = answer === quizCorrectAnswer;
+
+        var feedback = document.getElementById('quiz-feedback');
+        var feedbackText = document.getElementById('quiz-feedback-text');
+        var feedbackExplain = document.getElementById('quiz-feedback-explain');
+        feedback.classList.remove('hidden');
+
+        if (isCorrect) {
+          quizCorrect++;
+          quizStreak++;
+          feedback.className = 'text-center p-4 rounded-xl mb-2 bg-green-600/20 border border-green-500/30';
+          feedbackText.textContent = '✅ Correct !';
+          feedbackText.className = 'font-extrabold text-xl text-green-400';
+          feedbackExplain.textContent = actionInfo[quizCorrectAnswer].label + ' était la bonne réponse.';
+          feedbackExplain.className = 'text-sm mt-1 text-green-300';
+        } else {
+          quizStreak = 0;
+          feedback.className = 'text-center p-4 rounded-xl mb-2 bg-red-600/20 border border-red-500/30';
+          feedbackText.textContent = '❌ Faux !';
+          feedbackText.className = 'font-extrabold text-xl text-red-400';
+          feedbackExplain.textContent = 'La bonne réponse était : ' + actionInfo[quizCorrectAnswer].label;
+          feedbackExplain.className = 'text-sm mt-1 text-red-300';
+        }
+
+        document.getElementById('quiz-score').textContent = quizCorrect + '/' + quizTotal;
+        document.getElementById('quiz-streak').textContent = quizStreak + ' 🔥';
+
+        // Disable buttons briefly then auto next
+        document.querySelectorAll('.quiz-answer').forEach(function(b) { b.disabled = true; b.style.opacity = '0.5'; });
+        // Highlight correct answer
+        document.querySelector('.quiz-answer[data-answer="' + quizCorrectAnswer + '"]').style.opacity = '1';
+        document.querySelector('.quiz-answer[data-answer="' + quizCorrectAnswer + '"]').style.boxShadow = '0 0 15px ' + (isCorrect ? '#22c55e' : '#ef4444');
+
+        setTimeout(function() {
+          document.querySelectorAll('.quiz-answer').forEach(function(b) { b.style.boxShadow = ''; });
+          generateQuiz();
+        }, 1500);
+      });
+    });
+
+    document.getElementById('quiz-new').addEventListener('click', generateQuiz);
 
     document.getElementById('reset-btn').addEventListener('click', function() {
       card1 = null; card2 = null; dealerCard = null;
