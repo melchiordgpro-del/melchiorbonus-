@@ -228,12 +228,16 @@ const topCasinos = casinos.slice(0, 5);
         var total = deposit + totalBonus + c.offert;
         var wagerColor = c.wager === 'FREE' ? '#22c55e' : '#eab308';
         var wagerText = c.wager === 'FREE' ? '✅ Wager FREE' : '⚡ Wager ' + c.wager;
+        var bonusPct = c.deposits[0].pct + '%';
 
         html += '<div class="bg-[#0e1015] border border-[#2a2d35] rounded-xl p-4 hover:border-primary/40 transition-all">';
         html += '<div class="flex items-center gap-2 mb-3">';
         html += '<span class="text-xl">' + c.logo + '</span>';
         html += '<span class="text-white font-extrabold text-sm">' + c.name + '</span>';
-        html += '<span style="color:' + wagerColor + ';font-size:9px;font-weight:700;margin-left:auto;padding:2px 6px;border-radius:4px;background:' + wagerColor + '15;border:1px solid ' + wagerColor + '30;">' + wagerText + '</span>';
+        html += '<span style="font-size:9px;font-weight:700;margin-left:auto;display:flex;gap:4px;align-items:center;">';
+        html += '<span style="color:#a78bfa;padding:2px 6px;border-radius:4px;background:#a78bfa15;border:1px solid #a78bfa30;">Bonus ' + bonusPct + '</span>';
+        html += '<span style="color:' + wagerColor + ';padding:2px 6px;border-radius:4px;background:' + wagerColor + '15;border:1px solid ' + wagerColor + '30;">' + wagerText + '</span>';
+        html += '</span>';
         html += '</div>';
         html += '<div class="flex items-center justify-between mb-2 px-2 py-1.5 rounded-lg ' + (deposit > c.maxDeposit ? 'bg-red-500/10 border border-red-500/20' : 'bg-[#1a1d23] border border-[#2a2d35]') + '">';
         html += '<span class="text-gray-500 text-[10px]">Dépôt max bonus</span>';
