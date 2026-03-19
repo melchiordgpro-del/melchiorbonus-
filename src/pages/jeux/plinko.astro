@@ -13,8 +13,20 @@ import AuthGate from '../../components/AuthGate.astro';
       <div class="lg:w-64 flex-shrink-0 bg-[#1a1d23] p-5 flex flex-col gap-4">
         <!-- Manual/Auto tabs -->
         <div class="flex rounded-lg overflow-hidden border border-[#2a2d35]">
-          <button class="flex-1 py-2 text-xs font-bold text-gray-400 bg-[#1a1d23] border-r border-[#2a2d35]">Manuel</button>
-          <button class="flex-1 py-2 text-xs font-bold text-white bg-[#2a2d35]">Auto</button>
+          <button id="tab-manual" class="flex-1 py-2 text-xs font-bold text-white bg-[#2a2d35] cursor-pointer">Manuel</button>
+          <button id="tab-auto" class="flex-1 py-2 text-xs font-bold text-gray-400 bg-[#1a1d23] cursor-pointer border-l border-[#2a2d35]">Auto</button>
+        </div>
+
+        <!-- Auto options (hidden by default) -->
+        <div id="auto-options" class="hidden">
+          <p class="text-gray-400 text-xs mb-1.5">Nombre de billes</p>
+          <div class="flex items-center bg-[#0e1015] border border-[#2a2d35] rounded-lg overflow-hidden">
+            <input type="number" id="auto-count" value="10" min="1" max="100" class="flex-1 bg-transparent text-white font-bold text-sm px-3 py-2.5 outline-none w-20" />
+          </div>
+          <p class="text-gray-400 text-xs mt-1.5 mb-1.5">Intervalle (ms)</p>
+          <div class="flex items-center bg-[#0e1015] border border-[#2a2d35] rounded-lg overflow-hidden">
+            <input type="number" id="auto-interval" value="300" min="100" max="2000" step="100" class="flex-1 bg-transparent text-white font-bold text-sm px-3 py-2.5 outline-none w-20" />
+          </div>
         </div>
 
         <!-- Bet Amount -->
@@ -173,32 +185,33 @@ import AuthGate from '../../components/AuthGate.astro';
       // Draw active balls
       for (var b = 0; b < activeBalls.length; b++) {
         var ball = activeBalls[b];
-        // Trail - subtle
-        for (var t = Math.max(0, ball.trail.length - 6); t < ball.trail.length; t++) {
-          var alpha = 0.05 + ((t - Math.max(0, ball.trail.length - 6)) / 6) * 0.15;
+        // Trail - blue-violet glow
+        for (var t = Math.max(0, ball.trail.length - 8); t < ball.trail.length; t++) {
+          var alpha = 0.04 + ((t - Math.max(0, ball.trail.length - 8)) / 8) * 0.18;
           ctx.beginPath();
           ctx.arc(ball.trail[t].x, ball.trail[t].y, 5, 0, Math.PI * 2);
-          ctx.fillStyle = 'rgba(255,165,0,' + alpha + ')';
+          ctx.fillStyle = 'rgba(124,91,245,' + alpha + ')';
           ctx.fill();
         }
-        // Ball - orange/gold like Stake
+        // Ball - blue-violet
         if (ball.x !== undefined) {
           var bx = ball.x, by = ball.y;
           // Glow
-          ctx.beginPath(); ctx.arc(bx, by, 12, 0, Math.PI * 2);
-          ctx.fillStyle = 'rgba(255,165,0,0.12)';
+          ctx.beginPath(); ctx.arc(bx, by, 14, 0, Math.PI * 2);
+          ctx.fillStyle = 'rgba(124,91,245,0.15)';
           ctx.fill();
           // Ball
           ctx.beginPath(); ctx.arc(bx, by, 8, 0, Math.PI * 2);
           var g = ctx.createRadialGradient(bx - 2, by - 2, 1, bx, by, 8);
-          g.addColorStop(0, '#ffe0a0');
-          g.addColorStop(0.4, '#ffb347');
-          g.addColorStop(1, '#ff8c00');
+          g.addColorStop(0, '#d4c0ff');
+          g.addColorStop(0.3, '#a78bfa');
+          g.addColorStop(0.7, '#7c5bf5');
+          g.addColorStop(1, '#5b3fd4');
           ctx.fillStyle = g;
           ctx.fill();
           // Shine
-          ctx.beginPath(); ctx.arc(bx - 2, by - 2, 2.5, 0, Math.PI * 2);
-          ctx.fillStyle = 'rgba(255,255,255,0.5)';
+          ctx.beginPath(); ctx.arc(bx - 2, by - 3, 2.5, 0, Math.PI * 2);
+          ctx.fillStyle = 'rgba(255,255,255,0.45)';
           ctx.fill();
         }
       }
@@ -253,7 +266,7 @@ import AuthGate from '../../components/AuthGate.astro';
       // Cleanup old resolved balls
       activeBalls = activeBalls.filter(function(b) { return !b.resolved || (Date.now() - b.resolvedAt < 800); });
       if (activeBalls.length > 0) {
-        setTimeout(renderLoop, 50);
+        setTimeout(renderLoop, 75);
       } else {
         animRunning = false;
         drawBoard();
@@ -335,6 +348,69 @@ import AuthGate from '../../components/AuthGate.astro';
 
       if (!animRunning) { animRunning = true; renderLoop(); }
     });
+
+    // Manual/Auto tabs
+    var isAutoMode = false;
+    var autoRunning = false;
+    document.getElementById('tab-manual').addEventListener('click', function() {
+      isAutoMode = false;
+      autoRunning = false;
+      this.className = 'flex-1 py-2 text-xs font-bold text-white bg-[#2a2d35] cursor-pointer';
+      document.getElementById('tab-auto').className = 'flex-1 py-2 text-xs font-bold text-gray-400 bg-[#1a1d23] cursor-pointer border-l border-[#2a2d35]';
+      document.getElementById('auto-options').classList.add('hidden');
+      document.getElementById('btn-drop').textContent = 'Bet';
+    });
+    document.getElementById('tab-auto').addEventListener('click', function() {
+      isAutoMode = true;
+      this.className = 'flex-1 py-2 text-xs font-bold text-white bg-[#2a2d35] cursor-pointer border-l border-[#2a2d35]';
+      document.getElementById('tab-manual').className = 'flex-1 py-2 text-xs font-bold text-gray-400 bg-[#1a1d23] cursor-pointer';
+      document.getElementById('auto-options').classList.remove('hidden');
+      document.getElementById('btn-drop').textContent = autoRunning ? 'Stop' : 'Auto Bet';
+    });
+
+    // Override drop button for auto mode
+    var origDropHandler = document.getElementById('btn-drop').onclick;
+    document.getElementById('btn-drop').addEventListener('click', function(e) {
+      if (!isAutoMode) return; // manual mode handled by existing handler
+      e.stopImmediatePropagation();
+      if (autoRunning) {
+        autoRunning = false;
+        document.getElementById('btn-drop').textContent = 'Auto Bet';
+        return;
+      }
+      autoRunning = true;
+      document.getElementById('btn-drop').textContent = 'Stop';
+      var count = parseInt(document.getElementById('auto-count').value) || 10;
+      var interval = parseInt(document.getElementById('auto-interval').value) || 300;
+      var sent = 0;
+      function sendNext() {
+        if (!autoRunning || sent >= count || balance < currentBet) {
+          autoRunning = false;
+          document.getElementById('btn-drop').textContent = 'Auto Bet';
+          return;
+        }
+        dropOneBall();
+        sent++;
+        setTimeout(sendNext, interval);
+      }
+      sendNext();
+    }, true);
+
+    function dropOneBall() {
+      currentBet = parseInt(document.getElementById('bet-input').value) || 10;
+      if (balance < currentBet) return;
+      balance -= currentBet;
+      balance = Math.round(balance * 100) / 100;
+      document.getElementById('balance').textContent = balance.toFixed(2);
+      var path = createBallPath();
+      activeBalls.push({
+        path: path, frame: 0, trail: [],
+        x: path[0].x, y: path[0].y,
+        bet: currentBet, risk: riskLevel, rows: numRows,
+        resolved: false, resolvedAt: 0
+      });
+      if (!animRunning) { animRunning = true; renderLoop(); }
+    }
 
     // roundRect polyfill
     if (!ctx.roundRect) {
