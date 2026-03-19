@@ -65,6 +65,55 @@ import { casinos } from '../../data/casinos';
           Parier
         </button>
 
+        <!-- Jouer en argent réel (hover dropdown) -->
+        <div class="relative group">
+          <button class="w-full btn-glow bg-accent-green/20 border border-accent-green/30 text-accent-green font-bold py-2.5 rounded-lg text-xs uppercase tracking-wider hover:bg-accent-green/30 transition-all">
+            💰 Jouer en argent réel
+          </button>
+          <div class="absolute bottom-full left-0 mb-2 w-full bg-[#1a1d23] border border-[#2a2d35] rounded-lg shadow-2xl shadow-black/50 z-50 py-1 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
+            {casinos.map((casino, i) => (
+              <a href={casino.affiliateUrl} target="_blank" rel="nofollow noopener" class="flex items-center gap-2 px-3 py-2 hover:bg-[#2a2d35] transition-colors">
+                <span class="text-primary font-bold text-[10px]">#{i+1}</span>
+                <span class="text-sm">{casino.logo}</span>
+                <div class="flex-1 min-w-0">
+                  <p class="text-white font-bold text-[10px] truncate">{casino.name}</p>
+                  <p class="text-gray-500 text-[8px] truncate">{casino.bonusAmount}</p>
+                </div>
+              </a>
+            ))}
+          </div>
+        </div>
+
+        <!-- Mini Stats (collapsible, draggable) -->
+        <div id="stats-mini" class="border border-[#2a2d35] rounded-lg overflow-hidden cursor-move select-none" style="position:relative;">
+          <div id="stats-header" class="bg-[#2a2d35] px-3 py-1.5 flex items-center justify-between">
+            <span class="text-gray-400 text-[10px] font-bold uppercase tracking-wider">📊 Stats</span>
+            <button id="toggle-stats-mini" class="text-gray-500 hover:text-white text-xs">▼</button>
+          </div>
+          <div id="stats-body" class="bg-[#0e1015] p-2.5">
+            <div class="grid grid-cols-2 gap-2 mb-2">
+              <div class="text-center">
+                <p class="text-gray-600 text-[8px] uppercase">Misé</p>
+                <p class="text-white font-bold text-xs" id="stat-wagered">0€</p>
+              </div>
+              <div class="text-center">
+                <p class="text-gray-600 text-[8px] uppercase">Gagné</p>
+                <p class="text-accent-green font-bold text-xs" id="stat-won">0€</p>
+              </div>
+              <div class="text-center">
+                <p class="text-gray-600 text-[8px] uppercase">Profit</p>
+                <p class="font-bold text-xs" id="stat-profit">0€</p>
+              </div>
+              <div class="text-center">
+                <p class="text-gray-600 text-[8px] uppercase">Billes</p>
+                <p class="text-primary-light font-bold text-xs" id="stat-drops">0</p>
+              </div>
+            </div>
+            <canvas id="profit-chart" width="220" height="60" class="w-full rounded"></canvas>
+            <button id="reset-stats" class="text-gray-600 hover:text-white text-[9px] mt-1.5 w-full text-right">Réinitialiser</button>
+          </div>
+        </div>
+
         <!-- Balance -->
         <div class="border-t border-[#2a2d35] pt-3 mt-auto">
           <div class="flex items-center justify-between text-sm">
@@ -90,59 +139,6 @@ import { casinos } from '../../data/casinos';
 
     <div id="result" class="text-center mt-4 min-h-[40px] flex items-center justify-center"></div>
 
-    <!-- Jouer en réel -->
-    <div class="mt-4 bg-[#1a1d23] border border-[#2a2d35] rounded-xl p-5">
-      <div class="flex items-center justify-between mb-3">
-        <h3 class="text-white font-bold text-sm">💰 Jouer au Plinko en argent réel</h3>
-      </div>
-      <div class="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-5 gap-3">
-        {casinos.map((casino, i) => (
-          <a href={casino.affiliateUrl} target="_blank" rel="nofollow noopener" class="flex items-center gap-3 bg-[#0e1015] border border-[#2a2d35] hover:border-primary/30 rounded-lg p-3 transition-all group">
-            <img src={casino.logoUrl} alt={casino.name} class="w-8 h-8 rounded-lg object-contain" onerror={`this.style.display='none';this.nextElementSibling.classList.remove('hidden')`} />
-            <span class="text-lg hidden">{casino.logo}</span>
-            <div class="flex-1 min-w-0">
-              <p class="text-white font-bold text-xs group-hover:text-primary transition-colors truncate">{casino.name}</p>
-              <p class="text-gray-500 text-[10px] truncate">{casino.bonusAmount}</p>
-            </div>
-          </a>
-        ))}
-      </div>
-    </div>
-
-    <!-- Analytics Panel (collapsible) -->
-    <div class="mt-4">
-      <button id="toggle-stats" class="flex items-center gap-2 text-gray-400 hover:text-white text-sm font-medium transition-colors mb-2">
-        <svg id="stats-arrow" class="w-4 h-4 transition-transform" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" /></svg>
-        📊 Analyse de session
-      </button>
-      <div id="stats-panel" class="hidden bg-[#1a1d23] border border-[#2a2d35] rounded-xl p-5">
-        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-4">
-          <div class="text-center">
-            <p class="text-gray-500 text-[10px] uppercase tracking-wider">Total misé</p>
-            <p class="text-white font-bold text-lg" id="stat-wagered">0€</p>
-          </div>
-          <div class="text-center">
-            <p class="text-gray-500 text-[10px] uppercase tracking-wider">Total gagné</p>
-            <p class="text-accent-green font-bold text-lg" id="stat-won">0€</p>
-          </div>
-          <div class="text-center">
-            <p class="text-gray-500 text-[10px] uppercase tracking-wider">Profit/Perte</p>
-            <p class="font-bold text-lg" id="stat-profit">0€</p>
-          </div>
-          <div class="text-center">
-            <p class="text-gray-500 text-[10px] uppercase tracking-wider">Billes lancées</p>
-            <p class="text-primary-light font-bold text-lg" id="stat-drops">0</p>
-          </div>
-        </div>
-        <div class="bg-[#0e1015] rounded-lg p-3">
-          <p class="text-gray-500 text-[10px] uppercase tracking-wider mb-2">Évolution du profit</p>
-          <canvas id="profit-chart" width="600" height="120"></canvas>
-        </div>
-        <div class="flex justify-end mt-3">
-          <button id="reset-stats" class="text-gray-500 hover:text-white text-xs transition-colors">Réinitialiser</button>
-        </div>
-      </div>
-    </div>
   </section>
   </AuthGate>
 
@@ -301,27 +297,56 @@ import { casinos } from '../../data/casinos';
     }
     updateMC();
 
-    // Animation loop
-    function renderLoop() {
+    // Smooth animation loop using requestAnimationFrame + interpolation
+    var lastFrameTime = 0;
+    var FRAME_DURATION = 120; // ms per path step — slower = smoother
+
+    function renderLoop(timestamp) {
+      if (!timestamp) timestamp = performance.now();
       if (activeBalls.length === 0) { animRunning = false; drawBoard(); return; }
-      // Advance balls
-      for (var b = 0; b < activeBalls.length; b++) {
-        var ball = activeBalls[b];
-        if (ball.frame < ball.path.length) {
-          ball.trail.push(ball.path[ball.frame]);
-          ball.x = ball.path[ball.frame].x;
-          ball.y = ball.path[ball.frame].y;
-          ball.frame++;
-        } else if (!ball.resolved) {
-          ball.resolved = true;
-          resolveBall(ball);
+
+      var dt = timestamp - lastFrameTime;
+      if (dt >= 16) { // ~60fps
+        lastFrameTime = timestamp;
+
+        for (var b = 0; b < activeBalls.length; b++) {
+          var ball = activeBalls[b];
+          if (ball.resolved) continue;
+
+          // Smooth interpolation between path points
+          ball.progress = (ball.progress || 0) + dt / FRAME_DURATION;
+
+          while (ball.progress >= 1 && ball.frame < ball.path.length - 1) {
+            ball.progress -= 1;
+            ball.frame++;
+            ball.trail.push({ x: ball.path[ball.frame].x, y: ball.path[ball.frame].y });
+          }
+
+          if (ball.frame >= ball.path.length - 1) {
+            ball.x = ball.path[ball.path.length - 1].x;
+            ball.y = ball.path[ball.path.length - 1].y;
+            if (!ball.resolved) { ball.resolved = true; resolveBall(ball); }
+          } else {
+            // Lerp between current and next point
+            var from = ball.path[ball.frame];
+            var to = ball.path[Math.min(ball.frame + 1, ball.path.length - 1)];
+            var t = Math.min(ball.progress, 1);
+            // Ease in-out for smoother motion
+            t = t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+            ball.x = from.x + (to.x - from.x) * t;
+            ball.y = from.y + (to.y - from.y) * t;
+          }
+
+          // Keep trail short
+          if (ball.trail.length > 10) ball.trail.shift();
         }
+
+        drawBoard();
+        activeBalls = activeBalls.filter(function(b) { return !b.resolved || (Date.now() - b.resolvedAt < 600); });
       }
-      drawBoard();
-      // Cleanup old resolved balls
-      activeBalls = activeBalls.filter(function(b) { return !b.resolved || (Date.now() - b.resolvedAt < 800); });
+
       if (activeBalls.length > 0) {
-        setTimeout(renderLoop, 75);
+        requestAnimationFrame(renderLoop);
       } else {
         animRunning = false;
         drawBoard();
@@ -470,17 +495,49 @@ import { casinos } from '../../data/casinos';
     // ========== STATS / ANALYTICS ==========
     var stats = { wagered: 0, won: 0, drops: 0, profitHistory: [0] };
 
-    document.getElementById('toggle-stats').addEventListener('click', function() {
-      var panel = document.getElementById('stats-panel');
-      var arrow = document.getElementById('stats-arrow');
-      panel.classList.toggle('hidden');
-      arrow.style.transform = panel.classList.contains('hidden') ? '' : 'rotate(180deg)';
+    // Toggle mini stats
+    document.getElementById('toggle-stats-mini').addEventListener('click', function() {
+      var body = document.getElementById('stats-body');
+      body.classList.toggle('hidden');
+      this.textContent = body.classList.contains('hidden') ? '▶' : '▼';
     });
 
     document.getElementById('reset-stats').addEventListener('click', function() {
       stats = { wagered: 0, won: 0, drops: 0, profitHistory: [0] };
       updateStats();
     });
+
+    // Make stats panel draggable
+    (function() {
+      var panel = document.getElementById('stats-mini');
+      var header = document.getElementById('stats-header');
+      var isDragging = false, startX, startY, origX, origY;
+      var detached = false;
+
+      header.addEventListener('mousedown', function(e) {
+        if (e.target.id === 'toggle-stats-mini') return;
+        isDragging = true;
+        startX = e.clientX; startY = e.clientY;
+        var rect = panel.getBoundingClientRect();
+        if (!detached) {
+          // Detach from flow
+          panel.style.position = 'fixed';
+          panel.style.left = rect.left + 'px';
+          panel.style.top = rect.top + 'px';
+          panel.style.width = rect.width + 'px';
+          panel.style.zIndex = '999';
+          detached = true;
+        }
+        origX = parseInt(panel.style.left); origY = parseInt(panel.style.top);
+        e.preventDefault();
+      });
+      document.addEventListener('mousemove', function(e) {
+        if (!isDragging) return;
+        panel.style.left = (origX + e.clientX - startX) + 'px';
+        panel.style.top = (origY + e.clientY - startY) + 'px';
+      });
+      document.addEventListener('mouseup', function() { isDragging = false; });
+    })();
 
     function updateStats() {
       var profit = stats.won - stats.wagered;
