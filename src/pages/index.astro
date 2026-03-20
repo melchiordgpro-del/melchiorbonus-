@@ -110,12 +110,20 @@ const topCasinos = casinos.slice(0, 5);
         </div>
       </div>
 
-      <!-- Slider -->
+      <!-- Quick amounts + input + slider -->
       <div class="mb-3">
-        <input type="range" id="sim-slider" min="25" max="1500" step="25" value="100" class="w-full h-1.5 rounded-full appearance-none cursor-pointer" style="background:linear-gradient(to right, #22c55e 6.7%, #2a2d35 6.7%);accent-color:#22c55e;" />
-        <div class="flex justify-between text-[9px] text-gray-600 mt-0.5">
-          <span>25€</span><span>500€</span><span>1000€</span><span>1500€</span>
+        <div class="flex flex-wrap items-center gap-2 mb-2">
+          <button data-amount="25" class="sim-quick-btn bg-[#1a1d23] border border-[#2a2d35] text-gray-300 text-xs font-bold px-3 py-1.5 rounded-lg hover:border-accent-green hover:text-accent-green transition-all cursor-pointer">25€</button>
+          <button data-amount="50" class="sim-quick-btn bg-[#1a1d23] border border-[#2a2d35] text-gray-300 text-xs font-bold px-3 py-1.5 rounded-lg hover:border-accent-green hover:text-accent-green transition-all cursor-pointer">50€</button>
+          <button data-amount="100" class="sim-quick-btn bg-[#1a1d23] border border-accent-green text-accent-green text-xs font-bold px-3 py-1.5 rounded-lg cursor-pointer">100€</button>
+          <button data-amount="200" class="sim-quick-btn bg-[#1a1d23] border border-[#2a2d35] text-gray-300 text-xs font-bold px-3 py-1.5 rounded-lg hover:border-accent-green hover:text-accent-green transition-all cursor-pointer">200€</button>
+          <button data-amount="500" class="sim-quick-btn bg-[#1a1d23] border border-[#2a2d35] text-gray-300 text-xs font-bold px-3 py-1.5 rounded-lg hover:border-accent-green hover:text-accent-green transition-all cursor-pointer">500€</button>
+          <div class="relative">
+            <input type="number" id="sim-input" min="1" max="10000" placeholder="Montant..." class="bg-[#1a1d23] border border-[#2a2d35] text-white text-xs font-bold w-24 px-2 py-1.5 rounded-lg focus:border-accent-green focus:outline-none appearance-none" />
+            <span class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 text-[10px]">€</span>
+          </div>
         </div>
+        <input type="range" id="sim-slider" min="25" max="1500" step="25" value="100" class="w-full h-1.5 rounded-full appearance-none cursor-pointer" style="background:linear-gradient(to right, #22c55e 6.7%, #2a2d35 6.7%);accent-color:#22c55e;" />
       </div>
 
       <!-- Casino Selector -->
@@ -393,7 +401,50 @@ const topCasinos = casinos.slice(0, 5);
       }
     }
 
-    slider.addEventListener('input', function() { calc(parseInt(this.value)); });
+    slider.addEventListener('input', function() {
+      var v = parseInt(this.value);
+      document.getElementById('sim-input').value = '';
+      updateQuickBtns(v);
+      calc(v);
+    });
+
+    // Quick amount buttons
+    function updateQuickBtns(val) {
+      document.querySelectorAll('.sim-quick-btn').forEach(function(b) {
+        var amt = parseInt(b.dataset.amount);
+        if (amt === val) {
+          b.className = 'sim-quick-btn bg-[#1a1d23] border border-accent-green text-accent-green text-xs font-bold px-3 py-1.5 rounded-lg cursor-pointer';
+        } else {
+          b.className = 'sim-quick-btn bg-[#1a1d23] border border-[#2a2d35] text-gray-300 text-xs font-bold px-3 py-1.5 rounded-lg hover:border-accent-green hover:text-accent-green transition-all cursor-pointer';
+        }
+      });
+    }
+
+    document.querySelectorAll('.sim-quick-btn').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        var val = parseInt(btn.dataset.amount);
+        slider.value = Math.min(val, 1500);
+        slider.style.background = 'linear-gradient(to right, #22c55e ' + ((val - 25) / (1500 - 25) * 100) + '%, #2a2d35 ' + ((val - 25) / (1500 - 25) * 100) + '%)';
+        document.getElementById('sim-input').value = '';
+        updateQuickBtns(val);
+        calc(val);
+      });
+    });
+
+    // Custom input
+    var simInput = document.getElementById('sim-input');
+    simInput.addEventListener('input', function() {
+      var val = parseInt(this.value);
+      if (!val || val < 1) return;
+      slider.value = Math.min(val, 1500);
+      slider.style.background = 'linear-gradient(to right, #22c55e ' + ((Math.min(val, 1500) - 25) / (1500 - 25) * 100) + '%, #2a2d35 ' + ((Math.min(val, 1500) - 25) / (1500 - 25) * 100) + '%)';
+      updateQuickBtns(val);
+      calc(val);
+    });
+    simInput.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') { e.preventDefault(); this.blur(); }
+    });
+
     calc(100);
   })();
 
