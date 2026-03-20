@@ -45,11 +45,6 @@ const allSlotsSorted = [...slots].sort((a, b) => b.players - a.players);
           <div class="aspect-square bg-gradient-to-br from-primary/30 via-bg-card to-bg-surface relative overflow-hidden flex items-center justify-center">
             <img src={slot.image} alt={slot.name} class="w-full h-full object-cover absolute inset-0" loading="lazy" onerror="this.style.display='none'; this.nextElementSibling.style.display='block'" />
             <span class="text-white/80 font-extrabold text-center text-sm px-2 leading-tight uppercase tracking-wider drop-shadow-lg relative z-0 hidden">{slot.name}</span>
-            {slot.hasBonusBuy && (
-              <div class="absolute top-2 left-2 w-6 h-6 bg-accent-green rounded-full flex items-center justify-center shadow-lg" title="Bonus Buy disponible">
-                <span class="text-white text-xs font-bold">$</span>
-              </div>
-            )}
             <!-- Hover overlay -->
             <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex flex-col items-center justify-center gap-2 p-3">
               <a href={`/jeux/slots/${slot.slug}`} class="w-full bg-primary hover:bg-primary-light text-white font-bold text-xs text-center py-2 rounded-lg transition-all">
