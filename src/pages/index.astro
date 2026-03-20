@@ -396,6 +396,17 @@ const topCasinos = casinos.slice(0, 5);
     slider.addEventListener('input', function() { calc(parseInt(this.value)); });
     calc(100);
   })();
+
+  // Track affiliate link clicks
+  document.addEventListener('click', function(e) {
+    var link = e.target.closest('a[href*="http"]');
+    if (!link) return;
+    var href = link.href;
+    var casinoName = link.closest('[data-casino]')?.dataset.casino || link.textContent.trim().substring(0, 30);
+    if (typeof window.va === 'function') {
+      window.va('event', { name: 'affiliate_click', data: { casino: casinoName, url: href } });
+    }
+  });
   </script>
 
 </LandingLayout>
