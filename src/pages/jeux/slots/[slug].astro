@@ -64,28 +64,43 @@ const { slot } = Astro.props;
       </div>
     </div>
 
-    <!-- Game iframe -->
-    <div class="bg-bg-card border border-bg-border rounded-2xl overflow-hidden shadow-2xl mb-8">
-      <div class="relative w-full" style="padding-bottom: 62.5%;">
-        <iframe
-          id="game-frame"
-          src={slot.demoUrl}
-          class="absolute inset-0 w-full h-full border-0"
-          allowfullscreen
-          loading="lazy"
-          sandbox="allow-scripts allow-same-origin allow-popups allow-forms"
-        ></iframe>
+    <!-- Game iframe or unavailable message -->
+    {slot.demoUrl ? (
+      <div class="bg-bg-card border border-bg-border rounded-2xl overflow-hidden shadow-2xl mb-8">
+        <div class="relative w-full" style="padding-bottom: 62.5%;">
+          <iframe
+            id="game-frame"
+            src={slot.demoUrl}
+            class="absolute inset-0 w-full h-full border-0"
+            allowfullscreen
+            loading="lazy"
+            sandbox="allow-scripts allow-same-origin allow-popups allow-forms"
+          ></iframe>
+        </div>
       </div>
-    </div>
+      <div class="flex items-center justify-between mb-8">
+        <p class="text-gray-500 text-sm">🎮 Mode démo — Jeu gratuit avec argent virtuel</p>
+        <button id="fullscreen-btn" class="bg-bg-card border border-bg-border text-gray-300 hover:text-white hover:border-primary/30 font-medium text-sm px-4 py-2 rounded-lg transition-all flex items-center gap-2">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 8V4h4M20 8V4h-4M4 16v4h4M20 16v4h-4" /></svg>
+          Plein écran
+        </button>
+      </div>
+    ) : (
+      <div class="bg-bg-card border border-bg-border rounded-2xl overflow-hidden shadow-2xl mb-8 p-12 text-center">
+        <img src={slot.image} alt={slot.name} class="w-48 h-48 object-cover rounded-xl mx-auto mb-6 shadow-lg" />
+        <h2 class="text-white font-extrabold text-xl mb-2">Démo indisponible</h2>
+        <p class="text-gray-400 text-sm mb-6">{slot.provider} ne permet pas l'accès à la démo depuis un site externe.<br/>Joue à {slot.name} directement sur un de nos casinos partenaires !</p>
+        <div class="flex flex-wrap justify-center gap-3">
+          {casinos.slice(0, 3).map((c) => (
+            <a href={c.affiliateUrl} target="_blank" rel="nofollow noopener" class="btn-glow bg-accent-green hover:bg-accent-green/80 text-white font-bold text-sm px-5 py-2.5 rounded-lg transition-all flex items-center gap-2">
+              🎰 Jouer sur {c.name}
+            </a>
+          ))}
+        </div>
+      </div>
+      <div class="mb-8"></div>
+    )}
 
-    <!-- Fullscreen button -->
-    <div class="flex items-center justify-between mb-8">
-      <p class="text-gray-500 text-sm">🎮 Mode démo — Jeu gratuit avec argent virtuel</p>
-      <button id="fullscreen-btn" class="bg-bg-card border border-bg-border text-gray-300 hover:text-white hover:border-primary/30 font-medium text-sm px-4 py-2 rounded-lg transition-all flex items-center gap-2">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 8V4h4M20 8V4h-4M4 16v4h4M20 16v4h-4" /></svg>
-        Plein écran
-      </button>
-    </div>
 
     <!-- Play for real banner -->
     <div class="bg-gradient-to-r from-primary/10 via-primary/5 to-primary/10 border border-primary/20 rounded-2xl p-6 mb-8">

@@ -47,11 +47,12 @@ export const slots: Slot[] = [
   { slug: "rabbit-heist", name: "Rabbit Heist", provider: "Pragmatic Play", image: "https://cdn.pragmaticplay.net/game_pic/rec/325/vs20rabbitheist.png", rtp: "96.49%", volatility: "Haute", maxWin: "5000x", players: 123, hasBonusBuy: true, demoUrl: "https://demogamesfree.pragmaticplay.net/gs2c/openGame.do?gameSymbol=vs20rabbitheist&lang=fr&cur=EUR" },
   { slug: "fire-stampede-ultimate", name: "Fire Stampede Ultimate", provider: "Pragmatic Play", image: "/slots/fire-stampede-ultimate.png", rtp: "96.50%", volatility: "Haute", maxWin: "5000x", players: 165, hasBonusBuy: true, demoUrl: "https://demogamesfree.pragmaticplay.net/gs2c/openGame.do?gameSymbol=vs20firestampede&lang=fr&cur=EUR" },
 
-  // Hacksaw Gaming
-  { slug: "wanted-dead-or-a-wild", name: "Wanted Dead or a Wild", provider: "Hacksaw Gaming", image: "/slots/wanted-dead-or-a-wild.jpg", rtp: "96.38%", volatility: "Très Haute", maxWin: "12500x", players: 670, hasBonusBuy: true, demoUrl: "https://static-live.hacksawgaming.com/load.html?game=wanted-dead-or-a-wild&lang=fr&channel=desktop" },
-  { slug: "chaos-crew", name: "Chaos Crew", provider: "Hacksaw Gaming", image: "/slots/chaos-crew.jpg", rtp: "96.36%", volatility: "Très Haute", maxWin: "10000x", players: 289, hasBonusBuy: true, demoUrl: "https://static-live.hacksawgaming.com/load.html?game=chaos-crew&lang=fr&channel=desktop" },
-  { slug: "dork-unit", name: "Dork Unit", provider: "Hacksaw Gaming", image: "/slots/dork-unit.jpg", rtp: "96.35%", volatility: "Très Haute", maxWin: "10000x", players: 166, hasBonusBuy: true, demoUrl: "https://static-live.hacksawgaming.com/load.html?game=dork-unit&lang=fr&channel=desktop" },
-  { slug: "stick-em", name: "Stick 'Em", provider: "Hacksaw Gaming", image: "/slots/stick-em.jpg", rtp: "96.36%", volatility: "Haute", maxWin: "10000x", players: 123, hasBonusBuy: true, demoUrl: "https://static-live.hacksawgaming.com/load.html?game=stick-em&lang=fr&channel=desktop" },
+  // Hacksaw Gaming — démos bloquées par le provider (X-Frame-Options deny)
+  // Ces slots restent visibles mais avec un message "Démo indisponible" au lieu de l'iframe
+  { slug: "wanted-dead-or-a-wild", name: "Wanted Dead or a Wild", provider: "Hacksaw Gaming", image: "/slots/wanted-dead-or-a-wild.jpg", rtp: "96.38%", volatility: "Très Haute", maxWin: "12500x", players: 670, hasBonusBuy: true, demoUrl: "" },
+  { slug: "chaos-crew", name: "Chaos Crew", provider: "Hacksaw Gaming", image: "/slots/chaos-crew.jpg", rtp: "96.36%", volatility: "Très Haute", maxWin: "10000x", players: 289, hasBonusBuy: true, demoUrl: "" },
+  { slug: "dork-unit", name: "Dork Unit", provider: "Hacksaw Gaming", image: "/slots/dork-unit.jpg", rtp: "96.35%", volatility: "Très Haute", maxWin: "10000x", players: 166, hasBonusBuy: true, demoUrl: "" },
+  { slug: "stick-em", name: "Stick 'Em", provider: "Hacksaw Gaming", image: "/slots/stick-em.jpg", rtp: "96.36%", volatility: "Haute", maxWin: "10000x", players: 123, hasBonusBuy: true, demoUrl: "" },
 ];
 
 export function getSlotsByProvider(): Record<string, Slot[]> {
