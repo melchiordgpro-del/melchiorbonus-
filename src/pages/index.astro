@@ -123,6 +123,17 @@ const topCasinos = casinos.slice(0, 5);
         </div>
       </div>
 
+      <!-- Casino Selector -->
+      <div class="flex flex-wrap items-center gap-2 mb-4" id="sim-casino-pills">
+      </div>
+      <div class="flex items-center gap-2 mb-6">
+        <div class="relative flex-1 max-w-xs">
+          <select id="sim-add-select" class="w-full bg-[#1a1d23] border border-[#2a2d35] text-gray-300 text-sm rounded-lg px-3 py-2 appearance-none cursor-pointer focus:border-primary focus:outline-none">
+            <option value="">+ Ajouter un casino à comparer</option>
+          </select>
+        </div>
+      </div>
+
       <!-- Results Grid -->
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" id="sim-results">
       </div>
@@ -207,6 +218,63 @@ const topCasinos = casinos.slice(0, 5);
     var slider = document.getElementById('sim-slider');
     var display = document.getElementById('sim-deposit-display');
     var results = document.getElementById('sim-results');
+    var pillsContainer = document.getElementById('sim-casino-pills');
+    var addSelect = document.getElementById('sim-add-select');
+
+    // Track which casinos are shown (start with just Hugo Bets)
+    var activeCasinos = [0];
+
+    function renderPills() {
+      var html = '';
+      activeCasinos.forEach(function(idx) {
+        var c = casinos[idx];
+        html += '<span class="inline-flex items-center gap-1.5 bg-[#1a1d23] border border-[#2a2d35] text-white text-xs font-bold px-3 py-1.5 rounded-full">';
+        html += '<span>' + c.logo + '</span>';
+        html += '<span>' + c.name + '</span>';
+        if (activeCasinos.length > 1) {
+          html += '<button data-remove="' + idx + '" class="text-gray-500 hover:text-red-400 ml-1 text-sm leading-none" style="cursor:pointer">×</button>';
+        }
+        html += '</span>';
+      });
+      pillsContainer.innerHTML = html;
+
+      // Bind remove buttons
+      pillsContainer.querySelectorAll('[data-remove]').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+          var removeIdx = parseInt(this.dataset.remove);
+          activeCasinos = activeCasinos.filter(function(i) { return i !== removeIdx; });
+          renderPills();
+          updateAddSelect();
+          calc(parseInt(slider.value));
+        });
+      });
+    }
+
+    function updateAddSelect() {
+      var html = '<option value="">+ Ajouter un casino à comparer</option>';
+      casinos.forEach(function(c, i) {
+        if (activeCasinos.indexOf(i) === -1) {
+          html += '<option value="' + i + '">' + c.logo + ' ' + c.name + '</option>';
+        }
+      });
+      addSelect.innerHTML = html;
+    }
+
+    addSelect.addEventListener('change', function() {
+      var val = this.value;
+      if (val === '') return;
+      var idx = parseInt(val);
+      if (activeCasinos.indexOf(idx) === -1) {
+        activeCasinos.push(idx);
+        renderPills();
+        updateAddSelect();
+        calc(parseInt(slider.value));
+      }
+      this.value = '';
+    });
+
+    renderPills();
+    updateAddSelect();
 
     function calc(deposit) {
       display.textContent = deposit + '€';
@@ -214,7 +282,8 @@ const topCasinos = casinos.slice(0, 5);
       slider.style.background = 'linear-gradient(to right, #22c55e ' + pct + '%, #2a2d35 ' + pct + '%)';
 
       var html = '';
-      casinos.forEach(function(c) {
+      activeCasinos.forEach(function(idx) {
+        var c = casinos[idx];
         var totalBonus = 0;
         var totalFS = 0;
         var details = [];
@@ -321,6 +390,15 @@ const topCasinos = casinos.slice(0, 5);
       });
 
       results.innerHTML = html;
+
+      // Adjust grid based on number of active casinos
+      if (activeCasinos.length === 1) {
+        results.className = 'grid grid-cols-1 max-w-md mx-auto gap-4';
+      } else if (activeCasinos.length === 2) {
+        results.className = 'grid grid-cols-1 sm:grid-cols-2 max-w-2xl mx-auto gap-4';
+      } else {
+        results.className = 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4';
+      }
     }
 
     slider.addEventListener('input', function() { calc(parseInt(this.value)); });
