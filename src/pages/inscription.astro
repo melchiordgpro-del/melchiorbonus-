@@ -128,17 +128,21 @@ import Layout from '../layouts/Layout.astro';
       pw.type = pw.type === 'password' ? 'text' : 'password';
     });
 
-    document.getElementById('btn-google').addEventListener('click', function() {
-      window.open('https://accounts.google.com/signup', '_blank');
-    });
+    // Supabase OAuth
+    var SUPABASE_URL = 'https://kmgnjlugleunrhjcqrii.supabase.co';
+    var SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImttZ25qbHVnbGV1bnJoamNxcmlpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQxMDE3NTgsImV4cCI6MjA4OTY3Nzc1OH0.GTwyl2TSIcGIFUdwu6neN4X0HFmu1tjI32WMqLmRBRo';
+
+    function supabaseOAuth(provider) {
+      var redirectTo = window.location.origin + '/auth/callback';
+      var url = SUPABASE_URL + '/auth/v1/authorize?provider=' + provider + '&redirect_to=' + encodeURIComponent(redirectTo);
+      window.location.href = url;
+    }
+
     document.getElementById('btn-discord').addEventListener('click', function() {
-      window.open('https://discord.com/register', '_blank');
+      supabaseOAuth('discord');
     });
-    document.getElementById('btn-twitch').addEventListener('click', function() {
-      window.open('https://www.twitch.tv/signup', '_blank');
-    });
-    document.getElementById('btn-kick').addEventListener('click', function() {
-      window.open('https://kick.com/signup', '_blank');
+    document.getElementById('btn-google').addEventListener('click', function() {
+      supabaseOAuth('google');
     });
   </script>
 </Layout>

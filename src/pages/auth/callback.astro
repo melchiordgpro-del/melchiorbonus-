@@ -1,0 +1,68 @@
+---
+import Layout from '../../layouts/Layout.astro';
+---
+
+<Layout title="Connexion..." description="Connexion en cours">
+  <section class="max-w-md mx-auto px-4 py-32 text-center">
+    <div class="text-5xl mb-6 animate-spin inline-block">⚡</div>
+    <h1 class="text-2xl font-extrabold text-white mb-2">Connexion en cours...</h1>
+    <p class="text-gray-400" id="status">Vérification de ton compte...</p>
+  </section>
+
+  <script is:inline>
+    var SUPABASE_URL = 'https://kmgnjlugleunrhjcqrii.supabase.co';
+    var SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImttZ25qbHVnbGV1bnJoamNxcmlpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQxMDE3NTgsImV4cCI6MjA4OTY3Nzc1OH0.GTwyl2TSIcGIFUdwu6neN4X0HFmu1tjI32WMqLmRBRo';
+
+    // Parse the hash fragment from Supabase OAuth redirect
+    var hash = window.location.hash.substring(1);
+    var params = new URLSearchParams(hash);
+    var accessToken = params.get('access_token');
+
+    if (accessToken) {
+      // Fetch user info from Supabase
+      fetch(SUPABASE_URL + '/auth/v1/user', {
+        headers: {
+          'Authorization': 'Bearer ' + accessToken,
+          'apikey': SUPABASE_ANON
+        }
+      })
+      .then(function(r) { return r.json(); })
+      .then(function(user) {
+        var name = 'Utilisateur';
+        var method = 'oauth';
+
+        if (user.user_metadata) {
+          name = user.user_metadata.full_name || user.user_metadata.name || user.user_metadata.preferred_username || user.email.split('@')[0];
+          if (user.app_metadata && user.app_metadata.provider) {
+            method = user.app_metadata.provider;
+          }
+        }
+
+        localStorage.setItem('melchior_logged_in', 'true');
+        localStorage.setItem('melchior_user_name', name);
+        localStorage.setItem('melchior_login_method', method);
+        localStorage.setItem('melchior_user_email', user.email || '');
+        localStorage.setItem('melchior_user_avatar', user.user_metadata.avatar_url || '');
+
+        if (!localStorage.getItem('melchior_coins')) {
+          localStorage.setItem('melchior_coins', '3000.00');
+        }
+
+        document.getElementById('status').textContent = 'Bienvenue ' + name + ' ! Redirection...';
+        setTimeout(function() { window.location.href = '/'; }, 1000);
+      })
+      .catch(function(err) {
+        document.getElementById('status').textContent = 'Erreur : ' + err.message;
+      });
+    } else {
+      // Check for error
+      var error = params.get('error_description') || params.get('error');
+      if (error) {
+        document.getElementById('status').textContent = 'Erreur : ' + decodeURIComponent(error);
+      } else {
+        document.getElementById('status').textContent = 'Aucun token reçu. Retour à la page de connexion...';
+        setTimeout(function() { window.location.href = '/login'; }, 2000);
+      }
+    }
+  </script>
+</Layout>

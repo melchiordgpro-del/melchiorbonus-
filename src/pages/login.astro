@@ -75,17 +75,20 @@ import Layout from '../layouts/Layout.astro';
       if (email) loginAs(email.split('@')[0], 'email');
     });
 
-    document.getElementById('btn-google').addEventListener('click', function() {
-      window.open('https://accounts.google.com/signin', '_blank');
-    });
+    // Supabase OAuth
+    var SUPABASE_URL = 'https://kmgnjlugleunrhjcqrii.supabase.co';
+
+    function supabaseOAuth(provider) {
+      var redirectTo = window.location.origin + '/auth/callback';
+      var url = SUPABASE_URL + '/auth/v1/authorize?provider=' + provider + '&redirect_to=' + encodeURIComponent(redirectTo);
+      window.location.href = url;
+    }
+
     document.getElementById('btn-discord').addEventListener('click', function() {
-      window.open('https://discord.com/login', '_blank');
+      supabaseOAuth('discord');
     });
-    document.getElementById('btn-twitch').addEventListener('click', function() {
-      window.open('https://www.twitch.tv/login', '_blank');
-    });
-    document.getElementById('btn-kick').addEventListener('click', function() {
-      window.open('https://kick.com/login', '_blank');
+    document.getElementById('btn-google').addEventListener('click', function() {
+      supabaseOAuth('google');
     });
   </script>
 </Layout>
