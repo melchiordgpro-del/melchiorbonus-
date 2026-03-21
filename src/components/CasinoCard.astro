@@ -55,7 +55,7 @@ const offertAmount = offertMatch ? offertMatch[1] : null;
   <!-- Big Offer Box -->
   <div class="mx-4 mb-3">
     <div class="rounded-xl p-4 text-center border-2 bg-yellow-500/5 border-yellow-500/40">
-      <p class:list={["font-black uppercase tracking-wider text-2xl", "text-accent-green"]}>
+      <p class:list={["font-black uppercase tracking-wider text-2xl shimmer-text", "text-accent-green"]}>
         {offertAmount ? offertAmount + ' OFFERTS*' : casino.bonusAmount}
       </p>
       <p class="text-gray-300 text-xs mt-2 leading-relaxed" set:html={casino.bonusDescription.replace(/—/g, '<br/>').trim().replace(/(\d+%)/g, '<strong class="text-gold font-extrabold">$1</strong>').replace(/(\d+\s*€)/g, '<strong class="text-gold font-extrabold">$1</strong>').replace(/(Free Spins|FS)/gi, '<strong class="text-gold font-extrabold">$1</strong>')} />
