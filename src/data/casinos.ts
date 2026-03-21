@@ -34,7 +34,7 @@ export const casinos: Casino[] = [
     bannerImage: "https://cdn.beacons.ai/user_content/utoICWn4YnWZ9kTPzJLpbuWnXhM2/referenced_images/generated-images__link-in-bio__links-block__home__785d9f26-e1b4-42af-bce5-0653af95365e__79931a8a-4655-4664-998f-f6bc43057601__16a58aa6-ed45-4671-bce7-9eb51036e91f.webp",
     rating: 4.8,
     bonusTitle: "Bonus de Bienvenue",
-    bonusAmount: "1000€ + 150 Free Spins",
+    bonusAmount: "25€ OFFERTS*",
     bonusDescription: "100% jusqu'à 1000€ + 150 FS répartis sur 3 dépôts — SANS WAGER !",
     affiliateUrl: "https://partners.hbetpartners.com/geo/3/608b3f30-1191-11f1-afd2-f6136488bd8f/1",
     pros: ["Bonus généreux jusqu'à 1000€", "150 free spins inclus", "25€ offert en bonus", "Large sélection de jeux"],
