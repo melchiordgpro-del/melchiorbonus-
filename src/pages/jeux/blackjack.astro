@@ -1,13 +1,13 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 import AuthGate from '../../components/AuthGate.astro';
-import UnderConstruction from '../../components/UnderConstruction.astro';
+import SoundControl from '../../components/SoundControl.astro';
 import { casinos } from '../../data/casinos';
 ---
 
 <Layout title="Blackjack Américain — Table Virtuelle | MelchiorBonus" description="Joue au Blackjack Américain sur une table virtuelle. Règles classiques, double down, split, insurance.">
   <AuthGate>
-  <UnderConstruction>
+  <SoundControl />
   <section class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
     <div class="flex items-center justify-between mb-4">
       <h1 class="text-2xl font-extrabold text-white flex items-center gap-2">🃏 Blackjack Américain</h1>
@@ -213,6 +213,105 @@ import { casinos } from '../../data/casinos';
     var balance = 1000, currentBet = 0, lastBet = 10, wins = 0;
     var gameActive = false, historyResults = [], hasPlayedOnce = false;
 
+    // ==================== SOUND EFFECTS ====================
+    var _bjAudioCtx = null;
+    function _bjCtx() {
+      if (!_bjAudioCtx) _bjAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      return _bjAudioCtx;
+    }
+    function getVolume() {
+      if (localStorage.getItem('melchior_sound_enabled') === 'false') return 0;
+      return (parseInt(localStorage.getItem('melchior_sound_volume') || '50')) / 100;
+    }
+    function playCardDeal() {
+      try {
+        var ctx = _bjCtx(); var vol = getVolume(); if (!vol) return;
+        // Whoosh sweep
+        var osc = ctx.createOscillator(); var gain = ctx.createGain();
+        var filter = ctx.createBiquadFilter();
+        osc.connect(filter); filter.connect(gain); gain.connect(ctx.destination);
+        osc.type = 'sawtooth'; filter.type = 'bandpass'; filter.frequency.value = 2000; filter.Q.value = 0.5;
+        osc.frequency.setValueAtTime(800, ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(2400, ctx.currentTime + 0.06);
+        osc.frequency.exponentialRampToValueAtTime(600, ctx.currentTime + 0.12);
+        gain.gain.setValueAtTime(vol * 0.08, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.12);
+        osc.start(ctx.currentTime); osc.stop(ctx.currentTime + 0.12);
+      } catch(e) {}
+    }
+    function playChipClick() {
+      try {
+        var ctx = _bjCtx(); var vol = getVolume(); if (!vol) return;
+        var osc = ctx.createOscillator(); var gain = ctx.createGain();
+        osc.connect(gain); gain.connect(ctx.destination);
+        osc.type = 'sine'; osc.frequency.value = 1800;
+        gain.gain.setValueAtTime(vol * 0.06, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.05);
+        osc.start(ctx.currentTime); osc.stop(ctx.currentTime + 0.05);
+      } catch(e) {}
+    }
+    function playWinSound() {
+      try {
+        var ctx = _bjCtx(); var vol = getVolume(); if (!vol) return;
+        // C-E-G ascending chord
+        var freqs = [523.25, 659.25, 783.99];
+        freqs.forEach(function(f, i) {
+          var osc = ctx.createOscillator(); var gain = ctx.createGain();
+          osc.connect(gain); gain.connect(ctx.destination);
+          osc.type = 'sine'; osc.frequency.value = f;
+          gain.gain.setValueAtTime(vol * 0.07, ctx.currentTime + i * 0.1);
+          gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i * 0.1 + 0.3);
+          osc.start(ctx.currentTime + i * 0.1); osc.stop(ctx.currentTime + i * 0.1 + 0.3);
+        });
+      } catch(e) {}
+    }
+    function playLoseSound() {
+      try {
+        var ctx = _bjCtx(); var vol = getVolume(); if (!vol) return;
+        var osc = ctx.createOscillator(); var gain = ctx.createGain();
+        osc.connect(gain); gain.connect(ctx.destination);
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(350, ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(150, ctx.currentTime + 0.4);
+        gain.gain.setValueAtTime(vol * 0.1, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.4);
+        osc.start(ctx.currentTime); osc.stop(ctx.currentTime + 0.4);
+      } catch(e) {}
+    }
+    function playBlackjackSound() {
+      try {
+        var ctx = _bjCtx(); var vol = getVolume(); if (!vol) return;
+        // Sparkly ascending notes
+        var notes = [523.25, 659.25, 783.99, 1046.50, 1318.51];
+        notes.forEach(function(f, i) {
+          var osc = ctx.createOscillator(); var gain = ctx.createGain();
+          osc.connect(gain); gain.connect(ctx.destination);
+          osc.type = 'sine'; osc.frequency.value = f;
+          gain.gain.setValueAtTime(vol * 0.06, ctx.currentTime + i * 0.08);
+          gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i * 0.08 + 0.25);
+          osc.start(ctx.currentTime + i * 0.08); osc.stop(ctx.currentTime + i * 0.08 + 0.25);
+          // Sparkle overtone
+          var osc2 = ctx.createOscillator(); var gain2 = ctx.createGain();
+          osc2.connect(gain2); gain2.connect(ctx.destination);
+          osc2.type = 'sine'; osc2.frequency.value = f * 2;
+          gain2.gain.setValueAtTime(vol * 0.03, ctx.currentTime + i * 0.08);
+          gain2.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i * 0.08 + 0.15);
+          osc2.start(ctx.currentTime + i * 0.08); osc2.stop(ctx.currentTime + i * 0.08 + 0.15);
+        });
+      } catch(e) {}
+    }
+    function playPushSound() {
+      try {
+        var ctx = _bjCtx(); var vol = getVolume(); if (!vol) return;
+        var osc = ctx.createOscillator(); var gain = ctx.createGain();
+        osc.connect(gain); gain.connect(ctx.destination);
+        osc.type = 'triangle'; osc.frequency.value = 440;
+        gain.gain.setValueAtTime(vol * 0.06, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.2);
+        osc.start(ctx.currentTime); osc.stop(ctx.currentTime + 0.2);
+      } catch(e) {}
+    }
+
     function createDeck() {
       var d = [];
       for (var n = 0; n < 6; n++)
@@ -348,6 +447,7 @@ import { casinos } from '../../data/casinos';
         if (gameActive) return;
         var val = parseInt(chip.dataset.bet);
         if (balance < val) return;
+        playChipClick();
         currentBet += val;
         balance -= val;
         lastBet = currentBet;
@@ -423,12 +523,19 @@ import { casinos } from '../../data/casinos';
       setTimeout(function() {
         showResult(text, type);
         if (balAdd) balance += balAdd;
-        if (type==='win'||type==='blackjack') {
+        if (type==='blackjack') {
           wins++;
           highlightCards('green');
+          playBlackjackSound();
+        } else if (type==='win') {
+          wins++;
+          highlightCards('green');
+          playWinSound();
         } else if (type==='lose') {
+          playLoseSound();
           highlightCards('red');
         } else {
+          playPushSound();
           highlightCards('gray');
         }
         addHistory(type==='blackjack'?'BJ':type==='win'?'W':type==='push'?'P':'L');
@@ -444,6 +551,7 @@ import { casinos } from '../../data/casinos';
 
     function deal() {
       if (gameActive || currentBet <= 0) return;
+      playCardDeal();
       clearResult();
       clearHighlights();
       document.getElementById('post-game-btns').classList.add('hidden');
@@ -490,6 +598,7 @@ import { casinos } from '../../data/casinos';
 
     function hit() {
       if (!gameActive) return;
+      playCardDeal();
       var newCard = drawCard();
       playerHand.push(newCard);
       addCardToHand(document.getElementById('player-cards'), newCard);
@@ -982,6 +1091,5 @@ import { casinos } from '../../data/casinos';
       _origEndHand(text, type, balAdd, fast);
     };
   </script>
-  </UnderConstruction>
   </AuthGate>
 </Layout>

@@ -1,13 +1,13 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 import AuthGate from '../../components/AuthGate.astro';
-import UnderConstruction from '../../components/UnderConstruction.astro';
+import SoundControl from '../../components/SoundControl.astro';
 import { casinos } from '../../data/casinos';
 ---
 
 <Layout title="HiLo | MelchiorBonus" description="Joue au HiLo (Higher or Lower) sur MelchiorBonus. Style Stake.">
   <AuthGate>
-  <UnderConstruction>
+  <SoundControl />
   <section class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
     <h1 class="text-2xl font-extrabold text-white mb-4 flex items-center gap-2">📈 HiLo</h1>
 
@@ -124,7 +124,6 @@ import { casinos } from '../../data/casinos';
       </div>
     </div>
   </section>
-  </UnderConstruction>
   </AuthGate>
 
   <script is:inline>
@@ -136,24 +135,84 @@ import { casinos } from '../../data/casinos';
 
     // Audio
     var audioCtx = null;
-    function playSound(freq, dur, type) {
+    function _hiloCtx() { if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); return audioCtx; }
+    function getVolume() {
+      if (localStorage.getItem('melchior_sound_enabled') === 'false') return 0;
+      return (parseInt(localStorage.getItem('melchior_sound_volume') || '50')) / 100;
+    }
+    function playWinSound() {
       try {
-        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        var osc = audioCtx.createOscillator();
-        var gain = audioCtx.createGain();
-        osc.connect(gain); gain.connect(audioCtx.destination);
-        osc.type = type || 'sine';
-        osc.frequency.value = freq;
-        gain.gain.value = 0.08;
-        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + (dur || 0.2));
-        osc.start(audioCtx.currentTime);
-        osc.stop(audioCtx.currentTime + (dur || 0.2));
+        var vol = getVolume(); if (!vol) return;
+        var ctx = _hiloCtx();
+        // Ascending ping
+        [0, 0.08, 0.16].forEach(function(d, i) {
+          var osc = ctx.createOscillator(); var gain = ctx.createGain();
+          osc.connect(gain); gain.connect(ctx.destination);
+          osc.type = 'sine'; osc.frequency.value = 800 + i * 200;
+          gain.gain.setValueAtTime(vol * 0.08, ctx.currentTime + d);
+          gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + d + 0.15);
+          osc.start(ctx.currentTime + d); osc.stop(ctx.currentTime + d + 0.15);
+        });
       } catch(e) {}
     }
-    function playWinSound() { playSound(800, 0.15); setTimeout(function(){playSound(1000, 0.15);}, 100); setTimeout(function(){playSound(1200, 0.2);}, 200); }
-    function playLoseSound() { playSound(300, 0.3, 'sawtooth'); setTimeout(function(){playSound(200, 0.4, 'sawtooth');}, 150); }
-    function playCardSound() { playSound(600, 0.08); }
-    function playCashoutSound() { [0,80,160,240].forEach(function(d,i){ setTimeout(function(){ playSound(600+i*150, 0.15); }, d); }); }
+    function playLoseSound() {
+      try {
+        var vol = getVolume(); if (!vol) return;
+        var ctx = _hiloCtx();
+        // Buzzer sound
+        var osc = ctx.createOscillator(); var gain = ctx.createGain();
+        osc.connect(gain); gain.connect(ctx.destination);
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(280, ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(120, ctx.currentTime + 0.35);
+        gain.gain.setValueAtTime(vol * 0.1, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.35);
+        osc.start(ctx.currentTime); osc.stop(ctx.currentTime + 0.35);
+        // Second low buzz
+        var osc2 = ctx.createOscillator(); var g2 = ctx.createGain();
+        osc2.connect(g2); g2.connect(ctx.destination);
+        osc2.type = 'square'; osc2.frequency.value = 90;
+        g2.gain.setValueAtTime(vol * 0.06, ctx.currentTime + 0.05);
+        g2.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.3);
+        osc2.start(ctx.currentTime + 0.05); osc2.stop(ctx.currentTime + 0.3);
+      } catch(e) {}
+    }
+    function playCardSound() {
+      try {
+        var vol = getVolume(); if (!vol) return;
+        var ctx = _hiloCtx();
+        // Card snap
+        var osc = ctx.createOscillator(); var gain = ctx.createGain();
+        var filter = ctx.createBiquadFilter();
+        osc.connect(filter); filter.connect(gain); gain.connect(ctx.destination);
+        filter.type = 'highpass'; filter.frequency.value = 1500;
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(1200, ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(600, ctx.currentTime + 0.06);
+        gain.gain.setValueAtTime(vol * 0.08, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.06);
+        osc.start(ctx.currentTime); osc.stop(ctx.currentTime + 0.06);
+      } catch(e) {}
+    }
+    function playCashoutSound() {
+      try {
+        var vol = getVolume(); if (!vol) return;
+        // Coin collect: multiple ascending pings
+        [0, 60, 120, 180, 240].forEach(function(d, i) {
+          setTimeout(function() {
+            try {
+              var ctx = _hiloCtx();
+              var osc = ctx.createOscillator(); var gain = ctx.createGain();
+              osc.connect(gain); gain.connect(ctx.destination);
+              osc.type = 'sine'; osc.frequency.value = 700 + i * 180;
+              gain.gain.setValueAtTime(vol * 0.07, ctx.currentTime);
+              gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.1);
+              osc.start(); osc.stop(ctx.currentTime + 0.1);
+            } catch(e) {}
+          }, d);
+        });
+      } catch(e) {}
+    }
 
     // Card deck
     var SUITS = ['♠','♥','♦','♣'];

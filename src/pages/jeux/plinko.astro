@@ -1,11 +1,13 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 import AuthGate from '../../components/AuthGate.astro';
+import SoundControl from '../../components/SoundControl.astro';
 import { casinos } from '../../data/casinos';
 ---
 
 <Layout title="Plinko | MelchiorBonus" description="Joue au Plinko sur MelchiorBonus. Style Stake.">
   <AuthGate>
+  <SoundControl />
   <section class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
     <h1 class="text-2xl font-extrabold text-white mb-4 flex items-center gap-2">📍 Plinko</h1>
 
@@ -155,35 +157,74 @@ import { casinos } from '../../data/casinos';
 
     // Sound effects using Web Audio API
     var audioCtx = null;
+    function _pCtx() { if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); return audioCtx; }
+    function getVolume() {
+      if (localStorage.getItem('melchior_sound_enabled') === 'false') return 0;
+      return (parseInt(localStorage.getItem('melchior_sound_volume') || '50')) / 100;
+    }
     function playPegSound(pitch) {
       try {
-        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        var osc = audioCtx.createOscillator();
-        var gain = audioCtx.createGain();
-        osc.connect(gain);
-        gain.connect(audioCtx.destination);
+        var vol = getVolume(); if (!vol) return;
+        var ctx = _pCtx();
+        // Short tick at varying pitch based on position
+        var osc = ctx.createOscillator(); var gain = ctx.createGain();
+        osc.connect(gain); gain.connect(ctx.destination);
         osc.type = 'sine';
-        osc.frequency.value = 800 + (pitch || 0) * 200 + Math.random() * 200;
-        gain.gain.value = 0.03;
-        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.08);
-        osc.start(audioCtx.currentTime);
-        osc.stop(audioCtx.currentTime + 0.08);
+        osc.frequency.value = 900 + (pitch || 0) * 400 + Math.random() * 150;
+        gain.gain.setValueAtTime(vol * 0.04, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.06);
+        osc.start(ctx.currentTime); osc.stop(ctx.currentTime + 0.06);
+        // Add tiny click texture
+        var osc2 = ctx.createOscillator(); var g2 = ctx.createGain();
+        osc2.connect(g2); g2.connect(ctx.destination);
+        osc2.type = 'triangle'; osc2.frequency.value = 2000 + Math.random() * 500;
+        g2.gain.setValueAtTime(vol * 0.015, ctx.currentTime);
+        g2.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.02);
+        osc2.start(ctx.currentTime); osc2.stop(ctx.currentTime + 0.02);
       } catch(e) {}
     }
-    function playWinSound() {
+    function playDropSound() {
       try {
-        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        [0, 0.1, 0.2].forEach(function(d, i) {
-          var osc = audioCtx.createOscillator();
-          var gain = audioCtx.createGain();
-          osc.connect(gain); gain.connect(audioCtx.destination);
-          osc.type = 'sine';
-          osc.frequency.value = 600 + i * 200;
-          gain.gain.value = 0.06;
-          gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + d + 0.2);
-          osc.start(audioCtx.currentTime + d);
-          osc.stop(audioCtx.currentTime + d + 0.2);
-        });
+        var vol = getVolume(); if (!vol) return;
+        var ctx = _pCtx();
+        // Subtle whoosh
+        var osc = ctx.createOscillator(); var gain = ctx.createGain();
+        var filter = ctx.createBiquadFilter();
+        osc.connect(filter); filter.connect(gain); gain.connect(ctx.destination);
+        filter.type = 'bandpass'; filter.frequency.value = 1500; filter.Q.value = 0.3;
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(600, ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(1800, ctx.currentTime + 0.08);
+        gain.gain.setValueAtTime(vol * 0.05, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.1);
+        osc.start(ctx.currentTime); osc.stop(ctx.currentTime + 0.1);
+      } catch(e) {}
+    }
+    function playWinSound(multi) {
+      try {
+        var vol = getVolume(); if (!vol) return;
+        var ctx = _pCtx();
+        // Rising tone proportional to multiplier
+        var baseFreq = 400;
+        var topFreq = Math.min(400 + (multi || 1) * 80, 2000);
+        var dur = Math.min(0.15 + (multi || 1) * 0.02, 0.5);
+        var osc = ctx.createOscillator(); var gain = ctx.createGain();
+        osc.connect(gain); gain.connect(ctx.destination);
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(baseFreq, ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(topFreq, ctx.currentTime + dur);
+        gain.gain.setValueAtTime(vol * 0.08, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + dur + 0.1);
+        osc.start(ctx.currentTime); osc.stop(ctx.currentTime + dur + 0.1);
+        // Shimmer overtone for big wins
+        if ((multi || 1) >= 5) {
+          var osc2 = ctx.createOscillator(); var g2 = ctx.createGain();
+          osc2.connect(g2); g2.connect(ctx.destination);
+          osc2.type = 'sine'; osc2.frequency.value = topFreq * 1.5;
+          g2.gain.setValueAtTime(vol * 0.04, ctx.currentTime + dur * 0.5);
+          g2.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + dur + 0.15);
+          osc2.start(ctx.currentTime + dur * 0.5); osc2.stop(ctx.currentTime + dur + 0.15);
+        }
       } catch(e) {}
     }
 
@@ -395,7 +436,10 @@ import { casinos } from '../../data/casinos';
 
     function resolveBall(ball) {
       ball.resolvedAt = Date.now();
-      playWinSound();
+      var mults0 = MULTIPLIERS[ball.risk][ball.rows];
+      var bucketW0 = W / mults0.length;
+      var bucket0 = Math.min(mults0.length - 1, Math.max(0, Math.floor(ball.x / bucketW0)));
+      playWinSound(mults0[bucket0]);
       var mults = MULTIPLIERS[ball.risk][ball.rows];
       var bucketW = W / mults.length;
       var bucket = Math.min(mults.length - 1, Math.max(0, Math.floor(ball.x / bucketW)));
@@ -454,6 +498,7 @@ import { casinos } from '../../data/casinos';
       balance = Math.round(balance);
       setBalance(balance);
       document.getElementById('balance').textContent = balance + ' Ⓜ';
+      playDropSound();
 
       var path = createBallPath();
       activeBalls.push({

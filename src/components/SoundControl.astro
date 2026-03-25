@@ -1,0 +1,79 @@
+<!-- Floating Sound Control Panel -->
+<div id="sound-control" class="fixed bottom-4 right-4 z-[998] flex items-center gap-2 bg-[#1a1d23] border border-[#2a2d35] rounded-xl px-3 py-2 shadow-xl shadow-black/40 select-none">
+  <button id="sound-toggle" class="text-white hover:text-primary transition-colors text-lg leading-none cursor-pointer" title="Mute/Unmute">
+    <span id="sound-icon">🔊</span>
+  </button>
+  <input id="sound-volume" type="range" min="0" max="100" value="50" class="w-20 h-1.5 accent-primary cursor-pointer" title="Volume" />
+  <span id="sound-vol-label" class="text-gray-500 text-[10px] font-bold w-7 text-right">50</span>
+</div>
+
+<style>
+  #sound-volume {
+    -webkit-appearance: none;
+    appearance: none;
+    background: #2a2d35;
+    border-radius: 4px;
+    outline: none;
+  }
+  #sound-volume::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #7c5bf5;
+    cursor: pointer;
+  }
+  #sound-volume::-moz-range-thumb {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #7c5bf5;
+    cursor: pointer;
+    border: none;
+  }
+</style>
+
+<script is:inline>
+(function() {
+  var enabled = localStorage.getItem('melchior_sound_enabled');
+  if (enabled === null) { enabled = 'true'; localStorage.setItem('melchior_sound_enabled', 'true'); }
+  var volume = localStorage.getItem('melchior_sound_volume');
+  if (volume === null) { volume = '50'; localStorage.setItem('melchior_sound_volume', '50'); }
+
+  var btn = document.getElementById('sound-toggle');
+  var icon = document.getElementById('sound-icon');
+  var slider = document.getElementById('sound-volume');
+  var label = document.getElementById('sound-vol-label');
+
+  slider.value = volume;
+  label.textContent = volume;
+
+  function updateIcon() {
+    var on = localStorage.getItem('melchior_sound_enabled') !== 'false';
+    var vol = parseInt(localStorage.getItem('melchior_sound_volume') || '50');
+    if (!on || vol === 0) icon.textContent = '🔇';
+    else if (vol < 33) icon.textContent = '🔈';
+    else if (vol < 66) icon.textContent = '🔉';
+    else icon.textContent = '🔊';
+  }
+  updateIcon();
+
+  btn.addEventListener('click', function() {
+    var on = localStorage.getItem('melchior_sound_enabled') !== 'false';
+    localStorage.setItem('melchior_sound_enabled', on ? 'false' : 'true');
+    updateIcon();
+    window.dispatchEvent(new CustomEvent('sound-settings-changed'));
+  });
+
+  slider.addEventListener('input', function() {
+    localStorage.setItem('melchior_sound_volume', slider.value);
+    label.textContent = slider.value;
+    if (parseInt(slider.value) > 0 && localStorage.getItem('melchior_sound_enabled') === 'false') {
+      localStorage.setItem('melchior_sound_enabled', 'true');
+    }
+    updateIcon();
+    window.dispatchEvent(new CustomEvent('sound-settings-changed'));
+  });
+})();
+</script>
